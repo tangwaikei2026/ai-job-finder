@@ -10,7 +10,7 @@ import logging
 import time
 
 from src.models import JobPosting
-from src.scrapers.bb_base import bb_eval, bb_is_available, bb_open
+from src.scrapers.bb_base import bb_eval, bb_is_available
 
 logger = logging.getLogger(__name__)
 
@@ -80,65 +80,25 @@ JS_CLICK_NEXT = r"""
 })()
 """
 
-JS_READY = r"""
-(() => {
-  const urlOk = window.location.href.includes('talent.didiglobal.com');
-  const titleOk = document.title.includes('滴滴招聘');
-  const paginationCount = document.querySelectorAll('.ant-pagination-item').length;
-  const jobLikeCount = Array.from(document.querySelectorAll('a'))
-    .filter(a => /\([A-Z][A-Za-z0-9]+\)/.test((a.textContent || '').trim())).length;
-  return urlOk && titleOk && (paginationCount > 0 || jobLikeCount > 0);
-})()
-"""
-
 
 def _is_ai_related(title: str, dept: str) -> bool:
     text = (title + " " + dept).upper()
     return any(kw.upper() in text for kw in AI_KEYWORDS)
 
 
-def _is_didi_ready() -> bool:
-    try:
-        return bool(bb_eval(JS_READY, timeout=5))
-    except Exception:
-        return False
-
-
-def _wait_for_didi_ready(timeout_seconds: int = 15) -> bool:
-    for _ in range(timeout_seconds):
-        time.sleep(1)
-        if _is_didi_ready():
-            return True
-    return False
-
-
 def _navigate_to_didi() -> bool:
     """Ensure the active tab is on DiDi's job listing page."""
     try:
         url = bb_eval("window.location.href", timeout=5)
-        if isinstance(url, str) and "didiglobal" in url and _is_didi_ready():
+        if isinstance(url, str) and "didiglobal" in url:
             return True
         bb_eval(f"window.location.href = '{DIDI_URL}'", timeout=5)
-        if _wait_for_didi_ready():
-            return True
-
-        bb_open(DIDI_URL, timeout=10)
-        return _wait_for_didi_ready()
+        time.sleep(6)
+        url = bb_eval("window.location.href", timeout=5)
+        return isinstance(url, str) and "didiglobal" in url
     except Exception as e:
         logger.warning("[didi_bb] navigation failed: %s", e)
         return False
-
-
-def _fallback_scrape_didi() -> list[JobPosting]:
-    """Fallback to the existing Playwright scraper when bb-browser lands on an empty shell page."""
-    try:
-        from src.scrapers.didi import scrape_didi
-
-        logger.info("[didi_bb] falling back to Playwright scraper")
-        return scrape_didi()
-    except Exception as e:
-        logger.warning("[didi_bb] Playwright fallback failed: %s", e)
-        return []
 
 
 def scrape_didi_bb() -> list[JobPosting]:
@@ -147,8 +107,8 @@ def scrape_didi_bb() -> list[JobPosting]:
         return []
 
     if not _navigate_to_didi():
-        logger.error("[didi_bb] cannot navigate to DiDi via bb-browser, using fallback")
-        return _fallback_scrape_didi()
+        logger.error("[didi_bb] cannot navigate to DiDi, skipping")
+        return []
 
     all_jobs: dict[str, JobPosting] = {}
     consecutive_empty = 0
@@ -180,10 +140,7 @@ def scrape_didi_bb() -> list[JobPosting]:
 
         items = data.get("jobs", [])
         if not items:
-            logger.info("[didi_bb] page %d: no items", page)
-            if page == 1 and not all_jobs:
-                logger.info("[didi_bb] empty shell page detected, using fallback")
-                return _fallback_scrape_didi()
+            logger.info("[didi_bb] page %d: no items, stopping", page)
             break
 
         new_count = 0

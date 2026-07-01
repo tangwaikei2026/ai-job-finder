@@ -12,10 +12,6 @@ build/
 .env.*
 
 data/.cookies/
-data/raw/
-*.db-shm
-*.db-wal
-.DS_Store
 *.log
 
 .vscode/
@@ -28,7 +24,6 @@ data/raw/
 
 # Temp scripts (probe/debug/one-off)
 _*.py
-!**/__init__.py
 _*.json
 _*.txt
 _*.png

@@ -20,83 +20,25 @@ ADAPTERS_DIR = Path(__file__).parent.parent.parent / "adapters"
 # 因此我们用 bb_eval 直接执行 adapter JS（IIFE 形式），不依赖 CLI 注册。
 
 
-def _list_tabs(timeout: int = 8, ensure: bool = False) -> list[dict] | None:
-    """Return current bb-browser tabs, optionally creating a blank tab first."""
-    result = subprocess.run(
-        [BB_CMD, "tab", "list", "--json"],
-        capture_output=True, text=True, timeout=timeout,
-    )
-    if result.returncode != 0:
-        if not ensure:
-            return None
-        create = subprocess.run(
-            [BB_CMD, "tab", "new", "--json"],
-            capture_output=True, text=True, timeout=timeout,
-        )
-        if create.returncode != 0:
-            return None
-        result = subprocess.run(
-            [BB_CMD, "tab", "list", "--json"],
-            capture_output=True, text=True, timeout=timeout,
-        )
-        if result.returncode != 0:
-            return None
-
-    try:
-        data = json.loads(result.stdout)
-    except json.JSONDecodeError:
-        return None
-
-    result_data = data.get("result", data)
-    tabs = result_data.get("tabs", []) if isinstance(result_data, dict) else []
-    return tabs if isinstance(tabs, list) else None
-
-
 def bb_is_available() -> bool:
     """Check if bb-browser CLI is installed and can talk to Chrome."""
     if not shutil.which(BB_CMD):
         return False
     try:
-        return _list_tabs(timeout=8, ensure=True) is not None
+        result = subprocess.run(
+            [BB_CMD, "tab", "list", "--json"],
+            capture_output=True, text=True, timeout=8,
+        )
+        if result.returncode != 0:
+            return False
+        data = json.loads(result.stdout)
+        return data.get("success", False)
     except Exception:
         return False
 
 
-def _unwrap_bb_result(parsed: dict | list | str | int | None) -> dict | list | str | int | None:
-    """Return the actual value from bb-browser's old/new JSON envelopes."""
-    inner = parsed
-    if isinstance(parsed, dict):
-        if "data" in parsed and "success" in parsed:
-            inner = parsed.get("data", {}).get("result", parsed)
-        elif "result" in parsed:
-            inner = parsed.get("result")
-
-    if isinstance(inner, dict) and "result" in inner and set(inner).issubset({"result", "tab", "seq"}):
-        inner = inner.get("result")
-
-    if isinstance(inner, str):
-        try:
-            inner = json.loads(inner)
-        except (json.JSONDecodeError, TypeError):
-            pass
-    return inner
-
-
-def _active_tab_arg(timeout: int = 5) -> list[str]:
-    """Return bb-browser CLI args for the active tab when the CLI requires it."""
-    tabs = _list_tabs(timeout=timeout, ensure=True) or []
-    for tab in tabs:
-        if isinstance(tab, dict) and tab.get("active") and tab.get("tab"):
-            return ["--tab", str(tab["tab"])]
-    for tab in tabs:
-        if isinstance(tab, dict) and tab.get("tab"):
-            return ["--tab", str(tab["tab"])]
-    return []
-
-
 def bb_open(url: str, timeout: int = 15) -> str:
     """Navigate Chrome to *url*. Returns the new tab ID."""
-    _list_tabs(timeout=timeout, ensure=True)
     result = subprocess.run(
         [BB_CMD, "open", url],
         capture_output=True, text=True, timeout=timeout,
@@ -111,9 +53,8 @@ def bb_eval(js: str, timeout: int = 15) -> str | dict | list | None:
 
     If the result is valid JSON, it is parsed automatically.
     """
-    cmd = [BB_CMD, "eval", js, *_active_tab_arg(), "--json"]
     result = subprocess.run(
-        cmd,
+        [BB_CMD, "eval", js, "--json"],
         capture_output=True, text=True, timeout=timeout,
     )
     if result.returncode != 0:
@@ -124,7 +65,13 @@ def bb_eval(js: str, timeout: int = 15) -> str | dict | list | None:
     except json.JSONDecodeError:
         return result.stdout.strip()
 
-    return _unwrap_bb_result(envelope)
+    inner = envelope.get("data", {}).get("result")
+    if isinstance(inner, str):
+        try:
+            return json.loads(inner)
+        except (json.JSONDecodeError, TypeError):
+            pass
+    return inner
 
 
 def bb_run_site(command: str, args: dict | None = None, timeout: int = 30) -> dict:
@@ -176,9 +123,8 @@ def bb_run_adapter(adapter_path: str | Path, args: dict | None = None,
     args_json = json.dumps(args or {}, ensure_ascii=False)
     iife = f"({js_body})({args_json})"
 
-    cmd = [BB_CMD, "eval", iife, *_active_tab_arg(), "--json"]
     result = subprocess.run(
-        cmd,
+        [BB_CMD, "eval", iife, "--json"],
         capture_output=True, text=True, timeout=timeout,
     )
     if result.returncode != 0:
@@ -193,7 +139,20 @@ def bb_run_adapter(adapter_path: str | Path, args: dict | None = None,
     except json.JSONDecodeError:
         return raw
 
-    return _unwrap_bb_result(parsed)
+    # bb-browser wraps results in {id, success, data: {result: <actual>}}.
+    # Unwrap robustly: the adapter return value may be a dict, list, or string.
+    inner = parsed
+    if isinstance(parsed, dict) and "data" in parsed and "success" in parsed:
+        inner = parsed.get("data", {}).get("result", parsed)
+
+    # If inner is still a string (double-serialized JSON), parse once more.
+    if isinstance(inner, str):
+        try:
+            inner = json.loads(inner)
+        except (json.JSONDecodeError, TypeError):
+            pass
+
+    return inner
 
 
 def ensure_adapters_installed() -> None:
