@@ -21,7 +21,7 @@ data/.cookies/
 *~
 
 .history/
-
+*.DS_Store
 # Temp scripts (probe/debug/one-off)
 _*.py
 _*.json
