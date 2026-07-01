@@ -1,0 +1,307 @@
+# ─────────────────────────────────────────────────────────────────
+# 筛选规则（filter_rules）
+# 修改这里的列表即可调整过滤逻辑，无需修改 Python 代码
+# ─────────────────────────────────────────────────────────────────
+filter_rules:
+  # 排除的高学历要求关键词（在 education / requirements 字段中出现则过滤）
+  exclude_education:
+    - "硕士"
+    - "博士"
+    - "研究生"
+    - "Master"
+    - "PhD"
+
+  # experience 字段中明确>3年的短语（字段级别）
+  exclude_experience_field:
+    - "五年以上"
+    - "八年以上"
+    - "十年以上"
+    - "5-10年"
+    - "10年以上"
+
+  # 最大工作年限（requirements 文本中出现超过该年数则过滤，0=不限制）
+  max_experience_years: 3
+
+  # 校招/实习关键词
+  campus_patterns:
+    - "校招"
+    - "应届"
+    - '\d{2,4}届'   # 匹配 26届/27届/2026届 等任意年份
+    - "毕业生"
+    - "campus"
+
+  # 标题直接排除（与目标岗位无关的硬件/安全/运营等方向）
+  exclude_title:
+    - "硬件"
+    - "嵌入式"
+    - "芯片"
+    - "射频"
+    - "FPGA"
+    - "驱动工程"
+    - "电气"
+    - "机械"
+    - "光学"
+    - "相机测试"
+    - "传感器测试"
+    - "基带测试"
+    - "可靠性测试"
+    - "认证测试"
+    - "近距通信"
+    - "显示测试"
+    - "PQE"
+    - "结构工艺"
+    - "质量PQA"
+    - "制造质量"
+    - "电子件"
+    - "数据库内核"
+    - "DBA"
+    - "存储引擎"
+    - "SRE"
+    - "运维工程"
+    - "安全渗透"
+    - "红队"
+    - "攻防"
+    - "漏洞挖掘"
+    - "安全合规"
+    - "安全评测"
+    - "安全产品"
+    - "设计师"
+    - "美术"
+    - "编剧"
+    - "导演"
+    - "短剧"
+    - "版权"
+    - "标注主管"
+    - "数据标注"
+    - "MicroLED"
+    - "显示驱动"
+    - "ATE测试"
+    - "实习生"
+    - "后台开发工程师"
+    - "架构师"
+    - "解决方案"
+
+  # 标题中视为"含AI"的关键词
+  ai_title_keywords:
+    - "AI"
+    - "人工智能"
+    - "大模型"
+    - "LLM"
+    - "Agent"
+    - "AIGC"
+    - "算法"
+    - "多模态"
+    - "NLP"
+    - "模型评测"
+    - "模型评估"
+    - "智能体"
+    - "GPT"
+    - "RAG"
+    - "Prompt"
+    - "千问"
+    - "元宝"
+    - "混元"
+    - "文心"
+    - "通义"
+    - "copilot"
+    - "ima"
+    - "CodeBuddy"
+
+  # description/requirements 中视为"含AI"的关键词
+  ai_desc_keywords:
+    - "大模型"
+    - "LLM"
+    - "Agent"
+    - "AIGC"
+    - "算法测试"
+    - "多模态"
+    - "NLP"
+    - "模型评测"
+    - "模型评估"
+    - "智能体"
+    - "GPT"
+    - "RAG"
+    - "Prompt"
+    - "Benchmark"
+    - "badcase"
+    - "模型效果"
+    - "模型质量"
+    - "AI质量"
+    - "算法效果"
+    - "算法质量"
+    - "评测平台"
+    - "评测框架"
+
+  # 纯游戏方向排除（无AI上下文）
+  exclude_game_title:
+    - "SLG"
+    - "MMORPG"
+    - "单机"
+    - "FPS"
+    - "竞速"
+    - "赛车"
+    - "格斗"
+    - "RTS"
+    - "卡牌"
+    - "引擎测试"
+    - "引擎开发"
+    - "遗忘之海"
+    - "大世界"
+    - "天美中台"
+    - "无限大"
+
+  # 产品经理方向中需排除的场景（太垂直或与AI测试无关）
+  exclude_product_title:
+    - "外贸"
+    - "社交"
+    - "音乐"
+    - "写歌"
+    - "推荐"
+    - "分发"
+    - "投放"
+    - "广告"
+    - "OCR"
+    - "招聘系统"
+    - "地图"
+    - "云AI-ToB"
+    - "轻量云"
+    - "WeGame"
+    - "具身智能"
+    - "数据"
+    - "文档产品"
+    - "平台产品经理"
+    - "计算平台"
+
+# 反爬熔断：某平台连续 N 次抓取 raw_count=0 时自动跳过
+circuit_breaker_days: 3
+
+keywords:
+  - "大模型测试"
+  - "AI测试"
+  - "算法测试"
+  - "自动化测试开发"
+  - "测试开发工程师"
+  - "Agent产品"
+  - "AIGC产品"
+  - "AI策略产品"
+  - "LLM"
+  - "Agent开发"
+  - "大模型评测"
+  - "AI质量"
+  - "智能测试"
+
+cities:
+  - "北京"
+  - "上海"
+  - "杭州"
+  - "深圳"
+  - "广州"
+
+categories:
+  product:
+    name: "产品类"
+    keywords: ["产品经理", "策略产品", "AIGC产品", "Agent产品", "AI产品"]
+  test:
+    name: "测试类"
+    keywords: ["测试", "质量保障", "QA", "评测", "质量"]
+  agent:
+    name: "Agent类"
+    keywords: ["Agent开发", "Agent工程师", "LLM应用", "Agent"]
+  dev:
+    name: "开发类"
+    keywords: ["测试开发", "自动化", "工具开发", "平台开发"]
+
+platforms:
+  # Tier 1: 公司官网 API（最稳定）
+  tencent:
+    enabled: true
+    tier: 1
+    name: "腾讯"
+  quark:
+    enabled: true
+    tier: 1
+    name: "阿里巴巴(千问/夸克)"
+  alibaba:
+    enabled: true
+    tier: 1
+    name: "阿里巴巴(集团主站)"
+  antgroup:
+    enabled: true
+    tier: 1
+    name: "蚂蚁集团"
+  bytedance:
+    enabled: true
+    tier: 1
+    name: "字节跳动"
+  baidu:
+    enabled: true
+    tier: 1
+    name: "百度"
+  netease:
+    enabled: true
+    tier: 1
+    name: "网易"
+  meituan:
+    enabled: true
+    tier: 1
+    name: "美团"
+  kuaishou:
+    enabled: true
+    tier: 1
+    name: "快手"
+  xiaohongshu:
+    enabled: true
+    tier: 1
+    name: "小红书"
+  jd:
+    enabled: true
+    tier: 1
+    name: "京东"
+  didi:
+    enabled: true
+    tier: 1
+    name: "滴滴"
+  huawei:
+    enabled: true
+    tier: 1
+    name: "华为"
+  feishu:
+    enabled: true
+    tier: 1
+    name: "飞书招聘(MiniMax/智谱AI/商汤/零一万物/百川)"
+  moka:
+    enabled: true
+    tier: 1
+    name: "MokaHR(DeepSeek/Kimi)"
+
+  # Tier 2: 第三方招聘平台（已升级为 Playwright）
+  boss:
+    enabled: false
+    tier: 2
+    name: "Boss直聘"
+  liepin:
+    enabled: false
+    tier: 2
+    name: "猎聘"
+  zhilian:
+    enabled: false
+    tier: 2
+    name: "智联招聘"
+  job51:
+    enabled: false
+    tier: 2
+    name: "前程无忧"
+  lagou:
+    enabled: false
+    tier: 2
+    name: "拉勾"
+
+  # Tier 3: 浏览器自动化
+  linkedin:
+    enabled: false
+    tier: 3
+    name: "LinkedIn"
+  maimai:
+    enabled: false
+    tier: 3
+    name: "脉脉"

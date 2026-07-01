@@ -1,0 +1,133 @@
+raw_collection:
+  output_dir: "data/raw"
+  timeout_seconds: 30
+  max_retries: 3
+
+  # 城市是采集范围，不是岗位相关性过滤。地点为空时默认不纳入结果，
+  # 但会在 manifest 中单独计数，避免静默丢失。
+  cities:
+    - "北京"
+    - "上海"
+    - "杭州"
+    - "深圳"
+    - "广州"
+  include_unknown_location: false
+
+  platforms:
+    tencent:
+      enabled: true
+      name: "腾讯"
+      list_api: "https://careers.tencent.com/tencentcareer/api/post/Query"
+      detail_url: "https://careers.tencent.com/jobdesc.html?postId={job_id}"
+      page_size: 100
+
+    netease:
+      enabled: true
+      name: "网易"
+      list_api: "https://hr.163.com/api/hr163/position/queryPage"
+      detail_url: "https://hr.163.com/job-detail.html?id={job_id}"
+      page_size: 50
+
+    quark:
+      enabled: true
+      name: "阿里巴巴"
+      list_url: "https://talent.quark.cn/off-campus/position-list?lang=zh"
+      list_api: "https://talent.quark.cn/position/search"
+      detail_url: "https://talent.quark.cn/off-campus/position-detail?positionId={job_id}"
+      page_size: 50
+
+    feishu:
+      enabled: true
+      name: "飞书招聘"
+      page_size: 50
+      companies:
+        - name: "MiniMax"
+          list_url: "https://vrfi1sk8a0.jobs.feishu.cn/index/"
+          detail_url: "https://vrfi1sk8a0.jobs.feishu.cn/index/position/{job_id}/detail"
+        - name: "智谱AI"
+          list_url: "https://zhipu-ai.jobs.feishu.cn/index/"
+          detail_url: "https://zhipu-ai.jobs.feishu.cn/index/position/{job_id}/detail"
+        - name: "商汤科技"
+          list_url: "https://sensetime.jobs.feishu.cn/index/position/list"
+          detail_url: "https://sensetime.jobs.feishu.cn/index/position/{job_id}/detail"
+        - name: "零一万物"
+          list_url: "https://01ai.jobs.feishu.cn/index/position/list"
+          detail_url: "https://01ai.jobs.feishu.cn/index/position/{job_id}/detail"
+        - name: "百川智能"
+          list_url: "https://cq6qe6bvfr6.jobs.feishu.cn/baichuanzhaopin/"
+          detail_url: "https://cq6qe6bvfr6.jobs.feishu.cn/baichuanzhaopin/position/{job_id}/detail"
+
+    didi:
+      enabled: true
+      name: "滴滴"
+      list_url: "https://talent.didiglobal.com/social/list/1"
+      list_api: "https://talent.didiglobal.com/recruit-portal-service/api/job/front/list"
+      detail_api: "https://talent.didiglobal.com/recruit-portal-service/api/job/front/view/{job_id}"
+      detail_url: "https://talent.didiglobal.com/social/p/{job_id}"
+      page_size: 16
+      detail_workers: 4
+
+    bytedance:
+      enabled: true
+      name: "字节跳动"
+      list_url: "https://jobs.bytedance.com/experienced/position"
+      detail_url: "https://jobs.bytedance.com/experienced/position/{job_id}/detail"
+      page_size: 100
+
+    baidu:
+      enabled: true
+      name: "百度"
+      list_url: "https://talent.baidu.com/jobs/social-list"
+      list_api: "https://talent.baidu.com/httservice/getPostListNew"
+      detail_url: "https://talent.baidu.com/jobs/detail/SOCIAL/{job_id}"
+      page_size: 20
+
+    meituan:
+      enabled: true
+      name: "美团"
+      list_url: "https://zhaopin.meituan.com/web/social"
+      list_api: "https://zhaopin.meituan.com/api/official/job/getJobList"
+      detail_api: "https://zhaopin.meituan.com/api/official/job/getJobDetail"
+      detail_url: "https://zhaopin.meituan.com/web/position/detail?jobUnionId={job_id}&highlightType=social"
+      page_size: 50
+      detail_workers: 4
+
+    kuaishou:
+      enabled: true
+      name: "快手"
+      list_url: "https://zhaopin.kuaishou.cn/recruit/e/#/official/social/"
+      list_api: "https://zhaopin.kuaishou.cn/recruit/e/api/v1/open/positions/simple"
+      dictionary_api: "https://zhaopin.kuaishou.cn/recruit/e/api/v1/dictionary/batch"
+      detail_url: "https://zhaopin.kuaishou.cn/recruit/e/#/official/social/job-info/{job_id}"
+      # 该值来自公开网页前端，用于生成岗位列表接口要求的 HMAC 签名。
+      signing_key: "652f962a-0575-4575-98d2-f04e2291bee2"
+      page_size: 100
+
+    xiaohongshu:
+      enabled: true
+      name: "小红书"
+      list_url: "https://job.xiaohongshu.com/social/position"
+      list_api: "https://job.xiaohongshu.com/websiterecruit/position/pageQueryPosition"
+      detail_url: "https://job.xiaohongshu.com/social/position/{job_id}"
+      page_size: 50
+
+    jd:
+      enabled: false
+      name: "京东"  
+      list_url: ""
+      detail_url: ""
+      page_size: 50
+
+    huawei:
+      enabled: false
+      name: "华为"  
+      list_url: ""
+      detail_url: ""
+      page_size: 50
+
+    moaka:
+      enabled: false
+      name: "MokaHR(DeepSeek/Kimi)"  
+      list_url: ""
+      detail_url: "https://app.mokahr.com/social-recruitment/moonshot/148506#/job/{job_id}"
+      page_size: 50
