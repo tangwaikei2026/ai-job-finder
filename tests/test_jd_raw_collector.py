@@ -19,7 +19,6 @@ PLATFORM_CONFIG = {
     "list_api": "https://example.test/job_list",
     "count_api": "https://example.test/job_count",
     "detail_url": "https://example.test/detail?requementId={job_id}",
-    "fetch_details": False,
     "page_size": 100,
 }
 
@@ -254,64 +253,6 @@ def test_jd_handles_missing_fields_and_missing_job_id():
     assert job.url
     assert result.manifest.missing_job_id == 1
     assert result.manifest.unknown_location == 1
-
-
-def test_jd_optional_detail_enriches_missing_sections():
-    record = _record(workContent="", qualification="")
-    detail_html = """
-    <h2 class="f-title">岗位描述</h2>
-    <div class="part"><p>详情职责<br>第二行</p></div>
-    <h2 class="f-title">任职要求</h2>
-    <div class="part"><p>详情要求</p></div>
-    """
-
-    def handler(request: httpx.Request) -> httpx.Response:
-        if request.url.path == "/job_count":
-            return httpx.Response(200, text="1")
-        if request.url.path == "/job_list":
-            return httpx.Response(200, json=[record])
-        if request.url.path == "/detail":
-            return httpx.Response(200, text=detail_html)
-        return httpx.Response(404)
-
-    collector = _collector(
-        handler,
-        platform_updates={"fetch_details": True},
-    )
-
-    result = collector.collect()
-
-    assert result.jobs[0].description == "详情职责\n第二行"
-    assert result.jobs[0].requirements == "详情要求"
-    assert result.manifest.details_fetched == 1
-    assert result.manifest.detail_failed == 0
-    assert result.manifest.complete is True
-
-
-def test_jd_detail_failure_keeps_list_job():
-    def handler(request: httpx.Request) -> httpx.Response:
-        if request.url.path == "/job_count":
-            return httpx.Response(200, text="1")
-        if request.url.path == "/job_list":
-            return httpx.Response(200, json=[_record()])
-        if request.url.path == "/detail":
-            return httpx.Response(500)
-        return httpx.Response(404)
-
-    collector = _collector(
-        handler,
-        platform_updates={"fetch_details": True},
-    )
-
-    result = collector.collect()
-
-    assert len(result.jobs) == 1
-    assert result.jobs[0].description == "负责大模型测试平台建设"
-    assert result.manifest.details_fetched == 0
-    assert result.manifest.detail_failed == 1
-    assert result.manifest.complete is False
-    assert result.manifest.status == "partial"
-    assert result.manifest.stopped_by == "detail_errors"
 
 
 def test_jd_deduplicates_repeated_requirement_id():

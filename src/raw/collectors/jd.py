@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-import html
 import math
-import re
 import time
-from collections.abc import Iterable
 from typing import Any
 
 from src.raw.base import RawCollector
@@ -92,17 +89,12 @@ class JDRawCollector(RawCollector):
                 list_complete = True
                 manifest.stopped_by = "source_total_reached"
 
-            if bool(cfg.get("fetch_details", False)):
-                self._enrich_details(jobs_by_id.values(), manifest)
-
             for job in jobs_by_id.values():
                 self._apply_fallbacks(job)
 
             manifest.jobs_in_scope = len(jobs_by_id)
-            manifest.complete = list_complete and manifest.detail_failed == 0
+            manifest.complete = list_complete
             manifest.status = "success" if manifest.complete else "partial"
-            if manifest.detail_failed:
-                manifest.stopped_by = "detail_errors"
         except Exception as exc:
             manifest.jobs_in_scope = len(jobs_by_id)
             manifest.complete = False
@@ -191,53 +183,6 @@ class JDRawCollector(RawCollector):
             self._city_token(city) for city in self.cities
         }
         return bool(mapped_cities & configured_cities)
-
-    def _enrich_details(
-        self,
-        jobs: Iterable[RawJobPosting],
-        manifest: CollectionManifest,
-    ) -> None:
-        # Detail enrichment is optional because the list API normally includes
-        # both JD sections. Failures preserve the list record.
-        for job in jobs:
-            try:
-                response = self.request(
-                    "GET",
-                    job.url,
-                    headers={"Referer": str(self.platform_config["list_url"])},
-                )
-                detail = self._parse_detail(response.text)
-                if not detail:
-                    raise ValueError(
-                        f"JD detail page returned no JD sections for {job.job_id}"
-                    )
-                job.description = detail.get("description") or job.description
-                job.requirements = detail.get("requirements") or job.requirements
-                manifest.details_fetched += 1
-            except Exception:
-                manifest.detail_failed += 1
-
-    @classmethod
-    def _parse_detail(cls, source: str) -> dict[str, str]:
-        sections: dict[str, str] = {}
-        for heading, field_name in (
-            ("岗位描述", "description"),
-            ("任职要求", "requirements"),
-        ):
-            match = re.search(
-                rf"<h2[^>]*>\s*{heading}\s*</h2>\s*"
-                r"<div[^>]*class=[\"'][^\"']*\bpart\b[^\"']*[\"'][^>]*>"
-                r"(.*?)</div>",
-                source,
-                flags=re.IGNORECASE | re.DOTALL,
-            )
-            if match:
-                text = re.sub(r"<br\s*/?>", "\n", match.group(1), flags=re.I)
-                text = re.sub(r"<[^>]+>", "", text)
-                text = html.unescape(text).strip()
-                if text:
-                    sections[field_name] = text
-        return sections
 
     @staticmethod
     def _list_form(

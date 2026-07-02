@@ -118,7 +118,6 @@ raw_collection:
       list_api: "https://zhaopin.jd.com/web/job/job_list"
       count_api: "https://zhaopin.jd.com/web/job/job_count"
       detail_url: "https://zhaopin.jd.com/web/job-info-detail?requementId={job_id}"
-      fetch_details: false
       page_size: 100
 
     huawei:
