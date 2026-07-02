@@ -112,13 +112,57 @@ raw_collection:
       page_size: 50
 
     jd:
-      enabled: false
+      enabled: true
       name: "京东"
       list_url: "https://zhaopin.jd.com/web/job/job_info_list/3"
       list_api: "https://zhaopin.jd.com/web/job/job_list"
       count_api: "https://zhaopin.jd.com/web/job/job_count"
       detail_url: "https://zhaopin.jd.com/web/job-info-detail?requementId={job_id}"
       page_size: 100
+
+    liepin:
+      enabled: false
+      name: "猎聘"
+      list_url: "https://www.liepin.com/zhaopin/"
+      list_api: "https://api-c.liepin.com/api/com.liepin.searchfront4c.pc-search-job"
+      list_api_marker: "/api/com.liepin.searchfront4c.pc-search-job"
+      detail_url: "https://www.liepin.com/job/{job_id}.shtml"
+      city: "050090"
+      dq: "050090"
+      keyword: "AI 评测"
+      industry: "H01$H01"
+      job_kind: "2"
+      edu_level: "040"
+      page_size: 40
+      max_pages: 0
+      browser_headless: true
+      list_timeout_seconds: 30
+      list_max_retries: 3
+      list_retry_backoff_seconds:
+        - 2
+        - 5
+        - 10
+      fetch_details: true
+      detail_delay_min_seconds: 1.5
+      detail_delay_max_seconds: 3.0
+      detail_max_retries: 3
+      detail_block_threshold: 3
+      detail_retry_backoff_seconds:
+        - 5
+        - 10
+        - 20
+      detail_block_backoff_seconds:
+        - 30
+        - 60
+        - 120
+      # job_kind=2 排除猎头来源；以下标题规则进一步排除“从事猎头”的岗位。
+      exclude_hunter_titles:
+        - "猎头顾问"
+        - "猎头助理"
+        - "猎头实习生"
+        - "寻访员"
+        - "人才寻访"
+        - "招聘顾问"
 
     huawei:
       enabled: false

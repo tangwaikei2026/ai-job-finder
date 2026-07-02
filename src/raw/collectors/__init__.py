@@ -4,6 +4,7 @@ from src.raw.collectors.didi import DidiRawCollector
 from src.raw.collectors.feishu import FeishuRawCollector
 from src.raw.collectors.jd import JDRawCollector
 from src.raw.collectors.kuaishou import KuaishouRawCollector
+from src.raw.collectors.liepin import LiepinRawCollector
 from src.raw.collectors.meituan import MeituanRawCollector
 from src.raw.collectors.netease import NeteaseRawCollector
 from src.raw.collectors.quark import QuarkRawCollector
@@ -21,6 +22,7 @@ COLLECTOR_REGISTRY = {
     "bytedance": ByteDanceRawCollector,
     "meituan": MeituanRawCollector,
     "kuaishou": KuaishouRawCollector,
+    "liepin": LiepinRawCollector,
     "xiaohongshu": XiaohongshuRawCollector,
 }
 
@@ -32,6 +34,7 @@ __all__ = [
     "FeishuRawCollector",
     "JDRawCollector",
     "KuaishouRawCollector",
+    "LiepinRawCollector",
     "MeituanRawCollector",
     "NeteaseRawCollector",
     "QuarkRawCollector",
