@@ -110,7 +110,8 @@ class BaiduRawCollector(RawCollector):
             manifest.jobs_in_scope = len(jobs_by_id)
             manifest.status = "success" if manifest.complete else "partial"
         except Exception as exc:
-            manifest.status = "error"
+            manifest.jobs_in_scope = len(jobs_by_id)
+            manifest.status = "partial" if manifest.pages_fetched else "error"
             manifest.complete = False
             manifest.stopped_by = manifest.stopped_by or "error"
             manifest.error = str(exc)

@@ -11,7 +11,12 @@ from typing import Any
 import yaml
 
 from src.raw.collectors import COLLECTOR_REGISTRY
-from src.raw.models import CollectionManifest, RawJobPosting, write_json_atomic
+from src.raw.models import (
+    CollectionManifest,
+    CollectionResult,
+    RawJobPosting,
+    write_json_atomic,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -33,6 +38,24 @@ def load_raw_config(path: Path) -> dict[str, Any]:
     return config
 
 
+def _error_manifest(
+    platform: str,
+    platform_config: dict[str, Any],
+    error: str,
+    *,
+    stopped_by: str = "error",
+) -> CollectionManifest:
+    return CollectionManifest(
+        platform=platform,
+        name=str(platform_config.get("name") or platform),
+        status="error",
+        complete=False,
+        stopped_by=stopped_by,
+        error=error,
+        finished_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    )
+
+
 def collect_all(
     config: dict[str, Any],
     selected_platform: str | None = None,
@@ -47,15 +70,58 @@ def collect_all(
             continue
         collector_class = COLLECTOR_REGISTRY.get(platform)
         if collector_class is None:
-            logger.warning("No raw collector registered for %s", platform)
+            error = f"No raw collector registered for {platform}"
+            logger.error(error)
+            manifests.append(
+                _error_manifest(
+                    platform,
+                    platform_config,
+                    error,
+                    stopped_by="unregistered",
+                )
+            )
             continue
 
         logger.info("Collecting unfiltered jobs from %s", platform)
-        collector = collector_class(platform_config, config)
+        collector = None
+        result: CollectionResult | None = None
         try:
+            collector = collector_class(platform_config, config)
             result = collector.collect()
+        except Exception as exc:
+            logger.exception("[%s] raw collector failed", platform)
+            result = CollectionResult(
+                jobs=[],
+                manifest=_error_manifest(platform, platform_config, str(exc)),
+            )
         finally:
-            collector.close()
+            if collector is not None:
+                try:
+                    collector.close()
+                except Exception as exc:
+                    logger.exception("[%s] raw collector close failed", platform)
+                    if result is None:
+                        result = CollectionResult(
+                            jobs=[],
+                            manifest=_error_manifest(
+                                platform,
+                                platform_config,
+                                str(exc),
+                                stopped_by="close_error",
+                            ),
+                        )
+                    else:
+                        result.manifest.complete = False
+                        result.manifest.status = (
+                            "partial" if result.jobs else "error"
+                        )
+                        result.manifest.stopped_by = "close_error"
+                        result.manifest.error = "; ".join(
+                            part
+                            for part in (result.manifest.error, str(exc))
+                            if part
+                        )
+        assert result is not None
         all_jobs.extend(result.jobs)
         manifests.append(result.manifest)
         logger.info(
@@ -122,6 +188,19 @@ def main() -> None:
         ]
         manifests = previous_manifests + manifests
 
+    all_failed = not manifests or all(
+        item.status == "error"
+        for item in manifests
+    )
+    if (
+        not args.merge_existing
+        and all_failed
+        and (jobs_path.exists() or manifest_path.exists())
+    ):
+        raise RuntimeError(
+            "refusing to overwrite existing raw output after total failure"
+        )
+
     write_json_atomic(jobs_path, [job.to_dict() for job in jobs])
     write_json_atomic(
         manifest_path,
@@ -137,7 +216,7 @@ def main() -> None:
 
     logger.info("Wrote %d jobs to %s", len(jobs), jobs_path)
     logger.info("Wrote collection manifest to %s", manifest_path)
-    if any(not item.complete for item in manifests):
+    if all_failed or any(not item.complete for item in manifests):
         sys.exit(1)
 
 

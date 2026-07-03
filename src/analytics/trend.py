@@ -20,7 +20,7 @@ from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from src.db import DB_PATH, init_db
+from src.legacy.db import DB_PATH, init_db
 
 # ── Skill keyword extractor ──────────────────────────────────────────────────
 
