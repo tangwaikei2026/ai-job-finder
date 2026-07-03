@@ -1,3 +1,4 @@
+from src.raw.collectors.alibaba import AlibabaBaseCollector
 from src.raw.collectors.baidu import BaiduRawCollector
 from src.raw.collectors.bytedance import ByteDanceRawCollector
 from src.raw.collectors.didi import DidiRawCollector
@@ -11,6 +12,9 @@ from src.raw.collectors.tencent import TencentRawCollector
 from src.raw.collectors.xiaohongshu import XiaohongshuRawCollector
 
 COLLECTOR_REGISTRY = {
+    "aliyun": AlibabaBaseCollector,
+    "tongyi": AlibabaBaseCollector,
+    "dingtalk": AlibabaBaseCollector,
     "baidu": BaiduRawCollector,
     "tencent": TencentRawCollector,
     "netease": NeteaseRawCollector,
@@ -25,6 +29,7 @@ COLLECTOR_REGISTRY = {
 }
 
 __all__ = [
+    "AlibabaBaseCollector",
     "BaiduRawCollector",
     "ByteDanceRawCollector",
     "COLLECTOR_REGISTRY",
