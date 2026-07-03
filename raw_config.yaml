@@ -112,29 +112,33 @@ raw_collection:
       page_size: 50
 
     jd:
-      enabled: true
+      enabled: false
       name: "京东"
-      list_url: "https://zhaopin.jd.com/web/job/job_info_list/3"
-      list_api: "https://zhaopin.jd.com/web/job/job_list"
-      count_api: "https://zhaopin.jd.com/web/job/job_count"
-      detail_url: "https://zhaopin.jd.com/web/job-info-detail?requementId={job_id}"
-      page_size: 100
+      list_url: ""
+      detail_url: ""
+      page_size: 50
 
     liepin:
-      enabled: false
+      enabled: true
       name: "猎聘"
       list_url: "https://www.liepin.com/zhaopin/"
       list_api: "https://api-c.liepin.com/api/com.liepin.searchfront4c.pc-search-job"
       list_api_marker: "/api/com.liepin.searchfront4c.pc-search-job"
       detail_url: "https://www.liepin.com/job/{job_id}.shtml"
+      output_file: "data/raw/liepin/raw_job.json"
       city: "050090"
       dq: "050090"
-      keyword: "AI 评测"
+      keywords:
+        - "大模型评测"
+        - "AI测试工程师"
+        - "大模型测试"
+        - "Agent评测"
+        - "AI安全测试"
       industry: "H01$H01"
       job_kind: "2"
       edu_level: "040"
       page_size: 40
-      max_pages: 0
+      max_pages: 1
       browser_headless: true
       list_timeout_seconds: 30
       list_max_retries: 3
@@ -142,19 +146,7 @@ raw_collection:
         - 2
         - 5
         - 10
-      fetch_details: true
-      detail_delay_min_seconds: 1.5
-      detail_delay_max_seconds: 3.0
-      detail_max_retries: 3
-      detail_block_threshold: 3
-      detail_retry_backoff_seconds:
-        - 5
-        - 10
-        - 20
-      detail_block_backoff_seconds:
-        - 30
-        - 60
-        - 120
+      fetch_details: false
       # job_kind=2 排除猎头来源；以下标题规则进一步排除“从事猎头”的岗位。
       exclude_hunter_titles:
         - "猎头顾问"
