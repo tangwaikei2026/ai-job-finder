@@ -17,8 +17,11 @@ platforms:
     enabled: true
     name: "腾讯"
     list_api: "https://careers.tencent.com/tencentcareer/api/post/Query"
+    detail_api: "https://careers.tencent.com/tencentcareer/api/post/ByPostId"
     detail_url: "https://careers.tencent.com/jobdesc.html?postId={job_id}"
     page_size: 100
+    detail_workers: 4
+    fetch_details: true
 
   netease:
     enabled: true

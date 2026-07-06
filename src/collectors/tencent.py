@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
 
 from src.base import RawCollector
@@ -26,6 +27,7 @@ class TencentRawCollector(RawCollector):
         jobs_by_id: dict[str, RawJobPosting] = {}
         seen_job_ids: set[str] = set()
         seen_page_ids: set[tuple[str, ...]] = set()
+        detail_targets: list[RawJobPosting] = []
         page = 1
 
         try:
@@ -72,7 +74,7 @@ class TencentRawCollector(RawCollector):
                 manifest.records_fetched += len(posts)
 
                 for item in posts:
-                    job = self._map_job(item)
+                    job = self._map_list_job(item)
                     if not job.job_id:
                         manifest.missing_job_id += 1
                         continue
@@ -87,6 +89,7 @@ class TencentRawCollector(RawCollector):
                         manifest.outside_city_scope += 1
                         continue
                     jobs_by_id[job.job_id] = job
+                    detail_targets.append(job)
 
                 if manifest.records_fetched >= manifest.source_total:
                     manifest.stopped_by = "source_total_reached"
@@ -94,8 +97,26 @@ class TencentRawCollector(RawCollector):
                     break
                 page += 1
 
+            if cfg.get("fetch_details", True) and cfg.get("detail_api"):
+                workers = max(1, int(cfg.get("detail_workers", 4)))
+                with ThreadPoolExecutor(max_workers=workers) as executor:
+                    future_map = {
+                        executor.submit(self._fetch_detail, job): job
+                        for job in detail_targets
+                    }
+                    for future in as_completed(future_map):
+                        job = future_map[future]
+                        try:
+                            self._apply_detail(job, future.result())
+                            manifest.details_fetched += 1
+                        except Exception:
+                            manifest.detail_failed += 1
+
             manifest.jobs_in_scope = len(jobs_by_id)
+            manifest.complete = manifest.complete and manifest.detail_failed == 0
             manifest.status = "success" if manifest.complete else "partial"
+            if manifest.detail_failed:
+                manifest.stopped_by = "detail_errors"
         except Exception as exc:
             manifest.status = "error"
             manifest.complete = False
@@ -106,7 +127,7 @@ class TencentRawCollector(RawCollector):
 
         return CollectionResult(list(jobs_by_id.values()), manifest)
 
-    def _map_job(self, item: dict[str, Any]) -> RawJobPosting:
+    def _map_list_job(self, item: dict[str, Any]) -> RawJobPosting:
         job_id = str(item.get("PostId") or "")
         source_url = str(item.get("PostURL") or "")
         detail_url = str(self.platform_config.get("detail_url") or "")
@@ -123,4 +144,38 @@ class TencentRawCollector(RawCollector):
             experience=str(item.get("RequireWorkYearsName") or ""),
             description=str(item.get("Responsibility") or ""),
             url=url,
+        )
+
+    def _fetch_detail(self, job: RawJobPosting) -> dict[str, Any]:
+        payload = self.request_json(
+            "GET",
+            str(self.platform_config["detail_api"]),
+            params={
+                "timestamp": "careers",
+                "postId": job.job_id,
+                "language": "zh-cn",
+            },
+        )
+        if payload.get("Code") != 200:
+            raise RuntimeError(
+                f"Tencent detail API failed for {job.job_id}: "
+                f"Code={payload.get('Code')}"
+            )
+        data = payload.get("Data")
+        if not isinstance(data, dict):
+            raise RuntimeError(
+                f"Tencent detail API returned no data for {job.job_id}"
+            )
+        return data
+
+    @staticmethod
+    def _apply_detail(
+        job: RawJobPosting,
+        detail: dict[str, Any],
+    ) -> None:
+        job.description = str(
+            detail.get("Responsibility") or job.description
+        )
+        job.requirements = str(
+            detail.get("Requirement") or job.requirements
         )
