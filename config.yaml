@@ -1,307 +1,201 @@
-# ─────────────────────────────────────────────────────────────────
-# 筛选规则（filter_rules）
-# 修改这里的列表即可调整过滤逻辑，无需修改 Python 代码
-# ─────────────────────────────────────────────────────────────────
-filter_rules:
-  # 排除的高学历要求关键词（在 education / requirements 字段中出现则过滤）
-  exclude_education:
-    - "硕士"
-    - "博士"
-    - "研究生"
-    - "Master"
-    - "PhD"
+output_dir: "data/raw"
+timeout_seconds: 30
+max_retries: 3
 
-  # experience 字段中明确>3年的短语（字段级别）
-  exclude_experience_field:
-    - "五年以上"
-    - "八年以上"
-    - "十年以上"
-    - "5-10年"
-    - "10年以上"
-
-  # 最大工作年限（requirements 文本中出现超过该年数则过滤，0=不限制）
-  max_experience_years: 3
-
-  # 校招/实习关键词
-  campus_patterns:
-    - "校招"
-    - "应届"
-    - '\d{2,4}届'   # 匹配 26届/27届/2026届 等任意年份
-    - "毕业生"
-    - "campus"
-
-  # 标题直接排除（与目标岗位无关的硬件/安全/运营等方向）
-  exclude_title:
-    - "硬件"
-    - "嵌入式"
-    - "芯片"
-    - "射频"
-    - "FPGA"
-    - "驱动工程"
-    - "电气"
-    - "机械"
-    - "光学"
-    - "相机测试"
-    - "传感器测试"
-    - "基带测试"
-    - "可靠性测试"
-    - "认证测试"
-    - "近距通信"
-    - "显示测试"
-    - "PQE"
-    - "结构工艺"
-    - "质量PQA"
-    - "制造质量"
-    - "电子件"
-    - "数据库内核"
-    - "DBA"
-    - "存储引擎"
-    - "SRE"
-    - "运维工程"
-    - "安全渗透"
-    - "红队"
-    - "攻防"
-    - "漏洞挖掘"
-    - "安全合规"
-    - "安全评测"
-    - "安全产品"
-    - "设计师"
-    - "美术"
-    - "编剧"
-    - "导演"
-    - "短剧"
-    - "版权"
-    - "标注主管"
-    - "数据标注"
-    - "MicroLED"
-    - "显示驱动"
-    - "ATE测试"
-    - "实习生"
-    - "后台开发工程师"
-    - "架构师"
-    - "解决方案"
-
-  # 标题中视为"含AI"的关键词
-  ai_title_keywords:
-    - "AI"
-    - "人工智能"
-    - "大模型"
-    - "LLM"
-    - "Agent"
-    - "AIGC"
-    - "算法"
-    - "多模态"
-    - "NLP"
-    - "模型评测"
-    - "模型评估"
-    - "智能体"
-    - "GPT"
-    - "RAG"
-    - "Prompt"
-    - "千问"
-    - "元宝"
-    - "混元"
-    - "文心"
-    - "通义"
-    - "copilot"
-    - "ima"
-    - "CodeBuddy"
-
-  # description/requirements 中视为"含AI"的关键词
-  ai_desc_keywords:
-    - "大模型"
-    - "LLM"
-    - "Agent"
-    - "AIGC"
-    - "算法测试"
-    - "多模态"
-    - "NLP"
-    - "模型评测"
-    - "模型评估"
-    - "智能体"
-    - "GPT"
-    - "RAG"
-    - "Prompt"
-    - "Benchmark"
-    - "badcase"
-    - "模型效果"
-    - "模型质量"
-    - "AI质量"
-    - "算法效果"
-    - "算法质量"
-    - "评测平台"
-    - "评测框架"
-
-  # 纯游戏方向排除（无AI上下文）
-  exclude_game_title:
-    - "SLG"
-    - "MMORPG"
-    - "单机"
-    - "FPS"
-    - "竞速"
-    - "赛车"
-    - "格斗"
-    - "RTS"
-    - "卡牌"
-    - "引擎测试"
-    - "引擎开发"
-    - "遗忘之海"
-    - "大世界"
-    - "天美中台"
-    - "无限大"
-
-  # 产品经理方向中需排除的场景（太垂直或与AI测试无关）
-  exclude_product_title:
-    - "外贸"
-    - "社交"
-    - "音乐"
-    - "写歌"
-    - "推荐"
-    - "分发"
-    - "投放"
-    - "广告"
-    - "OCR"
-    - "招聘系统"
-    - "地图"
-    - "云AI-ToB"
-    - "轻量云"
-    - "WeGame"
-    - "具身智能"
-    - "数据"
-    - "文档产品"
-    - "平台产品经理"
-    - "计算平台"
-
-# 反爬熔断：某平台连续 N 次抓取 raw_count=0 时自动跳过
-circuit_breaker_days: 3
-
-keywords:
-  - "大模型测试"
-  - "AI测试"
-  - "算法测试"
-  - "自动化测试开发"
-  - "测试开发工程师"
-  - "Agent产品"
-  - "AIGC产品"
-  - "AI策略产品"
-  - "LLM"
-  - "Agent开发"
-  - "大模型评测"
-  - "AI质量"
-  - "智能测试"
-
+# 城市是采集范围，不是岗位相关性过滤。地点为空时默认不纳入结果，
+# 但会在 manifest 中单独计数，避免静默丢失。
 cities:
   - "北京"
   - "上海"
   - "杭州"
   - "深圳"
   - "广州"
-
-categories:
-  product:
-    name: "产品类"
-    keywords: ["产品经理", "策略产品", "AIGC产品", "Agent产品", "AI产品"]
-  test:
-    name: "测试类"
-    keywords: ["测试", "质量保障", "QA", "评测", "质量"]
-  agent:
-    name: "Agent类"
-    keywords: ["Agent开发", "Agent工程师", "LLM应用", "Agent"]
-  dev:
-    name: "开发类"
-    keywords: ["测试开发", "自动化", "工具开发", "平台开发"]
+include_unknown_location: false
 
 platforms:
-  # Tier 1: 公司官网 API（最稳定）
   tencent:
     enabled: true
-    tier: 1
     name: "腾讯"
-  quark:
-    enabled: true
-    tier: 1
-    name: "阿里巴巴(千问/夸克)"
-  alibaba:
-    enabled: true
-    tier: 1
-    name: "阿里巴巴(集团主站)"
-  antgroup:
-    enabled: true
-    tier: 1
-    name: "蚂蚁集团"
-  bytedance:
-    enabled: true
-    tier: 1
-    name: "字节跳动"
-  baidu:
-    enabled: true
-    tier: 1
-    name: "百度"
+    list_api: "https://careers.tencent.com/tencentcareer/api/post/Query"
+    detail_url: "https://careers.tencent.com/jobdesc.html?postId={job_id}"
+    page_size: 100
+
   netease:
     enabled: true
-    tier: 1
     name: "网易"
-  meituan:
+    list_api: "https://hr.163.com/api/hr163/position/queryPage"
+    detail_url: "https://hr.163.com/job-detail.html?id={job_id}"
+    page_size: 50
+
+  quark:
     enabled: true
-    tier: 1
-    name: "美团"
-  kuaishou:
+    name: "夸克"
+    platform_key: "quark"
+    list_url: "https://talent.quark.cn/off-campus/position-list?lang=zh"
+    list_api: "https://talent.quark.cn/position/search"
+    detail_url: "https://talent.quark.cn/off-campus/position-detail?positionId={job_id}"
+    page_size: 50
+
+  aliyun:
     enabled: true
-    tier: 1
-    name: "快手"
-  xiaohongshu:
+    name: "阿里云"
+    platform_key: "aliyun"
+    list_url: "https://careers.aliyun.com/off-campus/position-list?lang=zh"
+    list_api: "https://careers.aliyun.com/position/search"
+    detail_url: "https://careers.aliyun.com/off-campus/position-detail?positionId={job_id}"
+    page_size: 50
+
+  tongyi:
     enabled: true
-    tier: 1
-    name: "小红书"
-  jd:
+    name: "通义实验室"
+    platform_key: "tongyi"
+    list_url: "https://careers-tongyi.alibaba.com/off-campus/position-list?lang=zh"
+    list_api: "https://careers-tongyi.alibaba.com/position/search"
+    detail_url: "https://careers-tongyi.alibaba.com/off-campus/position-detail?positionId={job_id}"
+    page_size: 50
+
+  dingtalk:
     enabled: true
-    tier: 1
-    name: "京东"
-  didi:
-    enabled: true
-    tier: 1
-    name: "滴滴"
-  huawei:
-    enabled: true
-    tier: 1
-    name: "华为"
+    name: "钉钉"
+    platform_key: "dingtalk"
+    list_url: "https://talent.dingtalk.com/off-campus/position-list?lang=zh"
+    list_api: "https://talent.dingtalk.com/position/search"
+    detail_url: "https://talent.dingtalk.com/off-campus/position-detail?positionId={job_id}"
+    page_size: 50
+
   feishu:
     enabled: true
-    tier: 1
-    name: "飞书招聘(MiniMax/智谱AI/商汤/零一万物/百川)"
-  moka:
-    enabled: true
-    tier: 1
-    name: "MokaHR(DeepSeek/Kimi)"
+    name: "飞书招聘"
+    page_size: 50
+    companies:
+      - name: "MiniMax"
+        list_url: "https://vrfi1sk8a0.jobs.feishu.cn/index/"
+        detail_url: "https://vrfi1sk8a0.jobs.feishu.cn/index/position/{job_id}/detail"
+      - name: "智谱AI"
+        list_url: "https://zhipu-ai.jobs.feishu.cn/index/"
+        detail_url: "https://zhipu-ai.jobs.feishu.cn/index/position/{job_id}/detail"
+      - name: "商汤科技"
+        list_url: "https://sensetime.jobs.feishu.cn/index/position/list"
+        detail_url: "https://sensetime.jobs.feishu.cn/index/position/{job_id}/detail"
+      - name: "零一万物"
+        list_url: "https://01ai.jobs.feishu.cn/index/position/list"
+        detail_url: "https://01ai.jobs.feishu.cn/index/position/{job_id}/detail"
+      - name: "百川智能"
+        list_url: "https://cq6qe6bvfr6.jobs.feishu.cn/baichuanzhaopin/"
+        detail_url: "https://cq6qe6bvfr6.jobs.feishu.cn/baichuanzhaopin/position/{job_id}/detail"
 
-  # Tier 2: 第三方招聘平台（已升级为 Playwright）
-  boss:
-    enabled: false
-    tier: 2
-    name: "Boss直聘"
+  didi:
+    enabled: true
+    name: "滴滴"
+    list_url: "https://talent.didiglobal.com/social/list/1"
+    list_api: "https://talent.didiglobal.com/recruit-portal-service/api/job/front/list"
+    detail_api: "https://talent.didiglobal.com/recruit-portal-service/api/job/front/view/{job_id}"
+    detail_url: "https://talent.didiglobal.com/social/p/{job_id}"
+    page_size: 16
+    detail_workers: 4
+
+  bytedance:
+    enabled: true
+    name: "字节跳动"
+    list_url: "https://jobs.bytedance.com/experienced/position"
+    detail_url: "https://jobs.bytedance.com/experienced/position/{job_id}/detail"
+    page_size: 100
+
+  baidu:
+    enabled: true
+    name: "百度"
+    list_url: "https://talent.baidu.com/jobs/social-list"
+    list_api: "https://talent.baidu.com/httservice/getPostListNew"
+    detail_url: "https://talent.baidu.com/jobs/detail/SOCIAL/{job_id}"
+    page_size: 20
+
+  meituan:
+    enabled: true
+    name: "美团"
+    list_url: "https://zhaopin.meituan.com/web/social"
+    list_api: "https://zhaopin.meituan.com/api/official/job/getJobList"
+    detail_api: "https://zhaopin.meituan.com/api/official/job/getJobDetail"
+    detail_url: "https://zhaopin.meituan.com/web/position/detail?jobUnionId={job_id}&highlightType=social"
+    page_size: 50
+    detail_workers: 4
+
+  kuaishou:
+    enabled: true
+    name: "快手"
+    list_url: "https://zhaopin.kuaishou.cn/recruit/e/#/official/social/"
+    list_api: "https://zhaopin.kuaishou.cn/recruit/e/api/v1/open/positions/simple"
+    dictionary_api: "https://zhaopin.kuaishou.cn/recruit/e/api/v1/dictionary/batch"
+    detail_url: "https://zhaopin.kuaishou.cn/recruit/e/#/official/social/job-info/{job_id}"
+    # 该值来自公开网页前端，用于生成岗位列表接口要求的 HMAC 签名。
+    signing_key: "652f962a-0575-4575-98d2-f04e2291bee2"
+    page_size: 100
+
+  xiaohongshu:
+    enabled: true
+    name: "小红书"
+    list_url: "https://job.xiaohongshu.com/social/position"
+    list_api: "https://job.xiaohongshu.com/websiterecruit/position/pageQueryPosition"
+    detail_url: "https://job.xiaohongshu.com/social/position/{job_id}"
+    page_size: 50
+
+  jd:
+    enabled: true
+    name: "京东"
+    list_url: "https://zhaopin.jd.com/web/job/job_info_list/3"
+    list_api: "https://zhaopin.jd.com/web/job/job_list"
+    count_api: "https://zhaopin.jd.com/web/job/job_count"
+    detail_url: "https://zhaopin.jd.com/web/job-info-detail?requementId={job_id}"
+    fetch_details: false
+    page_size: 100
+
   liepin:
     enabled: false
-    tier: 2
     name: "猎聘"
-  zhilian:
-    enabled: false
-    tier: 2
-    name: "智联招聘"
-  job51:
-    enabled: false
-    tier: 2
-    name: "前程无忧"
-  lagou:
-    enabled: false
-    tier: 2
-    name: "拉勾"
+    list_url: "https://www.liepin.com/zhaopin/"
+    list_api: "https://api-c.liepin.com/api/com.liepin.searchfront4c.pc-search-job"
+    list_api_marker: "/api/com.liepin.searchfront4c.pc-search-job"
+    detail_url: "https://www.liepin.com/job/{job_id}.shtml"
+    output_file: "data/liepin/raw_job.json"
+    city: "050090"
+    dq: "050090"
+    keywords:
+      - "大模型评测"
+      - "AI测试工程师"
+      - "大模型测试"
+      - "Agent评测"
+      - "AI安全测试"
+    industry: "H01$H01"
+    job_kind: "2"
+    edu_level: "040"
+    page_size: 40
+    max_pages: 1
+    browser_headless: true
+    list_timeout_seconds: 30
+    list_max_retries: 3
+    list_retry_backoff_seconds:
+      - 2
+      - 5
+      - 10
+    fetch_details: false
+    # job_kind=2 排除猎头来源；以下标题规则进一步排除“从事猎头”的岗位。
+    exclude_hunter_titles:
+      - "猎头顾问"
+      - "猎头助理"
+      - "猎头实习生"
+      - "寻访员"
+      - "人才寻访"
+      - "招聘顾问"
 
-  # Tier 3: 浏览器自动化
-  linkedin:
+  huawei:
     enabled: false
-    tier: 3
-    name: "LinkedIn"
-  maimai:
+    name: "华为"
+    list_url: ""
+    detail_url: ""
+    page_size: 50
+
+  moaka:
     enabled: false
-    tier: 3
-    name: "脉脉"
+    name: "MokaHR(DeepSeek/Kimi)"
+    list_url: ""
+    detail_url: "https://app.mokahr.com/social-recruitment/moonshot/148506#/job/{job_id}"
+    page_size: 50

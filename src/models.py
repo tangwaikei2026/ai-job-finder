@@ -1,13 +1,19 @@
 from __future__ import annotations
 
-import hashlib
 import json
-from dataclasses import dataclass, field, asdict
+import os
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+
+def _now() -> str:
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
 @dataclass
-class JobPosting:
+class RawJobPosting:
     job_id: str
     platform: str
     title: str
@@ -20,51 +26,56 @@ class JobPosting:
     description: str = ""
     requirements: str = ""
     url: str = ""
-    publish_date: str = ""
-    scraped_at: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    keywords_matched: list[str] = field(default_factory=list)
-    category: str = ""
+    scraped_at: str = field(default_factory=_now)
 
     @property
     def unique_key(self) -> str:
         return f"{self.platform}:{self.job_id}"
 
-    @property
-    def content_hash(self) -> str:
-        raw = f"{self.title}|{self.company}|{self.department}|{self.location}|{self.description}"
-        return hashlib.md5(raw.encode()).hexdigest()[:12]
-
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
-    @classmethod
-    def from_dict(cls, d: dict) -> JobPosting:
-        valid_fields = {f.name for f in cls.__dataclass_fields__.values()}
-        filtered = {k: v for k, v in d.items() if k in valid_fields}
-        return cls(**filtered)
 
-    def match_keywords(self, keywords: list[str]) -> list[str]:
-        text = f"{self.title} {self.department} {self.description} {self.requirements}".lower()
-        return [kw for kw in keywords if kw.lower() in text]
+@dataclass
+class CollectionManifest:
+    platform: str
+    name: str
+    status: str = "pending"
+    complete: bool = False
+    source_total: int = 0
+    expected_pages: int = 0
+    pages_fetched: int = 0
+    records_fetched: int = 0
+    jobs_mapped: int = 0
+    jobs_in_scope: int = 0
+    outside_city_scope: int = 0
+    unknown_location: int = 0
+    duplicate_records: int = 0
+    missing_job_id: int = 0
+    details_fetched: int = 0
+    detail_failed: int = 0
+    stopped_by: str = ""
+    error: str = ""
+    started_at: str = field(default_factory=_now)
+    finished_at: str = ""
+    duration_seconds: float = 0.0
 
-    def classify(self, categories: dict) -> str:
-        text = f"{self.title} {self.department} {self.description}".lower()
-        for cat_id, cat_cfg in categories.items():
-            cat_keywords = cat_cfg.get("keywords", [])
-            if any(kw.lower() in text for kw in cat_keywords):
-                return cat_id
-        return "other"
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
 
 
-def load_jobs_from_json(path: str) -> list[JobPosting]:
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return [JobPosting.from_dict(d) for d in data]
-    except (FileNotFoundError, json.JSONDecodeError):
-        return []
+@dataclass
+class CollectionResult:
+    jobs: list[RawJobPosting]
+    manifest: CollectionManifest
 
 
-def save_jobs_to_json(jobs: list[JobPosting], path: str) -> None:
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump([j.to_dict() for j in jobs], f, ensure_ascii=False, indent=2)
+def write_json_atomic(path: Path, data: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp_path = path.with_suffix(path.suffix + ".tmp")
+    with open(temp_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(temp_path, path)

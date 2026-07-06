@@ -3,7 +3,7 @@
 ## 项目与当前范围
 
 - 当前项目：`tangwaikei2026/ai-job-finder`
-- 目标：围绕 `src/raw` 建立稳定采集主路径，并逐步平滑去掉旧路径代码。
+- 目标：围绕 `src` 建立稳定采集主路径，并逐步平滑去掉旧路径代码。
 - 当前阶段只处理 raw 采集层，不处理业务过滤、diff、README、数据库写入、通知。
 
 ## 总原则
@@ -60,10 +60,10 @@ pytest -q
 
 ```bash
 python -m compileall src tests
-pytest tests/raw -q
+pytest tests -q
 ```
 
-如果 `tests/raw` 还不存在，必须说明原因。
+如果 `tests` 还不存在，必须说明原因。
 
 ## Diff 输出要求
 

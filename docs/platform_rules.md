@@ -14,7 +14,7 @@
 ## 2. Adapter 边界
 
 - 一个新平台对应一个独立 adapter 文件。
-- 平台特殊逻辑不得进入 `src/raw/main.py`。
+- 平台特殊逻辑不得进入 `src/main.py`。
 - 不得修改其他平台 adapter 的行为。
 - 不得为了单个平台重构共享基础设施，除非已有至少两个明确消费者。
 - Adapter 必须继承 `RawCollector` 并返回 `CollectionResult`。
@@ -97,9 +97,9 @@ Raw 层不允许：
 
 - 列表通过 Playwright 加载真实搜索页并监听 PC 搜索 API。
 - 不直接重放私有列表 API。
-- 遍历 `raw_config.yaml` 中的 `keywords`。
+- 遍历 `config.yaml` 中的 `keywords`。
 - `max_pages` 按每关键词解释，当前为 1。
 - 固定 `industry=H01$H01`、`job_kind=2`。
 - 全部关键词结果按 `job_id` 去重。
 - 当前 `fetch_details=false`，不自动请求详情。
-- 人工复核文件为 `data/raw/liepin/raw_job.json`。
+- 人工复核文件为 `data/liepin/raw_job.json`。

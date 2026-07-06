@@ -125,7 +125,7 @@
 猎聘专项测试：
 
 ```bash
-python3 -m pytest tests/test_liepin_raw_collector.py -q
+python3 -m pytest tests/test_liepin_collector.py -q
 ```
 
 全量测试：
@@ -139,8 +139,8 @@ python3 -m pytest -q
 ```bash
 PYTHONPYCACHEPREFIX=/tmp/ai-job-finder-pycache \
 python3 -m py_compile \
-  src/raw/collectors/liepin.py \
-  tests/test_liepin_raw_collector.py
+  src/collectors/liepin.py \
+  tests/test_liepin_collector.py
 ```
 
 Diff 检查：

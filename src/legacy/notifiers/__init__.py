@@ -1,1 +1,0 @@
-"""Legacy notification integrations."""

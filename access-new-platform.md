@@ -1,17 +1,17 @@
-任务：接入新平台{platform}，目标是抓取符合岗位池规则的岗位，并接入现有raw下的 pipeline。
+任务：接入新平台{platform}，目标是抓取符合岗位池规则的岗位，并接入现有采集 pipeline。
 ### 现有 raw adapter 架构
 
-- 所有平台继承 [`RawCollector` (line 17)](/Users/waikei/Documents/Codex/ai-job-finder/src/raw/base.py:17)，复用 HTTP client、重试、超时和城市范围判断。
+- 所有平台继承 [`RawCollector` (line 17)](/Users/waikei/Documents/Codex/ai-job-finder/src/base.py:17)，复用 HTTP client、重试、超时和城市范围判断。
 - `collect()` 返回 `CollectionResult`，其中包含：
     - `list[RawJobPosting]`
     - `CollectionManifest`
-- 标准字段由 [`RawJobPosting` (line 15)](/Users/waikei/Documents/Codex/ai-job-finder/src/raw/models.py:15) 固定。
-- 平台通过 [`COLLECTOR_REGISTRY` (line 12)](/Users/waikei/Documents/Codex/ai-job-finder/src/raw/collectors/__init__.py:12) 注册。
-- [src/raw/main.py (line 36)](/Users/waikei/Documents/Codex/ai-job-finder/src/raw/main.py:36) 负责按配置运行、合并结果、原子写 `data/raw` 和 manifest。
-- 配置集中在 [raw_config.yaml (line 1)](/Users/waikei/Documents/Codex/ai-job-finder/raw_config.yaml:1)；
+- 标准字段由 [`RawJobPosting` (line 15)](/Users/waikei/Documents/Codex/ai-job-finder/src/models.py:15) 固定。
+- 平台通过 [`COLLECTOR_REGISTRY` (line 12)](/Users/waikei/Documents/Codex/ai-job-finder/src/collectors/__init__.py:12) 注册。
+- [src/main.py (line 36)](/Users/waikei/Documents/Codex/ai-job-finder/src/main.py:36) 负责按配置运行、合并结果、原子写 `data/raw` 和 manifest。
+- 配置集中在 [config.yaml (line 1)](/Users/waikei/Documents/Codex/ai-job-finder/config.yaml:1)；
 - 普通平台直接访问 API；滴滴、美团等在列表后补详情；详情失败保留基础岗位并计入 `detail_failed`。字节、飞书才使用浏览器捕获动态 API。
-- raw pipeline 当前明确是“全量采集 + 城市范围”，不是岗位相关性过滤，见 [raw_config.yaml (line 6)](/Users/waikei/Documents/Codex/ai-job-finder/raw_config.yaml:6) 和 [src/raw/main.py (line 53)](/Users/waikei/Documents/Codex/ai-job-finder/src/raw/main.py:53)。
-- `src/raw` 与旧的 `src/main.py + src/scrapers` 是两条独立链路；本任务应只接 `src/raw`。
+- raw pipeline 当前明确是“全量采集 + 城市范围”，不是岗位相关性过滤，见 [config.yaml (line 6)](/Users/waikei/Documents/Codex/ai-job-finder/config.yaml:6) 和 [src/main.py (line 53)](/Users/waikei/Documents/Codex/ai-job-finder/src/main.py:53)。
+- 仓库只保留一条采集链路；新平台只接入 `src/collectors` 和 `COLLECTOR_REGISTRY`。
 
 
 请分两步执行：
@@ -79,7 +79,7 @@
 10. 字段标准化后必须输出现有 RawJobPosting 结构
 11. 不要改变现有输出格式。
 12. 请求失败、字段缺失、详情页失败时不能导致整个 pipeline 崩溃。
-13. 新增配置必须写入 raw_config.yaml（不要把简单配置写死到代码里）：只能配置name, xx_api, xx_url,page_size,enable. 如需要增加的配置，需要先向我确认，再确认允许之后再增加新的配置。默认enable
+13. 新增配置必须写入 config.yaml（不要把简单配置写死到代码里）：只能配置name, xx_api, xx_url,page_size,enable. 如需要增加的配置，需要先向我确认，再确认允许之后再增加新的配置。默认enable
 
 
 二、只搭骨架
