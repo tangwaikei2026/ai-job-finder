@@ -27,6 +27,23 @@ OPTIONAL_FIELDS = (
 )
 SHORT_DESCRIPTION_MIN_LENGTH = 50
 MAX_SAMPLES = 20
+NORMAL_STOPPED_BY = {
+    "configured_max_pages",
+    "empty_page",
+    "repeated_page",
+    "source_total_reached",
+}
+EDUCATION_PATTERN = re.compile(
+    r"(不限|无要求|博士|硕士|研究生|本科|学士|大专|专科|高中|中专|中技|"
+    r"初中|doctor|phd|master|bachelor|college|associate|high school)",
+    re.IGNORECASE,
+)
+EXPERIENCE_YEARS_PATTERN = re.compile(
+    r"(?:\d+(?:\.\d+)?|[零〇一二两三四五六七八九十百]+)\s*(?:[-~—至到]\s*"
+    r"(?:\d+(?:\.\d+)?|[零〇一二两三四五六七八九十百]+)\s*)?"
+    r"(?:年|years?)",
+    re.IGNORECASE,
+)
 
 
 def _is_missing(value: Any) -> bool:
@@ -50,7 +67,9 @@ def _sample(job: dict[str, Any], row_number: int, **extra: Any) -> dict[str, Any
         "title": job.get("title"),
         "location": job.get("location"),
         "description": job.get("description"),
-        "requirements": job.get("requirements")
+        "requirements": job.get("requirements"),
+        "education": job.get("education"),
+        "experience": job.get("experience")
     }
     sample.update(extra)
     return sample
@@ -77,6 +96,35 @@ def _valid_http_url(value: Any) -> bool:
         return False
     parsed = urlsplit(value.strip())
     return parsed.scheme.lower() in {"http", "https"} and bool(parsed.netloc)
+
+
+def _parseable_scraped_at(value: Any) -> bool:
+    if not isinstance(value, str) or not value.strip():
+        return False
+    normalized = value.strip()
+    if normalized.endswith("Z"):
+        normalized = normalized[:-1] + "+00:00"
+    try:
+        datetime.fromisoformat(normalized)
+    except ValueError:
+        return False
+    return True
+
+
+def _unparseable_field_issue(
+    jobs: list[dict[str, Any]],
+    field_name: str,
+    predicate: Any,
+) -> dict[str, Any]:
+    samples = [
+        _sample(job, row_number, **{field_name: job.get(field_name)})
+        for row_number, job in enumerate(jobs, start=1)
+        if not predicate(job.get(field_name))
+    ]
+    return {
+        "count": len(samples),
+        "samples": _sample_per_platform(samples, per_platform=2),
+    }
 
 
 def _missing_field_issue(
@@ -223,6 +271,7 @@ def audit_jobs(
     *,
     input_file: str,
     generated_at: str | None = None,
+    collection_manifest: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build a quality report without modifying the supplied job records."""
     required_issue = _missing_field_issue(jobs, REQUIRED_FIELDS)
@@ -231,6 +280,7 @@ def audit_jobs(
         OPTIONAL_FIELDS,
         samples_per_platform=2,
     )
+    optional_issue.pop("by_field")
 
     short_description_samples = []
     empty_content_samples = []
@@ -268,6 +318,71 @@ def audit_jobs(
         sample_fields=("url",),
         samples_per_platform=2,
     )
+    manifest_platforms = (
+        collection_manifest.get("platforms", [])
+        if isinstance(collection_manifest, dict)
+        else []
+    )
+    if not isinstance(manifest_platforms, list):
+        manifest_platforms = []
+    manifest_platforms = [
+        platform
+        for platform in manifest_platforms
+        if isinstance(platform, dict)
+    ]
+    manifest_job_count = (
+        collection_manifest.get("job_count")
+        if isinstance(collection_manifest, dict)
+        else None
+    )
+    manifest_count_checked = isinstance(manifest_job_count, int)
+    incomplete_platforms = [
+        {
+            "platform": platform.get("platform"),
+            "complete": platform.get("complete"),
+            "status": platform.get("status"),
+            "stopped_by": platform.get("stopped_by"),
+        }
+        for platform in manifest_platforms
+        if platform.get("complete") is False
+    ]
+    abnormal_stops = [
+        {
+            "platform": platform.get("platform"),
+            "complete": platform.get("complete"),
+            "status": platform.get("status"),
+            "stopped_by": platform.get("stopped_by"),
+        }
+        for platform in manifest_platforms
+        if platform.get("stopped_by") not in NORMAL_STOPPED_BY
+    ]
+    raw_platform_counts = Counter(
+        _text(job.get("platform")) or "<missing>"
+        for job in jobs
+    )
+    manifest_platform_by_name = {
+        _text(platform.get("platform")) or "<missing>": platform
+        for platform in manifest_platforms
+    }
+    platform_names = sorted(
+        set(raw_platform_counts) | set(manifest_platform_by_name)
+    )
+    platform_collection_counts = [
+        {
+            "platform": platform_name,
+            "raw": raw_platform_counts.get(platform_name, 0),
+            "in_scope": manifest_platform_by_name.get(
+                platform_name, {}
+            ).get("jobs_in_scope"),
+            "details_fetched": manifest_platform_by_name.get(
+                platform_name, {}
+            ).get("details_fetched"),
+            "detail_failed": manifest_platform_by_name.get(
+                platform_name, {}
+            ).get("detail_failed"),
+        }
+        for platform_name in platform_names
+    ]
 
     issues = {
         "missing_required_fields": required_issue,
@@ -290,16 +405,48 @@ def audit_jobs(
         },
         "duplicate_platform_job_id": duplicate_platform_job_id,
         "suspected_duplicate_company_title_location": suspected_duplicate,
+        "manifest_job_count_mismatch": {
+            "count": int(
+                manifest_count_checked and manifest_job_count != len(jobs)
+            ),
+            "checked": manifest_count_checked,
+            "manifest_job_count": manifest_job_count,
+            "raw_job_count": len(jobs),
+            "samples": (
+                platform_collection_counts
+                if manifest_count_checked and manifest_job_count != len(jobs)
+                else []
+            ),
+        },
+        "manifest_incomplete_platforms": {
+            "count": len(incomplete_platforms),
+            "samples": incomplete_platforms,
+        },
+        "manifest_abnormal_stopped_by": {
+            "count": len(abnormal_stops),
+            "normal_values": sorted(NORMAL_STOPPED_BY),
+            "samples": abnormal_stops,
+        },
+        "unparseable_education": _unparseable_field_issue(
+            jobs,
+            "education",
+            lambda value: bool(EDUCATION_PATTERN.search(_text(value))),
+        ),
+        "unparseable_experience_years": _unparseable_field_issue(
+            jobs,
+            "experience",
+            lambda value: bool(EXPERIENCE_YEARS_PATTERN.search(_text(value))),
+        ),
+        "unparseable_scraped_at": _unparseable_field_issue(
+            jobs,
+            "scraped_at",
+            _parseable_scraped_at,
+        ),
     }
     issue_counts = {
         issue_name: issue["count"]
         for issue_name, issue in issues.items()
     }
-    platform_counts = Counter(
-        _text(job.get("platform")) or "<missing>"
-        for job in jobs
-    )
-
     return {
         "manifest": {
             "generated_at": generated_at
@@ -310,7 +457,8 @@ def audit_jobs(
         },
         "summary": {
             "job_count": len(jobs),
-            "platform_counts": dict(sorted(platform_counts.items())),
+            "platform_counts": dict(sorted(raw_platform_counts.items())),
+            "platform_collection_counts": platform_collection_counts,
         },
         "issues": issues,
     }
@@ -450,6 +598,31 @@ def render_markdown(report: dict[str, Any]) -> str:
         f"| {_markdown_value(platform)} | {count} |"
         for platform, count in summary["platform_counts"].items()
     )
+    lines.extend(
+        [
+            "",
+            "## 平台采集计数",
+            "",
+            "| platform | raw | in_scope | details_fetched | detail_failed |",
+            "| --- | ---: | ---: | ---: | ---: |",
+        ]
+    )
+    lines.extend(
+        "| {platform} | {raw} | {in_scope} | {details_fetched} | "
+        "{detail_failed} |".format(
+            **{
+                key: _markdown_value(item.get(key))
+                for key in (
+                    "platform",
+                    "raw",
+                    "in_scope",
+                    "details_fetched",
+                    "detail_failed",
+                )
+            }
+        )
+        for item in summary["platform_collection_counts"]
+    )
     lines.extend(["", "## 问题汇总", "", "| 问题 | 数量 |", "| --- | ---: |"])
     lines.extend(
         f"| {issue_name} | {count} |"
@@ -482,7 +655,7 @@ def render_markdown(report: dict[str, Any]) -> str:
                 ]
             )
             lines.extend(_sample_table(issue["samples"]))
-        for field_name, field_issue in issue["by_field"].items():
+        for field_name, field_issue in issue.get("by_field", {}).items():
             lines.extend(
                 [
                     f"### {field_name}（{field_issue['count']}）",
@@ -495,6 +668,9 @@ def render_markdown(report: dict[str, Any]) -> str:
         "description_too_short",
         "description_and_requirements_empty",
         "invalid_or_missing_url",
+        "unparseable_education",
+        "unparseable_experience_years",
+        "unparseable_scraped_at",
     ):
         issue = issues[issue_name]
         lines.extend(
@@ -520,6 +696,30 @@ def render_markdown(report: dict[str, Any]) -> str:
         )
         lines.extend(_duplicate_sample_table(issue["samples"]))
 
+    for issue_name in (
+        "manifest_incomplete_platforms",
+        "manifest_abnormal_stopped_by",
+    ):
+        issue = issues[issue_name]
+        lines.extend(
+            [
+                f"## {issue_name}（{issue['count']}）",
+                "",
+                "| platform | complete | status | stopped_by |",
+                "| --- | --- | --- | --- |",
+            ]
+        )
+        lines.extend(
+            "| {platform} | {complete} | {status} | {stopped_by} |".format(
+                **{
+                    key: _markdown_value(platform.get(key))
+                    for key in ("platform", "complete", "status", "stopped_by")
+                }
+            )
+            for platform in issue["samples"]
+        )
+        lines.append("")
+
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -530,7 +730,19 @@ def run_audit(
     output_dir: Path = Path("data/audit"),
 ) -> tuple[Path, Path, dict[str, Any]]:
     jobs = load_jobs(input_path)
-    report = audit_jobs(jobs, input_file=str(input_path))
+    manifest_path = input_path.with_name(f"{input_path.stem}_manifest.json")
+    collection_manifest = None
+    if manifest_path.exists():
+        with manifest_path.open(encoding="utf-8") as file:
+            loaded_manifest = json.load(file)
+        if not isinstance(loaded_manifest, dict):
+            raise ValueError(f"{manifest_path} must contain a JSON object")
+        collection_manifest = loaded_manifest
+    report = audit_jobs(
+        jobs,
+        input_file=str(input_path),
+        collection_manifest=collection_manifest,
+    )
     json_path = output_dir / f"{audit_date}_quality_report.json"
     markdown_path = output_dir / f"{audit_date}_quality_report.md"
     _write_text_atomic(

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import httpx
+import pytest
 
+from src.collectors import tencent as tencent_module
 from src.collectors.tencent import TencentRawCollector
 
 
@@ -17,7 +19,10 @@ PLATFORM_CONFIG = {
     "detail_api": "https://example.test/tencent/detail",
     "detail_url": "https://example.test/jobs/{job_id}",
     "page_size": 100,
-    "detail_workers": 2,
+    "detail_workers": 1,
+    "detail_delay_seconds": 0,
+    "detail_timeout_seconds": 10,
+    "detail_max_retries": 1,
 }
 
 
@@ -86,6 +91,11 @@ def test_enriches_requirements_and_description_from_detail() -> None:
             "postId": "t1",
             "language": "zh-cn",
         }
+        assert request.headers["referer"] == "https://example.test/jobs/t1"
+        assert request.headers["accept"] == "application/json, text/plain, */*"
+        assert request.headers["accept-language"] == "zh-CN,zh;q=0.9"
+        assert request.headers["user-agent"].startswith("Mozilla/5.0")
+        assert request.extensions["timeout"]["read"] == 10
         return httpx.Response(
             200,
             json={
@@ -272,3 +282,97 @@ def test_missing_detail_data_is_counted_as_failure() -> None:
     assert result.manifest.status == "partial"
     assert result.manifest.details_fetched == 0
     assert result.manifest.detail_failed == 1
+
+
+def test_detail_requests_are_serial_and_delayed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    clock = [100.0]
+    sleeps: list[float] = []
+    detail_started_at: list[float] = []
+
+    def monotonic() -> float:
+        return clock[0]
+
+    def sleep(seconds: float) -> None:
+        sleeps.append(seconds)
+        clock[0] += seconds
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("/list"):
+            return _list_response(
+                [
+                    {
+                        "PostId": "t1",
+                        "RecruitPostName": "岗位一",
+                        "LocationName": "北京",
+                    },
+                    {
+                        "PostId": "t2",
+                        "RecruitPostName": "岗位二",
+                        "LocationName": "上海",
+                    },
+                ]
+            )
+        detail_started_at.append(clock[0])
+        return httpx.Response(
+            200,
+            json={"Code": 200, "Data": {"Requirement": "要求"}},
+        )
+
+    monkeypatch.setattr(tencent_module.time, "monotonic", monotonic)
+    monkeypatch.setattr(tencent_module.time, "sleep", sleep)
+
+    with _client(handler) as client:
+        result = TencentRawCollector(
+            {
+                **PLATFORM_CONFIG,
+                "detail_delay_seconds": 0.8,
+            },
+            COLLECTION_CONFIG,
+            client,
+        ).collect()
+
+    assert detail_started_at == [100.0, 100.8]
+    assert sleeps == [pytest.approx(0.8)]
+    assert result.manifest.details_fetched == 2
+
+
+def test_detail_uses_own_retry_limit_and_keeps_successful_result() -> None:
+    detail_attempts = 0
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal detail_attempts
+        if request.url.path.endswith("/list"):
+            return _list_response(
+                [
+                    {
+                        "PostId": "t1",
+                        "RecruitPostName": "岗位一",
+                        "LocationName": "北京",
+                    }
+                ]
+            )
+        detail_attempts += 1
+        if detail_attempts == 1:
+            return httpx.Response(503, json={"message": "temporary"})
+        return httpx.Response(
+            200,
+            json={"Code": 200, "Data": {"Requirement": "重试后要求"}},
+        )
+
+    with _client(handler) as client:
+        result = TencentRawCollector(
+            {
+                **PLATFORM_CONFIG,
+                "detail_max_retries": 2,
+            },
+            {**COLLECTION_CONFIG, "max_retries": 5},
+            client,
+        ).collect()
+
+    assert detail_attempts == 2
+    assert result.jobs[0].requirements == "重试后要求"
+    assert result.manifest.details_fetched == 1
+    assert result.manifest.detail_failed == 0
+    assert result.manifest.status == "success"

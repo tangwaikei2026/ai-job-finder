@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import logging
 import math
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from threading import Lock
 from typing import Any
 
 from src.base import RawCollector
@@ -11,6 +13,8 @@ from src.models import (
     CollectionResult,
     RawJobPosting,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class TencentRawCollector(RawCollector):
@@ -98,7 +102,9 @@ class TencentRawCollector(RawCollector):
                 page += 1
 
             if cfg.get("fetch_details", True) and cfg.get("detail_api"):
-                workers = max(1, int(cfg.get("detail_workers", 4)))
+                self._detail_request_lock = Lock()
+                self._last_detail_request_at = 0.0
+                workers = max(1, int(cfg.get("detail_workers", 1)))
                 with ThreadPoolExecutor(max_workers=workers) as executor:
                     future_map = {
                         executor.submit(self._fetch_detail, job): job
@@ -147,26 +153,82 @@ class TencentRawCollector(RawCollector):
         )
 
     def _fetch_detail(self, job: RawJobPosting) -> dict[str, Any]:
-        payload = self.request_json(
-            "GET",
-            str(self.platform_config["detail_api"]),
-            params={
-                "timestamp": "careers",
-                "postId": job.job_id,
-                "language": "zh-cn",
-            },
+        cfg = self.platform_config
+        max_attempts = max(1, int(cfg.get("detail_max_retries", 2)))
+        timeout = max(0.1, float(cfg.get("detail_timeout_seconds", 10)))
+        detail_url = str(cfg.get("detail_url") or "")
+        referer = (
+            detail_url.format(job_id=job.job_id)
+            if detail_url
+            else "https://careers.tencent.com/"
         )
-        if payload.get("Code") != 200:
-            raise RuntimeError(
-                f"Tencent detail API failed for {job.job_id}: "
-                f"Code={payload.get('Code')}"
-            )
-        data = payload.get("Data")
-        if not isinstance(data, dict):
-            raise RuntimeError(
-                f"Tencent detail API returned no data for {job.job_id}"
-            )
-        return data
+        last_error: Exception | None = None
+
+        for attempt in range(1, max_attempts + 1):
+            try:
+                self._wait_for_detail_request()
+                response = self.client.request(
+                    "GET",
+                    str(cfg["detail_api"]),
+                    params={
+                        "timestamp": "careers",
+                        "postId": job.job_id,
+                        "language": "zh-cn",
+                    },
+                    headers={
+                        "Referer": referer,
+                        "Accept": "application/json, text/plain, */*",
+                        "Accept-Language": "zh-CN,zh;q=0.9",
+                        "User-Agent": (
+                            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                            "AppleWebKit/537.36 Chrome/126.0 Safari/537.36"
+                        ),
+                    },
+                    timeout=timeout,
+                )
+                response.raise_for_status()
+                payload = response.json()
+                if not isinstance(payload, dict):
+                    raise ValueError(
+                        "Tencent detail API returned non-object JSON "
+                        f"for {job.job_id}"
+                    )
+                if payload.get("Code") != 200:
+                    raise RuntimeError(
+                        f"Tencent detail API failed for {job.job_id}: "
+                        f"Code={payload.get('Code')}"
+                    )
+                data = payload.get("Data")
+                if not isinstance(data, dict):
+                    raise RuntimeError(
+                        f"Tencent detail API returned no data for {job.job_id}"
+                    )
+                return data
+            except Exception as exc:
+                last_error = exc
+                if attempt < max_attempts:
+                    logger.warning(
+                        "[tencent] detail request failed for %s (%d/%d): %s; "
+                        "retrying",
+                        job.job_id,
+                        attempt,
+                        max_attempts,
+                        exc,
+                    )
+
+        assert last_error is not None
+        raise last_error
+
+    def _wait_for_detail_request(self) -> None:
+        delay = max(
+            0.0,
+            float(self.platform_config.get("detail_delay_seconds", 0.8)),
+        )
+        with self._detail_request_lock:
+            elapsed = time.monotonic() - self._last_detail_request_at
+            if elapsed < delay:
+                time.sleep(delay - elapsed)
+            self._last_detail_request_at = time.monotonic()
 
     @staticmethod
     def _apply_detail(

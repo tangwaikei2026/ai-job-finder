@@ -65,11 +65,7 @@ def test_audit_counts_missing_required_and_optional_fields() -> None:
     assert issues["missing_required_fields"]["by_field"]["location"]["count"] == 1
     assert issues["missing_required_fields"]["by_field"]["url"]["count"] == 1
     assert issues["missing_optional_fields"]["count"] == 2
-    assert (
-        issues["missing_optional_fields"]["by_field"]["department"]["count"]
-        == 1
-    )
-    assert issues["missing_optional_fields"]["by_field"]["salary"]["count"] == 1
+    assert "by_field" not in issues["missing_optional_fields"]
     assert issues["missing_optional_fields"]["missing_fields"] == {
         "department": 1,
         "experience": 0,
@@ -236,6 +232,137 @@ def test_audit_counts_missing_and_invalid_urls() -> None:
     ]
 
 
+def test_audit_checks_parseable_job_fields() -> None:
+    jobs = [
+        _job(),
+        _job(
+            job_id="job-2",
+            education="unknown",
+            experience="senior",
+            scraped_at="not-a-date",
+        ),
+        _job(
+            job_id="job-3",
+            education="硕士",
+            experience="三年以上",
+            scraped_at="2026-07-06T10:00:00+08:00",
+        ),
+    ]
+
+    issues = _audit(jobs)["issues"]
+
+    assert issues["unparseable_education"]["count"] == 1
+    assert issues["unparseable_experience_years"]["count"] == 1
+    assert issues["unparseable_scraped_at"]["count"] == 1
+
+
+def test_unparseable_field_samples_include_two_per_affected_platform() -> None:
+    jobs = [
+        _job(
+            job_id=f"{platform}-{number}",
+            platform=platform,
+            education="unknown",
+            experience="senior",
+            scraped_at="not-a-date",
+        )
+        for platform in ("example", "other")
+        for number in range(3)
+    ]
+
+    issues = _audit(jobs)["issues"]
+
+    for issue_name in (
+        "unparseable_education",
+        "unparseable_experience_years",
+        "unparseable_scraped_at",
+    ):
+        assert issues[issue_name]["count"] == 6
+        assert Counter(
+            sample["platform"]
+            for sample in issues[issue_name]["samples"]
+        ) == {"example": 2, "other": 2}
+
+
+def test_audit_checks_collection_manifest() -> None:
+    jobs = [_job(), _job(job_id="job-2", platform="other")]
+    collection_manifest = {
+        "job_count": 3,
+        "platforms": [
+            {
+                "platform": "example",
+                "complete": True,
+                "status": "success",
+                "jobs_in_scope": 1,
+                "details_fetched": 1,
+                "detail_failed": 0,
+                "stopped_by": "source_total_reached",
+            },
+            {
+                "platform": "other",
+                "complete": False,
+                "status": "partial",
+                "jobs_in_scope": 2,
+                "details_fetched": 0,
+                "detail_failed": 1,
+                "stopped_by": "detail_errors",
+            },
+        ],
+    }
+
+    report = audit_jobs(
+        jobs,
+        input_file="data/raw/2026-07-06.json",
+        generated_at="2026-07-06T12:00:00+08:00",
+        collection_manifest=collection_manifest,
+    )
+    issues = report["issues"]
+
+    assert issues["manifest_job_count_mismatch"]["count"] == 1
+    assert issues["manifest_job_count_mismatch"]["samples"] == report[
+        "summary"
+    ]["platform_collection_counts"]
+    assert issues["manifest_incomplete_platforms"]["count"] == 1
+    assert len(issues["manifest_incomplete_platforms"]["samples"]) == 1
+    assert issues["manifest_abnormal_stopped_by"]["count"] == 1
+    assert len(issues["manifest_abnormal_stopped_by"]["samples"]) == 1
+    assert report["summary"]["platform_collection_counts"] == [
+        {
+            "platform": "example",
+            "raw": 1,
+            "in_scope": 1,
+            "details_fetched": 1,
+            "detail_failed": 0,
+        },
+        {
+            "platform": "other",
+            "raw": 1,
+            "in_scope": 2,
+            "details_fetched": 0,
+            "detail_failed": 1,
+        },
+    ]
+
+
+def test_platform_counts_include_raw_platform_missing_from_manifest() -> None:
+    jobs = [_job(platform="raw-only")]
+
+    report = audit_jobs(
+        jobs,
+        input_file="raw.json",
+        collection_manifest={"job_count": 1, "platforms": []},
+    )
+
+    assert report["summary"]["platform_collection_counts"] == [
+        {
+            "platform": "raw-only",
+            "raw": 1,
+            "in_scope": None,
+            "details_fetched": None,
+            "detail_failed": None,
+        }
+    ]
+
+
 def test_run_audit_writes_json_and_markdown_reports(tmp_path: Path) -> None:
     input_path = tmp_path / "raw.json"
     input_path.write_text(
@@ -246,6 +373,10 @@ def test_run_audit_writes_json_and_markdown_reports(tmp_path: Path) -> None:
             ],
             ensure_ascii=False,
         ),
+        encoding="utf-8",
+    )
+    input_path.with_name("raw_manifest.json").write_text(
+        json.dumps({"job_count": 2, "platforms": []}),
         encoding="utf-8",
     )
 
