@@ -69,6 +69,7 @@ def _sample(job: dict[str, Any], row_number: int, **extra: Any) -> dict[str, Any
         "description": job.get("description"),
         "requirements": job.get("requirements"),
         "education": job.get("education"),
+        "url": job.get("url"),
         "experience": job.get("experience")
     }
     sample.update(extra)

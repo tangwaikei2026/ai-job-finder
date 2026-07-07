@@ -35,7 +35,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="normalize job cities and summarize them by company",
     )
     clean_parser.add_argument("--input", type=Path, required=True)
-    clean_parser.add_argument("--output", type=Path, required=True)
+    clean_parser.add_argument("--date", type=_date)
+    clean_parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("data/clean"),
+    )
+    clean_parser.add_argument("--output", type=Path)
+    clean_parser.add_argument("--report-output", type=Path)
     return parser
 
 
@@ -51,9 +58,23 @@ def main() -> None:
         print(f"Wrote {json_path}")
         print(f"Wrote {markdown_path}")
     elif args.command == "clean-jobs":
-        report = run_clean_jobs(args.input, output_path=args.output)
+        if args.output is None:
+            if args.date is None:
+                raise SystemExit("clean-jobs requires --date when --output is omitted")
+            output = args.output_dir / f"{args.date}.clean.json"
+        else:
+            output = args.output
+        report_output = args.report_output
+        if report_output is None and args.output is None:
+            report_output = args.output_dir / f"{args.date}.clean_report.json"
+        report = run_clean_jobs(
+            args.input,
+            output_path=output,
+            report_path=report_output,
+        )
         print(f"Cleaned {report['manifest']['job_count']} jobs")
-        print(f"Wrote {args.output}")
+        print(f"Wrote {output}")
+        print(f"Wrote {report['manifest']['report_file']}")
 
 
 if __name__ == "__main__":

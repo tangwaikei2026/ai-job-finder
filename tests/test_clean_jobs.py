@@ -11,6 +11,7 @@ from src.clean.jobs import (
     run_clean_jobs,
     summarize_company_field_counts,
     summarize_city_companies,
+    summarize_province_companies,
 )
 
 
@@ -34,22 +35,32 @@ def test_summarize_city_companies_counts_each_city_by_company() -> None:
     assert summarize_city_companies(jobs) == {
         "上海": {"甲公司": 1},
         "北京": {"甲公司": 2},
-        "杭州": {"乙公司": 2},
+        "杭州": {"乙公司": 1},
         "深圳": {"甲公司": 1},
     }
 
 
-def test_jd_strips_province_suffix_without_affecting_other_platforms() -> None:
+def test_province_locations_are_not_counted_as_cities() -> None:
     jobs = [
-        {"platform": "jd", "company": "京东", "location": "广东省/浙江省"},
-        {"platform": "other", "company": "其他", "location": "广东省/浙江省"},
+        {
+            "company": "甲公司",
+            "location": "广东省/深圳市",
+            "city_norm": ["深圳"],
+            "province_norm": ["广东省"],
+        },
+        {
+            "company": "乙公司",
+            "location": "广东",
+            "city_norm": [],
+            "province_norm": ["广东省"],
+        },
     ]
 
     assert summarize_city_companies(jobs) == {
-        "广东": {"京东": 1},
-        "广东省": {"其他": 1},
-        "浙江": {"京东": 1},
-        "浙江省": {"其他": 1},
+        "深圳": {"甲公司": 1},
+    }
+    assert summarize_province_companies(jobs) == {
+        "广东省": {"乙公司": 1, "甲公司": 1},
     }
 
 
@@ -71,12 +82,13 @@ def test_run_clean_jobs_writes_output_without_changing_input(
     tmp_path: Path,
 ) -> None:
     input_path = tmp_path / "raw.json"
-    output_path = tmp_path / "clean" / "jobs.json"
+    output_path = tmp_path / "clean" / "2026-07-07.clean.json"
+    report_path = tmp_path / "clean" / "2026-07-07.clean_report.json"
     raw_content = json.dumps(
         [
             {
                 "company": "甲公司",
-                "location": "北京市/上海市",
+                "location": "北京市/上海市/广东",
                 "education": "本科",
                 "experience": "三年以上",
             }
@@ -88,22 +100,32 @@ def test_run_clean_jobs_writes_output_without_changing_input(
     report = run_clean_jobs(
         input_path,
         output_path=output_path,
+        report_path=report_path,
         generated_at="2026-07-06T12:00:00+08:00",
     )
 
     assert input_path.read_text(encoding="utf-8") == raw_content
-    assert json.loads(output_path.read_text(encoding="utf-8")) == report
+    clean_jobs = json.loads(output_path.read_text(encoding="utf-8"))
+    assert json.loads(report_path.read_text(encoding="utf-8")) == report
+    assert len(clean_jobs) == 1
+    assert clean_jobs[0]["locations_norm"] == ["北京", "上海", "广东省"]
+    assert clean_jobs[0]["location_level"] == ["city", "city", "province"]
+    assert clean_jobs[0]["city_norm"] == ["北京", "上海"]
+    assert clean_jobs[0]["province_norm"] == ["广东省"]
     assert report["manifest"] == {
         "generated_at": "2026-07-06T12:00:00+08:00",
         "input_file": str(input_path),
         "output_file": str(output_path),
+        "report_file": str(report_path),
         "job_count": 1,
-        "city_count_before_dedup": 2,
+        "city_count": 2,
+        "province_only_count": 0,
     }
     assert report["company_city"] == {
         "上海": {"甲公司": 1},
         "北京": {"甲公司": 1},
     }
+    assert report["company_province"] == {"广东省": {"甲公司": 1}}
     assert report["company_education"] == {"甲公司": {"本科": 1}}
     assert report["company_experience"] == {"甲公司": {"三年以上": 1}}
     assert "company_cities" not in report
