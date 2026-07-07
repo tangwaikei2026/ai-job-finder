@@ -1,0 +1,38 @@
+{
+  "manifest": {
+    "date": "2026-07-07",
+    "input_file": "data/clean/2026-07-07.json",
+    "generated_at": "2026-07-07 16:02:04",
+    "job_count": 25241
+  },
+  "status": "pass",
+  "can_continue_to_batch_b": true,
+  "can_continue_to_clean_v2": true,
+  "education": {
+    "known_count": 3382,
+    "missing_count": 21859,
+    "unknown_count": 0,
+    "invalid_count": 0,
+    "missing_rate": 0.866012,
+    "unknown_values": {},
+    "invalid_values": {}
+  },
+  "experience": {
+    "known_count": 7101,
+    "missing_count": 18138,
+    "unknown_count": 0,
+    "invalid_count": 2,
+    "missing_rate": 0.718593,
+    "unknown_values": {},
+    "invalid_values": {
+      "{'from': None, 'to': 0}": "https://careers.aliyun.com/off-campus/position-detail?positionId=100013803004"
+    }
+  },
+  "signals": {
+    "new_unknown_enum_found": false,
+    "invalid_enum_found": true,
+    "missing_rate_spike": false,
+    "platform_missing_rate_spike": false
+  },
+  "blocking_reasons": []
+}

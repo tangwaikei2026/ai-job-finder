@@ -1,0 +1,45 @@
+missing_values:
+  - ""
+  - null
+  - "<missing>"
+
+values:
+  不限:
+    normalized: no_requirement
+    barrier: no_requirement
+    confidence: high
+
+  其他:
+    normalized: other
+    barrier: unknown
+    confidence: medium
+
+  大专:
+    normalized: college
+    barrier: college
+    confidence: high
+
+  本科:
+    normalized: bachelor
+    barrier: bachelor
+    confidence: high
+
+  本科及以上:
+    normalized: bachelor_plus
+    barrier: bachelor_plus
+    confidence: high
+
+  硕士:
+    normalized: master
+    barrier: master
+    confidence: high
+
+  doctorate:
+    normalized: doctorate
+    barrier: doctorate
+    confidence: high
+
+  博士:
+    normalized: doctorate
+    barrier: doctorate
+    confidence: high
