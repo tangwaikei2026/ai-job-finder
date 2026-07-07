@@ -20,10 +20,12 @@ platforms:
     detail_api: "https://careers.tencent.com/tencentcareer/api/post/ByPostId"
     detail_url: "https://careers.tencent.com/jobdesc.html?postId={job_id}"
     page_size: 100
-    detail_workers: 1
-    detail_delay_seconds: 0.8
-    detail_timeout_seconds: 10
-    detail_max_retries: 2
+    detail_strategy: "all"
+    detail_limit: 0
+    detail_workers: 2
+    detail_delay_seconds: 0.3
+    detail_timeout_seconds: 8
+    detail_max_retries: 1
     fetch_details: true
 
   netease:

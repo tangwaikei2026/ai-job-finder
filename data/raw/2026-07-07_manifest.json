@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-07-07 10:48:29",
+  "config": "/Users/waikei/Documents/Codex/ai-job-finder/config.yaml",
+  "cities": [
+    "北京",
+    "上海",
+    "杭州",
+    "深圳",
+    "广州"
+  ],
+  "job_count": 1922,
+  "complete": true,
+  "platforms": [
+    {
+      "platform": "tencent",
+      "name": "腾讯",
+      "status": "success",
+      "complete": true,
+      "source_total": 2302,
+      "expected_pages": 24,
+      "pages_fetched": 24,
+      "records_fetched": 2302,
+      "jobs_mapped": 2301,
+      "jobs_in_scope": 1922,
+      "outside_city_scope": 379,
+      "unknown_location": 0,
+      "duplicate_records": 1,
+      "missing_job_id": 0,
+      "details_fetched": 1922,
+      "detail_failed": 0,
+      "stopped_by": "source_total_reached",
+      "error": "",
+      "started_at": "2026-07-07 10:37:22",
+      "finished_at": "2026-07-07 10:48:29",
+      "duration_seconds": 666.805
+    }
+  ]
+}

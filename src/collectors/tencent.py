@@ -104,11 +104,19 @@ class TencentRawCollector(RawCollector):
             if cfg.get("fetch_details", True) and cfg.get("detail_api"):
                 self._detail_request_lock = Lock()
                 self._last_detail_request_at = 0.0
-                workers = max(1, int(cfg.get("detail_workers", 1)))
+                selected_detail_targets = self._select_detail_targets(detail_targets)
+                logger.info(
+                    "[tencent] detail_targets total=%d strategy=%s limit=%d",
+                    len(selected_detail_targets),
+                    str(cfg.get("detail_strategy", "all")),
+                    max(0, int(cfg.get("detail_limit", 0))),
+                )
+                workers = max(1, int(cfg.get("detail_workers", 2)))
+                detail_done = 0
                 with ThreadPoolExecutor(max_workers=workers) as executor:
                     future_map = {
                         executor.submit(self._fetch_detail, job): job
-                        for job in detail_targets
+                        for job in selected_detail_targets
                     }
                     for future in as_completed(future_map):
                         job = future_map[future]
@@ -117,6 +125,19 @@ class TencentRawCollector(RawCollector):
                             manifest.details_fetched += 1
                         except Exception:
                             manifest.detail_failed += 1
+                        detail_done += 1
+                        if (
+                            detail_done % 50 == 0
+                            or detail_done == len(selected_detail_targets)
+                        ):
+                            logger.info(
+                                "[tencent] detail progress total=%d done=%d "
+                                "details_fetched=%d detail_failed=%d",
+                                len(selected_detail_targets),
+                                detail_done,
+                                manifest.details_fetched,
+                                manifest.detail_failed,
+                            )
 
             manifest.jobs_in_scope = len(jobs_by_id)
             manifest.complete = manifest.complete and manifest.detail_failed == 0
@@ -152,16 +173,24 @@ class TencentRawCollector(RawCollector):
             url=url,
         )
 
+    def _select_detail_targets(
+        self,
+        jobs: list[RawJobPosting],
+    ) -> list[RawJobPosting]:
+        cfg = self.platform_config
+        strategy = str(cfg.get("detail_strategy", "all")).strip().lower()
+        if strategy != "all":
+            raise ValueError(f"unsupported Tencent detail_strategy: {strategy}")
+
+        limit = max(0, int(cfg.get("detail_limit", 0)))
+        if limit:
+            return jobs[:limit]
+        return jobs
+
     def _fetch_detail(self, job: RawJobPosting) -> dict[str, Any]:
         cfg = self.platform_config
-        max_attempts = max(1, int(cfg.get("detail_max_retries", 2)))
-        timeout = max(0.1, float(cfg.get("detail_timeout_seconds", 10)))
-        detail_url = str(cfg.get("detail_url") or "")
-        referer = (
-            detail_url.format(job_id=job.job_id)
-            if detail_url
-            else "https://careers.tencent.com/"
-        )
+        max_attempts = max(1, int(cfg.get("detail_max_retries", 1)))
+        timeout = max(0.1, float(cfg.get("detail_timeout_seconds", 8)))
         last_error: Exception | None = None
 
         for attempt in range(1, max_attempts + 1):
@@ -176,9 +205,9 @@ class TencentRawCollector(RawCollector):
                         "language": "zh-cn",
                     },
                     headers={
-                        "Referer": referer,
+                        "Referer": job.url,
                         "Accept": "application/json, text/plain, */*",
-                        "Accept-Language": "zh-CN,zh;q=0.9",
+                        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
                         "User-Agent": (
                             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                             "AppleWebKit/537.36 Chrome/126.0 Safari/537.36"
@@ -222,7 +251,7 @@ class TencentRawCollector(RawCollector):
     def _wait_for_detail_request(self) -> None:
         delay = max(
             0.0,
-            float(self.platform_config.get("detail_delay_seconds", 0.8)),
+            float(self.platform_config.get("detail_delay_seconds", 0.3)),
         )
         with self._detail_request_lock:
             elapsed = time.monotonic() - self._last_detail_request_at

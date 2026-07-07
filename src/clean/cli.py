@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 
 from src.clean.audit import run_audit
+from src.clean.jobs import run_clean_jobs
 
 
 def _date(value: str) -> str:
@@ -29,6 +30,12 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("data/audit"),
     )
+    clean_parser = subparsers.add_parser(
+        "clean-jobs",
+        help="normalize job cities and summarize them by company",
+    )
+    clean_parser.add_argument("--input", type=Path, required=True)
+    clean_parser.add_argument("--output", type=Path, required=True)
     return parser
 
 
@@ -43,8 +50,11 @@ def main() -> None:
         print(f"Audited {report['manifest']['job_count']} jobs")
         print(f"Wrote {json_path}")
         print(f"Wrote {markdown_path}")
+    elif args.command == "clean-jobs":
+        report = run_clean_jobs(args.input, output_path=args.output)
+        print(f"Cleaned {report['manifest']['job_count']} jobs")
+        print(f"Wrote {args.output}")
 
 
 if __name__ == "__main__":
     main()
-
