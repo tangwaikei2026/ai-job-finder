@@ -21,6 +21,8 @@ data/.cookies/
 *.swo
 *~
 
+.github/
+
 .history/
 *.DS_Store
 # Temp scripts (probe/debug/one-off)

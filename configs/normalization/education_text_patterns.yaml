@@ -1,0 +1,57 @@
+degree_patterns:
+  no_requirement:
+    suggested_value: no_requirement
+    examples:
+      - 学历不限
+      - 不限学历
+  college_plus:
+    suggested_value: college_plus
+    examples:
+      - 大专及以上
+      - 专科及以上
+  bachelor_plus:
+    suggested_value: bachelor_plus
+    examples:
+      - 本科及以上
+      - 本科以上
+      - 本科或以上
+      - 大学本科或以上
+      - 全日制本科及以上
+      - 统招本科
+  master_plus:
+    suggested_value: master_plus
+    examples:
+      - 硕士及以上
+      - 研究生及以上
+  phd:
+    suggested_value: phd
+    examples:
+      - 博士
+      - 博士学历
+      - doctorate
+      - PhD
+  preferred_only:
+    suggested_value: preferred_only
+    examples:
+      - 硕士优先
+      - 研究生优先
+      - 博士优先
+      - 硕士或博士优先
+major_patterns:
+  major_required:
+    examples:
+      - 计算机相关专业
+      - 计算机、软件工程、人工智能等相关专业
+      - 电气工程、自动化或相关专业
+      - 商科相关专业
+  major_preferred_only:
+    examples:
+      - 计算机相关专业优先
+      - 人工智能专业优先
+      - 有人工智能专业背景者优先
+      - 电影宣发及制作等专业背景优先
+  major_no_requirement:
+    suggested_value: no_requirement
+    examples:
+      - 专业不限
+      - 不限专业

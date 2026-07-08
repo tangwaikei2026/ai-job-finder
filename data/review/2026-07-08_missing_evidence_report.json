@@ -1,0 +1,101 @@
+{
+  "manifest": {
+    "input_file": "data/clean/2026-07-08.json",
+    "generated_at": "2026-07-08 15:45:09",
+    "job_count": 24963
+  },
+  "education": {
+    "missing_input_count": 21566,
+    "evidence_found_count": 14802,
+    "unknown_pattern_count": 2779,
+    "by_platform": {
+      "baidu": {
+        "missing_input_count": 1486,
+        "evidence_found_count": 1078,
+        "unknown_pattern_count": 114
+      },
+      "bytedance": {
+        "missing_input_count": 11643,
+        "evidence_found_count": 8086,
+        "unknown_pattern_count": 1248
+      },
+      "didi": {
+        "missing_input_count": 1026,
+        "evidence_found_count": 743,
+        "unknown_pattern_count": 129
+      },
+      "feishu": {
+        "missing_input_count": 276,
+        "evidence_found_count": 195,
+        "unknown_pattern_count": 58
+      },
+      "jd": {
+        "missing_input_count": 1335,
+        "evidence_found_count": 1037,
+        "unknown_pattern_count": 491
+      },
+      "kuaishou": {
+        "missing_input_count": 1386,
+        "evidence_found_count": 933,
+        "unknown_pattern_count": 120
+      },
+      "meituan": {
+        "missing_input_count": 1642,
+        "evidence_found_count": 1166,
+        "unknown_pattern_count": 373
+      },
+      "tencent": {
+        "missing_input_count": 1925,
+        "evidence_found_count": 995,
+        "unknown_pattern_count": 189
+      },
+      "xiaohongshu": {
+        "missing_input_count": 847,
+        "evidence_found_count": 569,
+        "unknown_pattern_count": 57
+      }
+    }
+  },
+  "experience": {
+    "missing_input_count": 16703,
+    "evidence_found_count": 9995,
+    "unknown_pattern_count": 26441,
+    "by_platform": {
+      "baidu": {
+        "missing_input_count": 1493,
+        "evidence_found_count": 1050,
+        "unknown_pattern_count": 2128
+      },
+      "bytedance": {
+        "missing_input_count": 11643,
+        "evidence_found_count": 6373,
+        "unknown_pattern_count": 18397
+      },
+      "didi": {
+        "missing_input_count": 1026,
+        "evidence_found_count": 858,
+        "unknown_pattern_count": 1613
+      },
+      "feishu": {
+        "missing_input_count": 276,
+        "evidence_found_count": 140,
+        "unknown_pattern_count": 562
+      },
+      "jd": {
+        "missing_input_count": 1335,
+        "evidence_found_count": 958,
+        "unknown_pattern_count": 2206
+      },
+      "tencent": {
+        "missing_input_count": 83,
+        "evidence_found_count": 59,
+        "unknown_pattern_count": 115
+      },
+      "xiaohongshu": {
+        "missing_input_count": 847,
+        "evidence_found_count": 557,
+        "unknown_pattern_count": 1420
+      }
+    }
+  }
+}

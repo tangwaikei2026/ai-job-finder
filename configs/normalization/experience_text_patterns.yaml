@@ -1,0 +1,23 @@
+patterns:
+  year_range:
+    examples:
+      - 3-5年
+      - 3 到 5 年
+  min_years:
+    examples:
+      - 3年以上
+      - 3年及以上
+      - 至少3年
+      - 不少于3年
+      - 三年以上
+      - 两年以上
+  exact_years:
+    examples:
+      - 3年工作经验
+  no_requirement:
+    examples:
+      - 经验不限
+      - 不限经验
+  fresh_graduate:
+    examples:
+      - 应届毕业生
