@@ -1,0 +1,27 @@
+target_profile:
+  target_cities:
+    - 深圳
+
+  user_degree_level: bachelor_plus
+
+  acceptable_major_groups:
+    - computer
+    - ai_ml
+    - data_science
+
+  max_acceptable_experience_years: 10
+
+  acceptable_experience_tags:
+    - ai
+    - data
+    - testing
+    - ecommerce
+
+  reject_experience_tags:
+    - management
+    - security
+    - frontend
+    - backend
+    - game
+    - law
+    - marketing
