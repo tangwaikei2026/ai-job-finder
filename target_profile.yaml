@@ -19,23 +19,26 @@ target_profile:
     - risk
 
   reject_experience_tags:
-    - management
-    - security
-    - frontend
-    - backend
-    - game
-    - law
-    - marketing
-    - product
-    - operations
-    - research
     - algorithm
-    - devops_cloud
-    - mobile_client
-    - sales
+    - backend
     - bd
     - content
-    - media
     - design
+    - devops
     - finance
+    - frontend
+    - game
+    - law
+    - management
+    - marketing
+    - media
+    - mobile_client
+    - operations
+    - overseas
+    - product
+    - research
     - retail
+    - sales
+    - security
+    - strategy
+    - unknown
