@@ -15,8 +15,8 @@ values:
     confidence: medium
 
   大专:
-    normalized: college
-    barrier: college
+    normalized: associate
+    barrier: associate
     confidence: high
 
   本科:

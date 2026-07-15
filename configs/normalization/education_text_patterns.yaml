@@ -4,8 +4,8 @@ degree_patterns:
     examples:
       - 学历不限
       - 不限学历
-  college_plus:
-    suggested_value: college_plus
+  associate_plus:
+    suggested_value: associate_plus
     examples:
       - 大专及以上
       - 专科及以上
