@@ -16,6 +16,7 @@ target_profile:
     - data
     - testing
     - ecommerce
+    - risk
 
   reject_experience_tags:
     - management
@@ -25,3 +26,16 @@ target_profile:
     - game
     - law
     - marketing
+    - product
+    - operations
+    - research
+    - algorithm
+    - devops_cloud
+    - mobile_client
+    - sales
+    - bd
+    - content
+    - media
+    - design
+    - finance
+    - retail
