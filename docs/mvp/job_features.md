@@ -110,8 +110,8 @@ conflict
 | 9 | required tags 同时命中 acceptable 和 reject | `grey` | `experience_required_tags_conflict` |
 | 10 | required tags 包含未分类或 `unknown` 标签 | `grey` | `experience_required_tags_unknown` |
 | 11 | required tags 只命中 reject tags | `reject` | `experience_required_tags_mismatch` |
-| 12 | 硬年限满足，required tags 为空或只命中 acceptable tags | `pass` | `years_ok;experience_required_tags_match` |
-| 13 | `requirement_type=prefer_only` | `pass` | `prefer_only_not_blocking` |
+| 12 | `requirement_type=prefer_only` | `pass` | `prefer_only_not_blocking` |
+| 13 | 硬年限满足，required tags 为空或只命中 acceptable tags | `pass` | `years_ok;experience_required_tags_match` |
 
 
 ---
@@ -150,31 +150,6 @@ conflict
 4. 如果没有可用城市：
    - CSV 中写空字符串。
 
-### 例子1：
-
-```text
-clean city_norm = ["北京", "深圳"]
-target_cities = ["深圳"]
-```
-
-输出：
-```text
-job_features.city_norm = 深圳
-city 判断 = pass
-```
-
-### 例子2：
-
-```text
-clean city_norm = ["北京", "上海"]
-target_cities = ["深圳"]
-```
-
-输出：
-```text
-job_features.city_norm = 北京
-city 判断 = reject
-```
 
 ## final_pool规则
 任一 reject → rejected 否则任一 grey → grey 否则 → candidate
