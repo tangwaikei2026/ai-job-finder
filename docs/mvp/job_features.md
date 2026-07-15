@@ -175,3 +175,14 @@ target_cities = ["深圳"]
 job_features.city_norm = 北京
 city 判断 = reject
 ```
+
+## final_pool规则
+任一 reject → rejected 否则任一 grey → grey 否则 → candidate
+
+| 条件                                     | final_pool  | final_reason_codes         |
+| -------------------------------------- | ----------- | -------------------------- |
+| city 不包含target_cities                  | `rejected`  | `city_mismatch`            |
+| education_decision=reject              | `rejected`  | `education_reject`         |
+| experience_decision=reject             | `rejected`  | `experience_reject`        |
+| city / education / experience 任一 grey  | `grey`      | `has_grey_dimension`       |
+| city / education / experience 三者都 pass | `candidate` | `all_core_dimensions_pass` |
