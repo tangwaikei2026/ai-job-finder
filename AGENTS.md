@@ -4,7 +4,10 @@
 
 - 当前项目：`tangwaikei2026/ai-job-finder`
 - 目标：围绕 `src` 建立稳定采集主路径，并逐步平滑去掉旧路径代码。
-- 当前阶段只处理 raw 采集层，不处理业务过滤、diff、README、数据库写入、通知。
+- 保留 raw 层现有约束；
+- 明确 clean_mvp 分支允许修改 src/clean、src/analysis、
+     configs/normalization 和对应 tests；
+- clean/analysis 不得修改 raw collector 行为。
 
 ## 总原则
 

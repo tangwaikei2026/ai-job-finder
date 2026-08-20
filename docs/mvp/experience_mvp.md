@@ -163,7 +163,7 @@ number | null
 
 ## 含义
 
-把最低年限归到几个粗桶里。
+由最低年限归类得到的粗分桶，不参与精确 reject 判断
 
 ## 数据类型
 
@@ -267,7 +267,7 @@ unknown
   "experience_max_years": null,
   "experience_years_bucket": "8_plus",
   "experience_requirement_type": "mixed",
-  "experience_required_tags": ["game", "development", "management"],
+  "experience_required_tags": ["game", "management"],
   "experience_parse_status": "partial"
 }
 ```
@@ -316,14 +316,13 @@ game
 law
 management
 marketing
-media
-mobile_client
+mobile
 operations
 overseas
 product
 research
 retail
-sales
+risk
 security
 strategy
 testing
@@ -339,8 +338,8 @@ unknown
 | sentence              | required_tags                                  |
 | --------------------- | ---------------------------------------------- |
 | `3年以上游戏服务端开发经验`       | `["game", "backend"]`                          |
-| `5年以上游戏商业化策划经验`       | `["game", "product"]` 或 `["game", "strategy"]` |
-| `3年以上数据科学、机器学习算法相关经验` | `["data", "ai"]`                               |
+| `5年以上游戏商业化策划经验`       | `["game", "product"]` |
+| `3年以上数据科学、机器学习算法相关经验` | `["data", "algorithm"]`                     |
 | `7年以上信息安全或SOC经验`      | `["security"]`                                 |
 | `3年及以上游戏策划经验`         | `["game", "product"]`                          |
 | `有丰富项目经验`             | `["unknown"]`                                  |
@@ -390,7 +389,7 @@ list[string]
 | `有游戏行业经验者优先`       | `["game"]`                    |
 | `有AI Agent研发经验者优先` | `["ai"]`                      |
 | `有长线游戏运营经验者加分`     | `["game", "operations"]`      |
-| `有互联网产品合规工作经验者尤佳`  | `["product"]` 或 `["unknown"]` |
+| `有互联网产品工作经验者尤佳`  | `["product"]` |
 
 ---
 
@@ -444,6 +443,30 @@ unknown
 conflict
 not_experience
 ```
+
+---
+
+## `experience_parse_status` 聚合顺序
+
+当一个岗位存在多个 experience 来源或多个候选句时，按以下顺序确定最终状态：
+
+```text
+conflict
+→ partial
+→ ok
+→ not_experience
+→ unknown
+```
+
+解释：
+
+- API/text 有冲突，最终为 conflict。
+- 存在真实 experience 信息但只解析出一部分，最终为 partial。
+- 存在至少一个可稳定归一的 experience 要求，最终为 ok。
+- 没有真实 experience 信息，但存在被确认是假阳性的候选句，最终为 not_experience
+- API 为空且文本没有任何 experience 信息，最终为 unknown。
+
+只要存在有效 experience 要求，其他 not_experience 假阳性句不得覆盖有效结果。
 
 ---
 
@@ -610,7 +633,6 @@ prefer_part = 有海外发行经验者优先
 ```text
 经验不限
 不限经验
-优秀应届可考虑
 ```
 
 ---
@@ -623,24 +645,43 @@ prefer_part = 有海外发行经验者优先
 
 | 关键词                    | tag          |
 | ---------------------- | ------------ |
-| 游戏、手游、电竞               | `game`       |
-| 电商、跨境电商                | `ecommerce`  |
-| AI、人工智能、机器学习、大模型、Agent | `ai`         |
-| 数据、数据分析、数据科学           | `data`       |
+| 算法研发、模型训练、推荐/搜索/排序、CTR、召回、特征工程、模型优化 | `algorithm` |
+| 大模型应用、Agent、RAG、Prompt、AI 评测、AI 测试、模型效果评估、LLM 应用落地 | `ai`         |
 | 服务端、后端                 | `backend`    |
-| 前端                     | `frontend`   |
-| 测试、质量、QA               | `testing`    |
-| 运营、社群、用户运营             | `operations` |
-| 产品、策划、制作人              | `product`    |
-| 市场、营销、投放、品牌            | `marketing`  |
-| 商务、BD                  | `bd`         |
-| 战略、咨询、投行、商分            | `strategy`   |
-| 用户研究、用研                | `research`   |
-| 安全、SOC                 | `security`   |
-| 管理、负责人、团队管理            | `management` |
-| 海外、全球、出海、MENA、SEA      | `overseas`   |
-| 内容、创作者、社区、UGC、PGC      | `content`    |
+| 销售、商务、BD                  | `bd`         |
+| 内容、创作者、社区、UGC、PGC、直播、短视频      | `content`    |
+| 数据、数据分析、数据科学           | `data`       |
 | UI、UX、设计               | `design`     |
+| 运维、云、DevOps、SRE | `devops` |
+| 电商、跨境电商                | `ecommerce`  |
+| 金融、支付、财务、税务、审计| `finance` |
+| 前端                     | `frontend`   |
+| 游戏、手游、电竞               | `game`       |
+| 法律、法务、合规、监管 | `law` |
+| 管理、负责人、团队管理            | `management` |
+| 市场、营销、投放、品牌            | `marketing`  |
+| Android、iOS、App、客户端 | `mobile` |
+| 运营、社群、用户运营             | `operations` |
+| 海外、全球、出海、MENA、SEA      | `overseas`   |
+| 产品、策划、制作人              | `product`    |
+| 用户研究、用研                | `research`   |
+| 零售 | `retail` |
+| 安全、SOC                 | `security`   |
+| 战略、咨询、投行、商分            | `strategy`   |
+| 测试、质量、QA               | `testing`    |
+| 风控、反作弊、治理、规则策略 | `risk` |
+
+### `ai` 与 `algorithm` 的区别：
+
+- `algorithm` 表示重算法经验要求，例如推荐、搜索、排序、召回、CTR、特征工程、模型训练、模型调优、深度学习算法、NLP 算法研发。
+- `ai` 表示 AI 应用和大模型应用经验要求，例如大模型应用评测、Agent 评测、RAG 评测、Prompt 评测、AI 应用测试、模型效果评估、智能体测试。
+
+判断优先级：
+
+1. 如果岗位要求候选人负责算法研发、模型训练、模型优化，则标记 `algorithm`。
+2. 如果岗位要求候选人负责大模型应用、Agent、RAG、Prompt、AI 产品的测试或评测，则标记 `ai`。
+3. 如果只出现“人工智能 / 机器学习 / 大模型”等泛词，但没有明确职责，则不直接标记 `algorithm`，优先结合上下文判断为 `ai` 或 `unknown`。
+4. 如果算法只是“优先项”，放入 `experience_prefer_tags`，不要放入 `experience_required_tags`。
 
 ---
 
@@ -658,7 +699,7 @@ prefer_part = 有海外发行经验者优先
   "experience_max_years": null,
   "experience_years_bucket": "3_5",
   "experience_requirement_type": "hard_min",
-  "experience_required_tags": ["game", "backend"],
+  "experience_required_tags": ["game", "development"],
   "experience_prefer_tags": [],
   "experience_parse_status": "ok",
   "experience_source": {
@@ -783,32 +824,7 @@ prefer_only 不 reject
 
 ---
 
-## 例子 5：经验不限
-
-```text
-经验不限，优秀应届生可考虑
-```
-
-```json
-{
-  "experience_min_years": 0,
-  "experience_max_years": null,
-  "experience_years_bucket": "none",
-  "experience_requirement_type": "none",
-  "experience_required_tags": [],
-  "experience_prefer_tags": [],
-  "experience_parse_status": "ok",
-  "experience_source": {
-    "years": "text_rule",
-    "required_tags": "none",
-    "prefer_tags": "none"
-  }
-}
-```
-
----
-
-## 例子6： 明确写“经验不限”
+## 例子5： 明确写“经验不限”
 
 输入：
 
@@ -837,7 +853,7 @@ prefer_only 不 reject
 
 ---
 
-## 例子7：API 和文本都没有 experience 信息
+## 例子6：API 和文本都没有 experience 信息
 
 ### 含义：
 无法确认岗位是否有经验要求，不等于岗位明确经验不限。
@@ -864,7 +880,7 @@ prefer_only 不 reject
 
 ---
 
-## 例子8：命中的候选句不是 experience 要求
+## 例子7：命中的候选句不是 experience 要求
 
 not_experience 只用于候选句假阳性。
 完全没有匹配到 experience 信息时，必须使用 unknown。

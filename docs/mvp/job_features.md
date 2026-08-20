@@ -5,11 +5,13 @@
 | `platform`                    | `string`          | `feishu`                             |                                                              | 按平台统计              |
 | `title`                       | `string`          | `AI应用评测工程师`                          |                                                              | 人工快速判断             |
 | `company`                     | `string`          | `智谱AI`                               |                                                              | 人工快速判断             |
-| `city_norm`                   | `string enum`     | `深圳`                                 |标准化城市名称                                   |  job_features 中的单一城市展示值；城市是否匹配仍基于 clean 中完整城市集合判断           |
+| `city_norm`                   | `string | empty`     | `深圳`                                 |  标准化城市名称                           |  job_features 中的单一城市展示值；      |
+| `city_decision`     | `string enum`  | `pass`       |  `pass;reject`                           | 判断岗位城市是否命中目标城市       |
+| `city_reason_codes` | `list[string]` | `city_match` |  `city_match;city_mismatch;city_unknown` | 解释 city_decision 的原因 |
 | `education_degree_barrier`    | `string enum`     | `bachelor_plus`                      | `none;associate_plus;bachelor_plus;master_plus;phd_plus;unknown` | 判断学历硬门槛            |
 | `education_degree_prefer`     | `list[string]`    | `master_plus;phd_plus`               | `bachelor_plus;master_plus;phd_plus`                         | 学历偏好，不直接 reject    |
 | `education_major_barrier`     | `list[string]`    | `computer;ai_ml`                     |                                                              | 判断专业硬门槛            |
-| `education_major_prefer`      | `list[string]`    | `computer;design_art`                |                                                              | 专业偏好，不直接 reject    |
+| `education_major_prefer`      | `list[string]`    | `computer;design`                |                                                              | 专业偏好，不直接 reject    |
 | `education_parse_status`      | `string enum`    | `ok`                                 | `ok;partial;unknown;conflict;not_education`                  | 判断字段是否稳定           |
 | `education_decision`          | `string enum`     | `pass`                               | `pass;reject;grey`                                           | education 维度判断     |
 | `education_reason_codes`      | `list[string]`    | `degree_ok;major_ok`                 |                                                              | 解释 education 判断原因  |
@@ -22,8 +24,8 @@
 | `experience_parse_status`     | `string enum`     | `ok`                                 | `ok;partial;unknown;conflict;not_experience`                 | 判断字段是否稳定           |
 | `experience_decision`         | `string enum`     | `pass`                               | `pass;reject;grey`                                           | experience 维度判断    |
 | `experience_reason_codes`     | `list[string]`    | `years_ok;experience_required_tags_match`       |                                                              | 解释 experience 判断原因 |
-| `final_pool`                  | `string enum`     | `candidate`                          |                                                              | 最终岗位池              |
-| `final_reason_codes`          | `list[string]`    | `city_ok;education_ok;experience_ok` |                                                              | 解释为什么进入该池          |
+| `final_pool`                  | `string enum`     | `candidate`                          |    `candidate;rejected;grey`                    | 最终岗位池              |
+| `final_reason_codes`          | `list[string]`    | `city_ok;education_ok;experience_ok;city_mismatch;education_reject;experience_reject;has_grey_dimension;all_core_dimensions_pass` |                                                              | 解释为什么进入该池          |
 
 
 
@@ -62,6 +64,7 @@ nan
 
 本规则适用于：
 
+- city_reason_codes
 - education_degree_prefer
 - education_major_barrier
 - education_major_prefer
@@ -131,33 +134,84 @@ conflict
 | 7 | 只有学历硬门槛不满足 | `reject` | `degree_too_high;major_ok` |
 | 8 | 只有专业硬门槛不满足 | `reject` | `degree_ok;major_mismatch` |
 | 9 | 学历满足，专业为空或匹配 | `pass` | `degree_ok;major_ok` |
-| 10 | 只有专业偏好不匹配 | `pass` | `degree_ok;major_prefer_only` |
-| 11 | 只有学历偏好不匹配 | `pass` | `degree_prefer_only;major_ok` |
+| 10 | 学历为空或匹配，专业满足 | `pass` | `degree_ok;major_ok` |
+| 11 | 只有专业偏好不匹配 | `pass` | `degree_ok;major_prefer_only` |
+| 12 | 只有学历偏好不匹配 | `pass` | `degree_prefer_only;major_ok` |
+| 13 | 专业和学历偏好都不匹配 | `pass` | `degree_ok;major_ok` |
 
 ---
 
-## city_norm 映射规则
+## city_decision 规则
 
-`city_norm` 必须是单个字符串。
+| 条件                                          | city_decision | city_reason_codes |
+| ------------------------------------------- | ------------- | ----------------- |
+| `city_norm`命中 `target_profile.target_cities` | `pass`        | `city_match`      |
+| `city_norm`不为空，但未命中`target_profile.target_cities`        | `reject`      | `city_mismatch`   |
+| `city_norm`为空 / unknown / 无法识别          | `reject`      | `city_unknown`    |
 
-上游 clean 当前可能包含多个标准化城市，因此生成 job_features 时按以下规则输出：
+---
 
-1. 使用 clean 中完整的城市集合判断是否命中 `target_profile.target_cities`。
-2. 如果命中一个或多个目标城市：
-   - 按 `target_profile.target_cities` 的配置顺序，输出第一个命中的目标城市。
-3. 如果没有命中目标城市，但存在标准化城市：
-   - 输出 clean 城市集合中的第一个城市。
-4. 如果没有可用城市：
-   - CSV 中写空字符串。
+## final_pool 规则
 
+### 输入字段
 
-## final_pool规则
-任一 reject → rejected 否则任一 grey → grey 否则 → candidate
+`final_pool` 只依赖三个维度判断：
 
-| 条件                                     | final_pool  | final_reason_codes         |
-| -------------------------------------- | ----------- | -------------------------- |
-| city 不包含target_cities                  | `rejected`  | `city_mismatch`            |
-| education_decision=reject              | `rejected`  | `education_reject`         |
-| experience_decision=reject             | `rejected`  | `experience_reject`        |
-| city / education / experience 任一 grey  | `grey`      | `has_grey_dimension`       |
-| city / education / experience 三者都 pass | `candidate` | `all_core_dimensions_pass` |
+```text
+city_decision
+education_decision
+experience_decision
+```
+
+### 判定优先级
+
+固定优先级：
+
+```text
+reject > grey > pass
+```
+
+### final_pool 判定
+
+| 条件                       | final_pool  |
+| ------------------------ | ----------- |
+| 任一维度为 `reject`           | `rejected`  |
+| 无 `reject`，但任一维度为 `grey` | `grey`      |
+| 三个维度全部为 `pass`           | `candidate` |
+
+### final_reason_codes 生成规则
+
+`final_reason_codes` 必须稳定生成，不能只保留首个原因。
+
+固定规则：
+
+1. 按维度顺序收集原因：`city → education → experience`。
+2. 同一维度只生成一个 final-level reason。
+3. 多个 reject 同时存在时，全部保留。
+4. 如果已经进入 `rejected`，只保留 reject 级原因，不再追加 grey 原因。
+5. 只有没有 reject 时，才保留 grey 级原因。
+6. 三个维度全部 pass 时，只写 `all_core_dimensions_pass`。
+7. 写入 CSV 前去重，保持固定顺序。
+
+### final_reason_codes 映射
+
+| 维度状态                                                            | final_reason_code          |
+| --------------------------------------------------------------- | -------------------------- |
+| `city_decision=reject` 且 `city_reason_codes` 包含 `city_mismatch` | `city_mismatch`            |
+| `city_decision=reject` 且 `city_reason_codes` 包含 `city_unknown`  | `city_unknown`             |
+| `education_decision=reject`                                     | `education_reject`         |
+| `experience_decision=reject`                                    | `experience_reject`        |
+| `education_decision=grey`                                       | `education_grey`           |
+| `experience_decision=grey`                                      | `experience_grey`          |
+| 三个维度全部 pass                                                     | `all_core_dimensions_pass` |
+
+### 示例
+
+| city_decision | education_decision | experience_decision | final_pool  | final_reason_codes                                 |
+| ------------- | ------------------ | ------------------- | ----------- | -------------------------------------------------- |
+| `reject`      | `reject`           | `reject`            | `rejected`  | `city_mismatch;education_reject;experience_reject` |
+| `pass`        | `reject`           | `reject`            | `rejected`  | `education_reject;experience_reject`               |
+| `reject`      | `grey`             | `pass`              | `rejected`  | `city_mismatch`                                    |
+| `pass`        | `grey`             | `grey`              | `grey`      | `education_grey;experience_grey`                   |
+| `pass`        | `pass`             | `grey`              | `grey`      | `experience_grey`                                  |
+| `pass`        | `pass`             | `pass`              | `candidate` | `all_core_dimensions_pass`                         |

@@ -1,0 +1,18 @@
+fields:
+  job_id:
+    filed_name:
+  education_degree_barrier:
+    rule_id: FIELD-EDU-001
+    owner: education_mvp
+    producer: clean
+    type: string
+    enum:
+      - none
+      - bachelor_plus
+      - master_plus
+      - phd_plus
+      - unknown
+    null_semantics: never_null
+    consumers:
+      - job_features
+      - education_decision
