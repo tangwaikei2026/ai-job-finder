@@ -61,12 +61,12 @@ def main() -> None:
         if args.output is None:
             if args.date is None:
                 raise SystemExit("clean-jobs requires --date when --output is omitted")
-            output = args.output_dir / f"{args.date}.clean.json"
+            output = args.output_dir / f"{args.date}.json"
         else:
             output = args.output
         report_output = args.report_output
         if report_output is None and args.output is None:
-            report_output = args.output_dir / f"{args.date}.clean_report.json"
+            report_output = args.output_dir / f"{args.date}_report.json"
         report = run_clean_jobs(
             args.input,
             output_path=output,

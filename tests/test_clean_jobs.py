@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 import pytest
 
+from src.clean.cli import main as clean_cli_main
 from src.clean.jobs import (
     clean_cities,
     load_jobs,
@@ -138,3 +140,37 @@ def test_load_jobs_rejects_structural_changes(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="must contain a JSON array"):
         load_jobs(input_path)
+
+
+def test_clean_cli_date_uses_analysis_compatible_filenames(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    input_path = tmp_path / "raw.json"
+    output_dir = tmp_path / "clean"
+    input_path.write_text(
+        json.dumps(
+            [{"company": "甲公司", "location": "北京"}],
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "src.clean.cli",
+            "clean-jobs",
+            "--input",
+            str(input_path),
+            "--date",
+            "2026-09-01",
+            "--output-dir",
+            str(output_dir),
+        ],
+    )
+
+    clean_cli_main()
+
+    assert (output_dir / "2026-09-01.json").exists()
+    assert (output_dir / "2026-09-01_report.json").exists()
