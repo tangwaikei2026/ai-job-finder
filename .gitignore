@@ -10,7 +10,9 @@ build/
 .env
 .env.local
 .env.*
+venv/
 .venv/
+env/
 
 data/.cookies/
 data/analysis/
