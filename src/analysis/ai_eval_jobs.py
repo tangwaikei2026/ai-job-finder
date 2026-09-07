@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
+import unicodedata
 from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -29,30 +31,200 @@ AI_CONTEXT_PATTERN = re.compile(
 AGENT_PATTERN = re.compile(
     r"(?i)(?:智能体|多智能体|(?<![A-Za-z])Agent(?:ic|s)?(?![A-Za-z]))"
 )
-EVALUATION_TITLE_PATTERN = re.compile(
-    r"(?i)(?:评测|测评|评估|评价|\bEvaluation\b|\bEvaluator\b|"
-    r"\bBenchmark\b|红队|\bRed[ -]?Team(?:ing)?\b)"
+CLASSIFICATION_INPUT_FIELDS = ("title", "description", "requirements")
+
+ROLE_FAMILIES = {
+    "qa_test",
+    "quality_engineering",
+    "evaluation_engineering",
+    "algorithm_research",
+    "product",
+    "development",
+    "operations",
+    "domain_expert",
+}
+AI_RELATIONS = {
+    "core_ai_evaluation",
+    "ai_product_quality",
+    "ai_for_testing",
+    "ai_context_only",
+    "none",
+}
+SENIORITY_LEVELS = {"regular", "senior", "expert_lead", "intern"}
+CAREER_POOLS = {"P1", "P2", "REF", "X"}
+
+QA_TEST_TITLE_PATTERN = re.compile(
+    r"(?i)(?:(?<![A-Za-z])QA(?![A-Za-z])|(?<![A-Za-z])SDET(?![A-Za-z])|"
+    r"测试工程师|系统集成测试|软件测试|测试实习生)"
 )
-QUALITY_TITLE_PATTERN = re.compile(
-    r"(?i)(?:测试|质量|质保|(?<![A-Za-z])QA(?![A-Za-z])|"
-    r"(?<![A-Za-z])Test(?:ing|er)?(?![A-Za-z])|"
-    r"(?<![A-Za-z])Quality(?![A-Za-z]))"
+QUALITY_ENGINEERING_TITLE_PATTERN = re.compile(
+    r"(?i)(?:测试开发|测试专家|测试架构师|质量工程师|质量保障(?:工程师)?|"
+    r"质量平台|质量工具|质量负责人|质量架构师|质量效能|质效)"
 )
-ADJACENT_EXCLUSION_PATTERN = re.compile(
-    r"(?:芯片|硬件|射频|电源|电池|机械|结构工程|工艺测试|可靠性测试|"
-    r"生产测试|制造测试|整车测试|车载测试)"
+EVALUATION_ENGINEERING_TITLE_PATTERN = re.compile(
+    r"(?i)(?:评测|测评|评估)"
+)
+PRODUCT_ROLE_PATTERN = re.compile(
+    r"(?:产品.{0,8}(?:经理|负责人|专家|运营)|(?:经理|负责人).{0,8}产品)"
+)
+AGENT_DEVELOPMENT_ROLE_PATTERN = re.compile(
+    r"(?i)(?:(?:AI\s*|质量)?Agent开发|智能体开发)"
+)
+ALGORITHM_OR_RESEARCH_ROLE_PATTERN = re.compile(
+    r"(?:算法.{0,8}(?:工程师|研究员|研究科学家)|(?:工程师|研究员).{0,8}算法|"
+    r"模型训练|研究科学家)"
+)
+GENERAL_RND_ROLE_PATTERN = re.compile(
+    r"(?:后台开发|后端开发|AI产品研发|数据质量研发|搜索质量算法研发|"
+    r"质效研发|平台研发|研发架构师|普通研发工程师)"
+)
+OPERATIONS_ROLE_PATTERN = re.compile(r"(?:运营|运维工程师)")
+DOMAIN_EXPERT_ROLE_PATTERN = re.compile(
+    r"(?:领域专家|行业专家|医学影像科医生|临床医生|医师)"
+)
+EXPERT_LEAD_TITLE_PATTERN = re.compile(
+    r"(?i)(?:专家|架构(?:师|工程师)|负责人|"
+    r"(?<![A-Za-z])Lead(?:er)?(?![A-Za-z]))"
+)
+SENIOR_TITLE_PATTERN = re.compile(
+    r"(?i)(?:高级|资深|(?<![A-Za-z])Senior(?![A-Za-z]))"
+)
+INTERN_TITLE_PATTERN = re.compile(r"(?:实习|校招实习)")
+HARDWARE_DOMAIN_PATTERN = re.compile(
+    r"(?i)(?:SSD|AI\s*芯片|芯片|硬件|GPU|NPU|服务器|驱动|固件|"
+    r"编译器|加速器|加速卡|系统集成测试)"
+)
+GAME_DOMAIN_PATTERN = re.compile(r"(?:游戏|手游|端游|电竞)")
+SECURITY_DOMAIN_TITLE_PATTERN = re.compile(
+    r"(?i)^(?:[\w-]+)?(?:安全评测工程师|Security(?:\s+Evaluation)?\s+Engineer)"
+)
+MANAGEMENT_DUTY_PATTERN = re.compile(
+    r"(?:招聘(?:团队)?成员|团队成员招聘|培养(?:团队)?成员|团队成员培养|"
+    r"人才梯队(?:建设)?|团队资源分配|制定测试团队工作目标|"
+    r"制定团队目标|对(?:团队|组织)(?:的)?(?:交付|结果)负责|"
+    r"组织并管理.{0,12}团队)"
+)
+MANAGEMENT_REQUIREMENT_PATTERN = re.compile(
+    r"(?:具备|具有|要求|至少).{0,16}(?:团队管理.{0,8}梯队建设|"
+    r"团队管理和梯队建设|人员管理|团队资源分配)"
+)
+SIX_PLUS_YEARS_PATTERN = re.compile(r"(?:6|六)\s*(?:年|年以上|年及以上)")
+CORE_EVALUATION_DUTY_PATTERN = re.compile(
+    r"(?i)(?:模型能力评测|Agent任务评测|模型缺陷归因|评测驱动|"
+    r"评测结果.{0,24}(?:模型|算法).{0,12}(?:优化|迭代)|"
+    r"(?:AI算法|模型|Agent).{0,16}评测(?:标准|流程|体系|指标|方法)|"
+    r"(?:评测标准|评测流程|评测体系|评测指标|Benchmark|评测集).{0,24}"
+    r"(?:AI算法|模型|Agent|智能体)|"
+    r"(?:构建|建设|制定|设计).{0,16}(?:Benchmark|评测集|评测标准|"
+    r"评测指标|评测框架))"
+)
+CORE_EVALUATION_TITLE_PATTERN = re.compile(
+    r"(?i)(?:(?:AI|算法|模型|大模型|Agent|智能体).{0,12}(?:评测|测评)|"
+    r"(?:评测|测评).{0,12}(?:AI|算法|模型|大模型|Agent|智能体))"
+)
+CORE_EVALUATION_DECISION_PATTERN = re.compile(
+    r"(?:支撑模型与策略选型|影响框架演进|评测驱动Agent|"
+    r"模型内在机理|模型失效点|模型缺陷归因)"
+)
+AI_FOR_TESTING_DUTY_PATTERN = re.compile(
+    r"(?is)(?:测试\s*Agent|Test\s*Agent|Agentic\s*QA|智能测试机器人|"
+    r"AI\s*自动化测试|"
+    r"用例(?:智能|自动)生成|测试用例生成|脚本生成|测试自愈|智能回归|"
+    r"智能(?:执行|诊断|归因)|缺陷(?:智能)?(?:诊断|归因|修复)|"
+    r"AI(?:赋能|驱动|辅助).{0,36}(?:测试|质量|研发效能)|"
+    r"(?:AI|大模型).{0,30}在(?:测试|质量保障|质量工程).{0,12}(?:领域)?(?:的)?应用|"
+    r"(?:AI|Agent|智能体).{0,96}(?:支撑|实现).{0,24}(?:用例生成|脚本生成|缺陷修复)|"
+    r"(?:AI|大模型|LLM|Agent|智能体).{0,24}(?:应用|落地|融入|用于)"
+    r".{0,24}(?:测试|质量保障|质量工程)|"
+    r"(?:测试|质量保障|质量工程).{0,24}(?:应用|落地|引入|使用)"
+    r".{0,20}(?:AI|大模型|LLM|Agent|智能体)|"
+    r"(?:提升测试效率|测试提效|提效提质).{0,24}(?:AI|大模型|Agent)|"
+    r"(?:AI|大模型|Agent).{0,24}(?:提升测试效率|测试提效|提效提质)|"
+    r"从[“\"]?自动化.{0,16}智能化|AI测试工具|AI自动化测试)"
+)
+AI_FOR_TESTING_STRONG_PATTERN = re.compile(
+    r"(?is)(?:(?:设计|搭建|构建|开发|落地|实现|建设|推动).{0,20}"
+    r"(?:测试\s*Agent|Test\s*Agent|Agentic\s*QA|智能测试)|"
+    r"(?:测试\s*Agent|Test\s*Agent|Agentic\s*QA|智能测试)"
+    r".{0,20}(?:设计|搭建|构建|开发|落地|实现|建设|推动)|"
+    r"测试用例(?:的)?(?:自动|智能)?生成|用例自动生成|用例与脚本生成|"
+    r"AI\s*Agent.{0,96}(?:用例生成|缺陷修复)|测试自愈|"
+    r"探索并(?:实践|落地).{0,28}(?:AI|大模型|Agent).{0,28}"
+    r"(?:测试|质量保障|质量工程))"
+)
+AI_PRODUCT_QUALITY_DUTY_PATTERN = re.compile(
+    r"(?is)(?:(?:负责|保障|开展|覆盖|面向|结合).{0,28}"
+    r"(?:AI\s*(?:产品|应用|工作台)|大模型产品|大模型业务|模型服务|"
+    r"基础模型生产平台|基模生产平台|Agent\s*(?:产品|服务|平台|运行链路)|"
+    r"智能助手|MaaS|AIGC).{0,72}"
+    r"(?:测试|质量保障|质量体系|质量|稳定性|可靠性|验收|验证)|"
+    r"(?:AI\s*(?:产品|应用|工作台)|大模型产品|大模型业务|模型服务|"
+    r"基础模型生产平台|基模生产平台|Agent\s*(?:产品|服务|平台|运行链路)|"
+    r"智能助手|MaaS|AIGC).{0,20}(?:全链路|端到端).{0,20}"
+    r"(?:测试|质量|保障|验证)|"
+    r"(?:AIGC|大模型|Agent|智能体|算法).{0,28}"
+    r"(?:效果评测|评测工作|评测能力建设|自动化评估)|"
+    r"(?:大模型|模型|Agent)\s*(?:服务|产品|平台).{0,28}"
+    r"(?:质量保障|质量体系|稳定性|可靠性|测试)|"
+    r"(?:小程序Agent|Agent\s*服务).{0,120}"
+    r"(?:测试|质量保障|质量体系|稳定性|可靠性|验证|功能正确性|"
+    r"高可用性|性能压测|系统稳定)|"
+    r"(?:AI产品业务特点|AI质量体系|大模型相关质量体系|"
+    r"Prompt/Agent/Chain).{0,64}(?:测试|质量|评测|稳定性)|"
+    r"基于AIGC技术.{0,28}(?:质量保证体系|优化测试过程)|"
+    r"产品评测.{0,48}(?:评测标准|评测Agent|评测数据集)|"
+    r"大模型应用效果.{0,24}(?:性能|稳定性|质量))"
+)
+AI_PRODUCT_QUALITY_TITLE_PATTERN = re.compile(
+    r"(?i)(?:MaaS|基模生产平台|AI\s*(?:产品|应用|助手)|智能助手|"
+    r"大模型方向|大模型测试|多模态测试|Agent稳定性测试|Agent测试工程师)"
+)
+AI_PRODUCT_QUALITY_PRIMARY_TITLE_PATTERN = re.compile(
+    r"(?i)(?:MaaS|基模生产平台|AI方向|AI效能与质量保障|AI测试架构师|"
+    r"大模型测试开发|大模型方向|AI\s*软件测试|AI智能化方向)"
+)
+AI_CONTEXT_ONLY_PATTERN = re.compile(
+    r"(?i)(?:AI|AIGC|大模型|LLM|Agent|智能体|机器学习|深度学习)"
+)
+ALGORITHM_RESEARCH_HARD_PATTERN = re.compile(
+    r"(?is)(?:算法研究员|研究科学家|模型结构.{0,24}训练过程|"
+    r"深度参与.{0,20}(?:预训练|SFT|RLHF)|"
+    r"基模.{0,20}(?:评测和优化|设计评测和优化)|"
+    r"(?:扎实的研究|论文经验).{0,20}(?:机器学习|多模态|评测)|"
+    r"(?:机器学习|多模态|评测).{0,20}(?:扎实的研究|论文经验))"
 )
 
 EXCLUSION_REASON_LABELS = {
     "outside_config_scope": "不在 config.yaml 启用的平台/公司范围",
-    "missing_title": "标题为空，无法满足标题职责词规则",
-    "evaluation_title_without_ai_context": "标题有评测词，但正文无 AI/Agent 上下文",
-    "hardware_or_manufacturing_test_excluded": "AI 测试标题命中硬件/制造排除词",
-    "ai_title_without_evaluation_or_quality_term": "标题有 AI，但无评测/测试/质量职责词",
-    "quality_title_ai_context_only_in_body": "测试/质量标题的 AI 上下文只在正文",
-    "ai_context_only_in_body_without_role_title_terms": "AI 上下文只在正文，标题无相关职责词",
-    "no_ai_context": "标题和正文均无 AI/Agent 上下文",
+    "role_product": "产品岗位，不是 QA/测试主职能",
+    "role_agent_development": "Agent 开发岗位，不是 QA/测试主职能",
+    "role_algorithm_or_research": "算法、模型训练或研究岗位",
+    "role_general_rnd": "普通研发或平台研发岗位，不是 QA/测试主职能",
+    "role_operations": "运营或运维岗位，不是 QA/测试主职能",
+    "role_domain_expert": "领域专家岗位，不是 QA/测试主职能",
+    "level_expert_lead": "专家、架构师、负责人或人员管理岗位进入 REF 池",
+    "level_intern": "实习岗位不进入个人候选池",
+    "domain_hardware": "硬件、芯片、GPU、服务器或基础设施测试方向",
+    "domain_game": "游戏业务方向不进入个人候选池",
+    "domain_security": "安全业务方向不进入个人候选池",
+    "ai_not_primary_duty": "AI 只作为背景、偏好或弱探索，不是岗位主责",
 }
+
+EXCLUSION_REASON_PRIORITY = (
+    "outside_config_scope",
+    "role_product",
+    "role_agent_development",
+    "role_algorithm_or_research",
+    "role_general_rnd",
+    "role_operations",
+    "role_domain_expert",
+    "domain_hardware",
+    "domain_game",
+    "domain_security",
+    "level_expert_lead",
+    "level_intern",
+    "ai_not_primary_duty",
+)
 
 
 SKILL_PATTERNS: tuple[tuple[str, Pattern[str]], ...] = (
@@ -400,8 +572,37 @@ def _experience_values(job: Mapping[str, Any]) -> list[str]:
     return [EXPERIENCE_ALIASES.get(structured, structured)]
 
 
-def _normalized(value: Any) -> str:
-    return " ".join(_text(value).casefold().split())
+def normalize_content_text(value: Any) -> str:
+    """Normalize one frozen/job content field for hashing and deduplication."""
+    text = value if isinstance(value, str) else ""
+    text = unicodedata.normalize("NFKC", text)
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    lines: list[str] = []
+    for line in text.split("\n"):
+        normalized_line = re.sub(r"\s+", " ", line).strip()
+        if normalized_line:
+            lines.append(normalized_line)
+    return "\n".join(lines).casefold()
+
+
+def classification_input(job: Mapping[str, Any]) -> dict[str, str]:
+    """Copy only the three fields authorized as classifier inputs."""
+    return {field: _text(job.get(field)) for field in CLASSIFICATION_INPUT_FIELDS}
+
+
+def normalized_job_content(job: Mapping[str, Any]) -> tuple[str, str, str]:
+    """Return the normalized title/description/requirements content key."""
+    return tuple(
+        normalize_content_text(job.get(field))
+        for field in CLASSIFICATION_INPUT_FIELDS
+    )  # type: ignore[return-value]
+
+
+def job_content_sha256(job: Mapping[str, Any]) -> str:
+    """Hash the canonical three-field content payload."""
+    title, description, requirements = normalized_job_content(job)
+    payload = f"{title}\n---\n{description}\n---\n{requirements}"
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _in_scope(job: Mapping[str, Any], scope: Mapping[str, set[str] | None]) -> bool:
@@ -424,76 +625,328 @@ def _matched_terms(pattern: Pattern[str], text: str) -> list[str]:
     return terms
 
 
-def _field_matches(
-    pattern: Pattern[str],
-    job: Mapping[str, Any],
-) -> dict[str, list[str]]:
-    matches = {}
-    for field in ("title", "description", "requirements"):
-        terms = _matched_terms(pattern, _text(job.get(field)))
-        if terms:
-            matches[field] = terms
-    return matches
+def _responsibility_segments(job: Mapping[str, Any]) -> list[str]:
+    """Return bounded responsibility clauses without using requirements."""
+    description = _text(job.get("description"))
+    if not description:
+        return []
+    segments = [
+        " ".join(segment.split())
+        for segment in re.split(r"[；;。\n\r]+", description)
+    ]
+    return list(dict.fromkeys(segment for segment in segments if segment))
 
 
-def _describe_field_matches(matches: Mapping[str, Sequence[str]]) -> str:
-    return "、".join(
-        f"{field} 命中“{'、'.join(terms)}”"
-        for field, terms in matches.items()
+def _pattern_evidence(pattern: Pattern[str], text: str) -> list[str]:
+    return _matched_terms(pattern, text)
+
+
+def _role_classification(title: str) -> tuple[str, str | None, list[str]]:
+    ordered_patterns: tuple[tuple[str, str | None, Pattern[str]], ...] = (
+        ("product", "role_product", PRODUCT_ROLE_PATTERN),
+        ("operations", "role_operations", OPERATIONS_ROLE_PATTERN),
+        ("domain_expert", "role_domain_expert", DOMAIN_EXPERT_ROLE_PATTERN),
+        (
+            "development",
+            "role_agent_development",
+            AGENT_DEVELOPMENT_ROLE_PATTERN,
+        ),
+        (
+            "quality_engineering",
+            None,
+            QUALITY_ENGINEERING_TITLE_PATTERN,
+        ),
+        ("qa_test", None, QA_TEST_TITLE_PATTERN),
+        ("development", "role_general_rnd", GENERAL_RND_ROLE_PATTERN),
+        (
+            "algorithm_research",
+            "role_algorithm_or_research",
+            ALGORITHM_OR_RESEARCH_ROLE_PATTERN,
+        ),
+        (
+            "evaluation_engineering",
+            None,
+            EVALUATION_ENGINEERING_TITLE_PATTERN,
+        ),
     )
+    for role_family, reason_code, pattern in ordered_patterns:
+        terms = _pattern_evidence(pattern, title)
+        if terms:
+            return role_family, reason_code, terms
+    return "development", "role_general_rnd", []
+
+
+def _seniority_classification(job: Mapping[str, Any]) -> tuple[str, list[str]]:
+    title = _text(job.get("title"))
+    if INTERN_TITLE_PATTERN.search(title):
+        return "intern", _pattern_evidence(INTERN_TITLE_PATTERN, title)
+    if EXPERT_LEAD_TITLE_PATTERN.search(title):
+        return "expert_lead", _pattern_evidence(EXPERT_LEAD_TITLE_PATTERN, title)
+    description = _text(job.get("description"))
+    requirements = _text(job.get("requirements"))
+    management_evidence = _pattern_evidence(
+        MANAGEMENT_DUTY_PATTERN, description
+    ) + _pattern_evidence(MANAGEMENT_REQUIREMENT_PATTERN, requirements)
+    if management_evidence:
+        return "expert_lead", management_evidence
+    if SENIOR_TITLE_PATTERN.search(title):
+        return "senior", _pattern_evidence(SENIOR_TITLE_PATTERN, title)
+    if SIX_PLUS_YEARS_PATTERN.search(requirements):
+        return "senior", _pattern_evidence(SIX_PLUS_YEARS_PATTERN, requirements)
+    return "regular", []
+
+
+def _relation_evidence(
+    pattern: Pattern[str],
+    field: str,
+    text: str,
+) -> dict[str, Any] | None:
+    terms = _pattern_evidence(pattern, text)
+    if not terms:
+        return None
+    return {"field": field, "text": text, "terms": terms}
+
+
+def _ai_relation_classification(
+    job: Mapping[str, Any],
+    *,
+    role_family: str,
+    hard_domain_reason: str | None,
+) -> tuple[str, dict[str, Any] | None, str]:
+    title = _text(job.get("title"))
+    description = _text(job.get("description"))
+    requirements = _text(job.get("requirements"))
+    all_text = "\n".join((title, description, requirements))
+
+    if hard_domain_reason == "domain_security":
+        return "none", None, "hard_security_non_ai_evaluation"
+    if hard_domain_reason == "domain_hardware":
+        relation = "ai_context_only" if AI_CONTEXT_ONLY_PATTERN.search(all_text) else "none"
+        return relation, None, "hardware_context_not_ai_quality"
+
+    if role_family in {"evaluation_engineering", "algorithm_research"}:
+        has_ai_context = bool(AI_CONTEXT_ONLY_PATTERN.search(all_text))
+        has_evaluation_duty = bool(
+            EVALUATION_ENGINEERING_TITLE_PATTERN.search(title)
+            or CORE_EVALUATION_DUTY_PATTERN.search(description)
+        )
+        if not (has_ai_context and has_evaluation_duty):
+            relation = "ai_context_only" if has_ai_context else "none"
+            return relation, None, "evaluation_role_without_ai_evaluation_duty"
+        evidence = _relation_evidence(
+            CORE_EVALUATION_DUTY_PATTERN, "description", description
+        ) or _relation_evidence(
+            EVALUATION_ENGINEERING_TITLE_PATTERN, "title", title
+        )
+        return "core_ai_evaluation", evidence, "evaluation_role_primary"
+
+    if role_family in {"product", "operations", "domain_expert", "development"}:
+        if role_family == "development" and AGENT_DEVELOPMENT_ROLE_PATTERN.search(title):
+            evidence = _relation_evidence(
+                AI_FOR_TESTING_DUTY_PATTERN, "description", description
+            )
+            return "ai_for_testing", evidence, "agent_development_for_testing"
+        if EVALUATION_ENGINEERING_TITLE_PATTERN.search(title) or CORE_EVALUATION_DUTY_PATTERN.search(description):
+            evidence = _relation_evidence(
+                CORE_EVALUATION_DUTY_PATTERN, "description", description
+            ) or _relation_evidence(
+                EVALUATION_ENGINEERING_TITLE_PATTERN, "title", title
+            )
+            return "core_ai_evaluation", evidence, "non_target_evaluation_role"
+        evidence = _relation_evidence(
+            AI_FOR_TESTING_DUTY_PATTERN, "description", description
+        )
+        if evidence:
+            return "ai_for_testing", evidence, "non_target_ai_for_testing"
+        relation = "ai_context_only" if AI_CONTEXT_ONLY_PATTERN.search(all_text) else "none"
+        return relation, None, "non_target_context_only"
+
+    core_evidence = _relation_evidence(
+        CORE_EVALUATION_DUTY_PATTERN, "description", description
+    )
+    core_title = CORE_EVALUATION_TITLE_PATTERN.search(title)
+    core_decision = CORE_EVALUATION_DECISION_PATTERN.search(description)
+    if core_evidence and (core_title or core_decision):
+        return "core_ai_evaluation", core_evidence, "model_evaluation_primary"
+
+    product_evidence = _relation_evidence(
+        AI_PRODUCT_QUALITY_DUTY_PATTERN, "description", description
+    )
+    testing_evidence = _relation_evidence(
+        AI_FOR_TESTING_DUTY_PATTERN, "description", description
+    )
+    strong_testing = AI_FOR_TESTING_STRONG_PATTERN.search(description)
+    first_duties = "\n".join(_responsibility_segments(job)[:1])
+    testing_is_lead_duty = bool(
+        strong_testing and AI_FOR_TESTING_STRONG_PATTERN.search(first_duties)
+    )
+    if AI_PRODUCT_QUALITY_PRIMARY_TITLE_PATTERN.search(title) and re.search(
+        r"(?:测试|质量保障|质量体系|质量闭环|评测|验收|稳定性)",
+        description,
+    ):
+        return "ai_product_quality", product_evidence, "title_primary_ai_product_quality"
+    if testing_is_lead_duty:
+        return "ai_for_testing", testing_evidence, "ai_testing_capability_primary"
+    if product_evidence:
+        return "ai_product_quality", product_evidence, "ai_product_quality_primary"
+    if strong_testing:
+        return "ai_for_testing", testing_evidence, "ai_testing_capability_primary"
+    if testing_evidence and AI_CONTEXT_ONLY_PATTERN.search(title):
+        return "ai_for_testing", testing_evidence, "title_supported_ai_for_testing"
+
+    title_product = AI_PRODUCT_QUALITY_TITLE_PATTERN.search(title)
+    ordinary_qa_duty = re.search(
+        r"(?:测试|质量保障|质量体系|质量闭环|验收|稳定性)", description
+    )
+    if title_product and ordinary_qa_duty:
+        evidence = _relation_evidence(
+            AI_PRODUCT_QUALITY_TITLE_PATTERN, "title", title
+        )
+        return "ai_product_quality", evidence, "title_supported_ai_product_quality"
+
+    if AI_CONTEXT_ONLY_PATTERN.search(all_text):
+        return "ai_context_only", None, "ai_context_not_primary"
+    return "none", None, "no_ai_relation"
+
+
+def _hard_domain_classification(job: Mapping[str, Any]) -> tuple[str | None, list[str]]:
+    title = _text(job.get("title"))
+    ordered_patterns = (
+        ("domain_hardware", HARDWARE_DOMAIN_PATTERN),
+        ("domain_game", GAME_DOMAIN_PATTERN),
+        ("domain_security", SECURITY_DOMAIN_TITLE_PATTERN),
+    )
+    for reason_code, pattern in ordered_patterns:
+        terms = _pattern_evidence(pattern, title)
+        if terms:
+            return reason_code, terms
+    return None, []
+
+
+def _ordered_reason_codes(reason_codes: Iterable[str]) -> list[str]:
+    unique = set(reason_codes)
+    return [code for code in EXCLUSION_REASON_PRIORITY if code in unique]
+
+
+def classify_body_primary_ai_evaluation(
+    job: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Classify one job through the production AI/Agent career-pool rules."""
+    job = classification_input(job)
+    title = _text(job.get("title"))
+    role_family, role_reason, role_terms = _role_classification(title)
+    if role_family == "qa_test" and MANAGEMENT_DUTY_PATTERN.search(
+        _text(job.get("description"))
+    ):
+        role_family = "quality_engineering"
+    seniority_level, seniority_terms = _seniority_classification(job)
+    hard_domain_reason, hard_domain_terms = _hard_domain_classification(job)
+    non_target_roles = {"product", "development", "operations", "domain_expert"}
+    effective_hard_domain_reason = (
+        None if role_family in non_target_roles else hard_domain_reason
+    )
+    ai_relation, ai_evidence, relation_rule = _ai_relation_classification(
+        job,
+        role_family=role_family,
+        hard_domain_reason=effective_hard_domain_reason,
+    )
+
+    algorithm_research_hard = bool(
+        role_family == "algorithm_research"
+        and ALGORITHM_RESEARCH_HARD_PATTERN.search(
+            "\n".join(
+                (
+                    title,
+                    _text(job.get("description")),
+                    _text(job.get("requirements")),
+                )
+            )
+        )
+    )
+    if effective_hard_domain_reason:
+        career_pool = "X"
+        reason_codes = [effective_hard_domain_reason]
+    elif role_family in non_target_roles:
+        career_pool = "X"
+        reason_codes = [role_reason or "role_general_rnd"]
+    elif seniority_level == "intern":
+        career_pool = "X"
+        reason_codes = ["level_intern"]
+    elif role_family == "algorithm_research" and (
+        algorithm_research_hard
+        or ai_relation not in {"core_ai_evaluation"}
+    ):
+        career_pool = "X"
+        reason_codes = ["role_algorithm_or_research"]
+    elif ai_relation in {"ai_context_only", "none"}:
+        career_pool = "X"
+        reason_codes = ["ai_not_primary_duty"]
+    elif seniority_level == "expert_lead":
+        career_pool = "REF"
+        reason_codes = ["level_expert_lead"]
+    elif role_family in {"qa_test", "quality_engineering"}:
+        career_pool = "P1"
+        reason_codes = []
+    else:
+        career_pool = "P2"
+        reason_codes = (
+            ["role_algorithm_or_research"]
+            if role_family == "algorithm_research"
+            else []
+        )
+
+    reason_codes = _ordered_reason_codes(reason_codes)
+    rule_id = f"{role_family}_{ai_relation}_{career_pool.lower()}"
+    hard_exclusion_evidence: dict[str, list[str]] = {}
+    if role_reason and role_terms:
+        hard_exclusion_evidence[role_reason] = role_terms
+    if effective_hard_domain_reason:
+        hard_exclusion_evidence[effective_hard_domain_reason] = hard_domain_terms
+    if seniority_level in {"expert_lead", "intern"}:
+        hard_exclusion_evidence[
+            "level_expert_lead" if seniority_level == "expert_lead" else "level_intern"
+        ] = seniority_terms
+    evidence = {
+        "role": {"field": "title", "text": title, "terms": role_terms},
+        "ai_primary_duty": ai_evidence,
+        "hard_exclusions": hard_exclusion_evidence,
+    }
+    if career_pool != "X":
+        reason = (
+            f"三字段证据判定岗位主职能为 {role_family}；AI 关系为 "
+            f"{ai_relation}；层级为 {seniority_level}；进入 {career_pool} 池。"
+        )
+    else:
+        labels = [EXCLUSION_REASON_LABELS[code] for code in reason_codes]
+        reason = "；".join(labels) + "。"
+    return {
+        "body_primary_ai_evaluation": {
+            "role_family": role_family,
+            "ai_relation": ai_relation,
+            "seniority_level": seniority_level,
+            "career_pool": career_pool,
+        },
+        "reason_codes": reason_codes,
+        "rule_id": rule_id,
+        "triggered_rules": [relation_rule, *reason_codes],
+        "reason": reason,
+        "evidence": evidence,
+    }
 
 
 def explain_job_selection(job: Mapping[str, Any]) -> dict[str, Any] | None:
-    """Return the exact matching evidence for one selected job."""
-    title = _text(job.get("title"))
-    evaluation_terms = _matched_terms(EVALUATION_TITLE_PATTERN, title)
-    quality_terms = _matched_terms(QUALITY_TITLE_PATTERN, title)
-    exclusion_terms = _matched_terms(ADJACENT_EXCLUSION_PATTERN, title)
-    ai_matches = _field_matches(AI_CONTEXT_PATTERN, job)
-    agent_matches = _field_matches(AGENT_PATTERN, job)
-
-    cohort: str | None = None
-    rule_id: str | None = None
-    reason_parts: list[str] = []
-    if evaluation_terms and agent_matches:
-        cohort = "Agent评测"
-        rule_id = "title_evaluation_term_and_agent_context"
-        reason_parts = [
-            f"title 命中评测/评估职责词“{'、'.join(evaluation_terms)}”",
-            _describe_field_matches(agent_matches),
-            "满足 Agent 评测核心岗位规则",
-        ]
-    elif evaluation_terms and ai_matches:
-        cohort = "AI/模型评测"
-        rule_id = "title_evaluation_term_and_ai_context"
-        reason_parts = [
-            f"title 命中评测/评估职责词“{'、'.join(evaluation_terms)}”",
-            _describe_field_matches(ai_matches),
-            "满足 AI/模型评测核心岗位规则",
-        ]
-    elif quality_terms and ai_matches.get("title") and not exclusion_terms:
-        cohort = "AI质量与测试（相邻岗位）"
-        rule_id = "title_ai_context_and_quality_term"
-        reason_parts = [
-            f"title 命中测试/质量职责词“{'、'.join(quality_terms)}”",
-            f"title 同时命中 AI/Agent 上下文“{'、'.join(ai_matches['title'])}”",
-            "title 未命中硬件/制造排除词",
-            "满足 AI 质量与测试相邻岗位规则",
-        ]
-    if cohort is None or rule_id is None:
+    """Return auditable evidence for the P1/P2/REF positive pools."""
+    evaluation = classify_body_primary_ai_evaluation(job)
+    classification = evaluation["body_primary_ai_evaluation"]
+    if classification["career_pool"] == "X":
         return None
-
     return {
-        "cohort": cohort,
-        "rule_id": rule_id,
-        "reason": "；".join(reason_parts) + "。",
-        "evidence": {
-            "title_evaluation_terms": evaluation_terms,
-            "title_quality_terms": quality_terms,
-            "ai_context_terms_by_field": ai_matches,
-            "agent_terms_by_field": agent_matches,
-            "title_exclusion_terms": exclusion_terms,
-        },
+        **classification,
+        "cohort": classification["ai_relation"],
+        "rule_id": evaluation["rule_id"],
+        "reason": evaluation["reason"],
+        "evidence": evaluation["evidence"],
+        "reason_codes": evaluation["reason_codes"],
     }
 
 
@@ -502,41 +955,26 @@ def explain_job_exclusion(
     *,
     scope: Mapping[str, set[str] | None],
 ) -> dict[str, Any] | None:
-    """Return one mutually exclusive reason when a job is not selected."""
-    title = _text(job.get("title"))
-    evaluation_terms = _matched_terms(EVALUATION_TITLE_PATTERN, title)
-    quality_terms = _matched_terms(QUALITY_TITLE_PATTERN, title)
-    exclusion_terms = _matched_terms(ADJACENT_EXCLUSION_PATTERN, title)
-    ai_matches = _field_matches(AI_CONTEXT_PATTERN, job)
-
+    """Return stable, ordered reason codes for a non-selected job."""
+    evaluation = classify_body_primary_ai_evaluation(job)
+    classification = evaluation["body_primary_ai_evaluation"]
     if not _in_scope(job, scope):
-        reason_code = "outside_config_scope"
-    elif explain_job_selection(job) is not None:
+        reason_codes = _ordered_reason_codes(
+            ("outside_config_scope", *evaluation["reason_codes"])
+        )
+    elif classification["career_pool"] != "X":
         return None
-    elif not title:
-        reason_code = "missing_title"
-    elif evaluation_terms and not ai_matches:
-        reason_code = "evaluation_title_without_ai_context"
-    elif quality_terms and ai_matches.get("title") and exclusion_terms:
-        reason_code = "hardware_or_manufacturing_test_excluded"
-    elif ai_matches.get("title"):
-        reason_code = "ai_title_without_evaluation_or_quality_term"
-    elif ai_matches and quality_terms:
-        reason_code = "quality_title_ai_context_only_in_body"
-    elif ai_matches:
-        reason_code = "ai_context_only_in_body_without_role_title_terms"
     else:
-        reason_code = "no_ai_context"
-
+        reason_codes = evaluation["reason_codes"]
     return {
-        "reason_code": reason_code,
-        "reason": EXCLUSION_REASON_LABELS[reason_code],
-        "evidence": {
-            "title_evaluation_terms": evaluation_terms,
-            "title_quality_terms": quality_terms,
-            "ai_context_terms_by_field": ai_matches,
-            "title_exclusion_terms": exclusion_terms,
-        },
+        **classification,
+        "cohort": classification["ai_relation"],
+        "reason_code": reason_codes[0],
+        "reason_codes": reason_codes,
+        "reason": "；".join(
+            EXCLUSION_REASON_LABELS[code] for code in reason_codes
+        ) + "。",
+        "evidence": evaluation["evidence"],
     }
 
 
@@ -548,10 +986,7 @@ def classify_job(job: Mapping[str, Any]) -> str | None:
 
 
 def _dedupe_key(job: Mapping[str, Any]) -> tuple[str, ...]:
-    return tuple(
-        _normalized(job.get(field))
-        for field in ("company", "title", "description", "requirements")
-    )
+    return normalized_job_content(job)
 
 
 def _matches(
@@ -597,9 +1032,22 @@ def analyze_jobs(
     eligible = [job for job in jobs if _in_scope(job, scope)]
     selected_raw: list[tuple[Mapping[str, Any], dict[str, Any]]] = []
     for job in eligible:
-        explanation = explain_job_selection(job)
-        if explanation is not None:
-            selected_raw.append((job, explanation))
+        evaluation = classify_body_primary_ai_evaluation(job)
+        classification = evaluation["body_primary_ai_evaluation"]
+        if classification["career_pool"] != "X":
+            selected_raw.append(
+                (
+                    job,
+                    {
+                        **classification,
+                        "cohort": classification["ai_relation"],
+                        "rule_id": evaluation["rule_id"],
+                        "reason": evaluation["reason"],
+                        "evidence": evaluation["evidence"],
+                        "reason_codes": evaluation["reason_codes"],
+                    },
+                )
+            )
 
     excluded_jobs: list[dict[str, Any]] = []
     for job in jobs:
@@ -614,8 +1062,18 @@ def analyze_jobs(
                 "title": _text(job.get("title")),
                 "url": _text(job.get("url")),
                 "exclusion_reason_code": exclusion["reason_code"],
+                "exclusion_reason_codes": exclusion["reason_codes"],
                 "exclusion_reason": exclusion["reason"],
                 "exclusion_evidence": exclusion["evidence"],
+                "body_primary_ai_evaluation": {
+                    field: exclusion[field]
+                    for field in (
+                        "role_family",
+                        "ai_relation",
+                        "seniority_level",
+                        "career_pool",
+                    )
+                },
                 "description_present": bool(_text(job.get("description"))),
                 "requirements_present": bool(_text(job.get("requirements"))),
             }
@@ -626,9 +1084,9 @@ def analyze_jobs(
     first_match_by_key: dict[tuple[str, ...], tuple[int, str]] = {}
     for match_number, (job, explanation) in enumerate(selected_raw, start=1):
         key = _dedupe_key(job)
+        job_id = _text(job.get("job_id"))
         first_match = first_match_by_key.get(key)
         included_after_deduplication = first_match is None
-        job_id = _text(job.get("job_id"))
         if included_after_deduplication:
             first_match_by_key[key] = (match_number, job_id)
             selected.append((job, str(explanation["cohort"])))
@@ -647,7 +1105,20 @@ def analyze_jobs(
                 "city_norm": _text_list(job.get("city_norm")),
                 "education": _text(job.get("education")),
                 "experience": _text(job.get("experience")),
+                "body_primary_ai_evaluation": {
+                    field: explanation[field]
+                    for field in (
+                        "role_family",
+                        "ai_relation",
+                        "seniority_level",
+                        "career_pool",
+                    )
+                },
+                "role_family": explanation["role_family"],
+                "ai_relation": explanation["ai_relation"],
                 "cohort": explanation["cohort"],
+                "seniority_level": explanation["seniority_level"],
+                "career_pool": explanation["career_pool"],
                 "selection_rule_id": explanation["rule_id"],
                 "selection_reason": explanation["reason"],
                 "selection_evidence": explanation["evidence"],
@@ -677,6 +1148,9 @@ def analyze_jobs(
     project_experience_matches: dict[str, list[str]] = {}
     matched_jobs: list[dict[str, Any]] = []
     for index, (job, cohort) in enumerate(selected, start=1):
+        explanation = explain_job_selection(job)
+        if explanation is None:  # pragma: no cover - guarded by selected_raw
+            raise AssertionError("selected job must have a positive career-pool classification")
         job_key = f"job-{index}"
         jobs_by_key[job_key] = job
         field_text = _job_body(job)
@@ -702,7 +1176,20 @@ def analyze_jobs(
                 "platform": _text(job.get("platform")),
                 "company": _text(job.get("company")),
                 "title": _text(job.get("title")),
+                "body_primary_ai_evaluation": {
+                    "role_family": explanation["role_family"],
+                    "ai_relation": explanation["ai_relation"],
+                    "seniority_level": explanation["seniority_level"],
+                    "career_pool": explanation["career_pool"],
+                },
+                "role_family": explanation["role_family"],
+                "ai_relation": explanation["ai_relation"],
                 "cohort": cohort,
+                "seniority_level": explanation["seniority_level"],
+                "career_pool": explanation["career_pool"],
+                "selection_rule_id": explanation["rule_id"],
+                "selection_reason": explanation["reason"],
+                "selection_evidence": explanation["evidence"],
                 "skill_matches": skills,
                 "requirement_matches": requirements,
                 "city_norm": cities,
@@ -753,17 +1240,19 @@ def analyze_jobs(
         row["job_id"] for row in raw_matches if row["job_id"]
     ]
     exclusion_counts = Counter(
-        row["exclusion_reason_code"] for row in excluded_jobs
+        reason_code
+        for row in excluded_jobs
+        for reason_code in row["exclusion_reason_codes"]
     )
     exclusion_companies: dict[str, Counter[str]] = defaultdict(Counter)
     exclusion_examples: dict[str, list[str]] = defaultdict(list)
     for row in excluded_jobs:
-        reason_code = row["exclusion_reason_code"]
         company = row["company"] or "<missing>"
-        exclusion_companies[reason_code][company] += 1
         title = row["title"] or "<missing>"
-        if title not in exclusion_examples[reason_code]:
-            exclusion_examples[reason_code].append(title)
+        for reason_code in row["exclusion_reason_codes"]:
+            exclusion_companies[reason_code][company] += 1
+            if title not in exclusion_examples[reason_code]:
+                exclusion_examples[reason_code].append(title)
     excluded_count = len(excluded_jobs)
     structured_field_coverage: dict[str, dict[str, Any]] = {}
     for field in ("education", "experience"):
@@ -804,11 +1293,10 @@ def analyze_jobs(
         "methodology": {
             "scope": "config.yaml 中 enabled=true 的平台；含 companies 的平台按公司名收窄",
             "selection": (
-                "核心岗位要求标题出现评测/评估等职责词并具有 AI/Agent 上下文；"
-                "标题同时出现 AI/Agent 与测试/质量词的岗位单列为相邻岗位"
+                "按硬排除域、角色主职能、AI 关系与层级依次分类；"
+                "P1、P2、REF 写入正例候选名单，X 排除"
             ),
             "deduplication_key": [
-                "company",
                 "title",
                 "description",
                 "requirements",
@@ -1043,13 +1531,13 @@ def build_markdown_report(analysis: Mapping[str, Any]) -> str:
 
 ## Executive Summary
 
-- **共识别 {manifest['selected_job_count']} 个去重后的相关岗位。** 原始命中 {manifest['selected_raw_count']} 条，按公司、标题、description、requirements 去除 {manifest['duplicates_removed']} 条内容重复记录，覆盖 {manifest['selected_company_count']} 家公司。
+- **共识别 {manifest['selected_job_count']} 个去重后的 AI/Agent 正例岗位。** 原始命中 {manifest['selected_raw_count']} 条，按规范化后的 title、description、requirements 去除 {manifest['duplicates_removed']} 条重复记录，覆盖 {manifest['selected_company_count']} 家公司。
 - **热门技能集中在：** {skill_summary}。
 - **高频要求集中在：** {requirement_summary}。
 
 ## 分析口径
 
-输入为 `{manifest['input_file']}`，公司范围沿用 `{manifest['config_file']}` 中 `enabled: true` 的平台配置。岗位相关性由标题与正文共同判断。技能、专业和项目经验读取 `description + requirements`；城市读取 `city_norm`；学历优先读取 `education`，为空时从正文推断；工作经验读取 `experience`。除公司“占全部岗位”外，各分析占比的分母均为 {manifest['selected_job_count']} 个去重后的相关岗位；多城市、多专业和多项目主题可以重复计数，因此相关占比不可相加。公司“占全部岗位”的分母是配置范围内全部 {manifest['eligible_job_count']:,} 条岗位。
+输入为 `{manifest['input_file']}`，公司范围沿用 `{manifest['config_file']}` 中 `enabled: true` 的平台配置。生产分类入口基于 title、description、requirements 判断角色、AI 关系、层级和岗位池，其中 description 的主要职责证据最强，requirements 只作支持。技能、专业和项目经验读取 `description + requirements`；城市读取 `city_norm`；学历优先读取 `education`，为空时从正文推断；工作经验读取 `experience`。除公司“占全部岗位”外，各分析占比的分母均为 {manifest['selected_job_count']} 个去重后的正例岗位；多城市、多专业和多项目主题可以重复计数，因此相关占比不可相加。公司“占全部岗位”的分母是配置范围内全部 {manifest['eligible_job_count']:,} 条岗位。
 
 ### 岗位分层
 
@@ -1141,9 +1629,9 @@ def build_match_audit_markdown(analysis: Mapping[str, Any]) -> str:
             "并标记其首次命中记录，供逐条检查。"
         ),
         "",
-        "判断规则：核心岗位要求 title 命中评测/测评/评估等职责词，且 title、"
-        "description 或 requirements 至少一处命中 AI/Agent 上下文；相邻岗位要求 "
-        "title 同时命中 AI/Agent 与测试/质量词，并且不命中硬件/制造排除词。",
+        "判断规则：由 title、description、requirements 按字段职责共同判断角色、AI 关系和层级；"
+        "description 的日常职责权重最高，requirements 只作支持证据。P1/P2/REF 写入本文件，"
+        "X 排除。",
         "",
     ]
     for row in analysis["raw_matches"]:
@@ -1221,14 +1709,14 @@ def build_exclusion_report_markdown(analysis: Mapping[str, Any]) -> str:
 ## 结论
 
 - 输入文件实际包含 **{manifest['input_job_count']:,}** 条岗位；非空 `job_id` 为 {quality['nonempty_job_id_count']:,} 个，唯一 `job_id` 为 {quality['unique_nonempty_job_id_count']:,} 个。
-- 相关性规则原始命中 **{manifest['selected_raw_count']:,}** 条，排除 **{manifest['excluded_job_count']:,}** 条。随后只对命中项按公司、标题、description、requirements 做内容去重，得到 {manifest['selected_job_count']:,} 条；原始命中数不是对全部岗位去重后的总数。
-- 排除并不表示岗位一定与 AI 无关；它只表示岗位未满足当前“标题职责词 + AI/Agent 上下文”的高精度规则。正文出现 AI、但标题没有评测/测试职责词的岗位会被明确归入下表对应类别。
+- 生产分类入口识别 P1/P2/REF 正例 **{manifest['selected_raw_count']:,}** 条，X 或配置范围外排除 **{manifest['excluded_job_count']:,}** 条。随后按规范化后的 title、description、requirements 做内容去重，得到 {manifest['selected_job_count']:,} 条。
+- 排除只表示岗位进入 X 或不在配置范围；它不表示岗位与 AI 行业无关。评测工程与边界算法岗可进入 P2，专家/负责人或人员管理岗可进入 REF。
 
 ## 排除原因分布
 
 {chr(10).join(reason_rows)}
 
-每个被排除岗位的 `job_id`、公司、标题、URL、互斥原因和命中证据写入 `{manifest['excluded_jobs_jsonl_file']}`，可按 `exclusion_reason_code` 逐条复核。
+每个被排除岗位的 `job_id`、公司、标题、URL、有序且去重的原因码和命中证据写入 `{manifest['excluded_jobs_jsonl_file']}`，可按 `exclusion_reason_codes` 逐条复核。
 
 ## 字段空值与 clean 行为
 
@@ -1264,10 +1752,10 @@ python -m src.analysis.ai_eval_jobs \\
 
 ## 方法与限制
 
-- 核心命中：标题含评测/测评/评估/评价/Evaluation/Evaluator/Benchmark/红队等词，并且 title、description、requirements 至少一处含 AI/Agent 上下文。
-- 相邻命中：标题同时含测试/质量词和 AI/Agent 上下文，且标题不含硬件/制造排除词。
-- 排除原因按固定优先级互斥分类，所有输入行满足“原始命中或某一排除原因”，便于总量对账。
-- 这是规则审计，不是人工标注的召回率评估；“正文 AI 上下文但标题无职责词”是最值得人工抽样复核的召回风险组。
+- 正例池由合同派生：P1、P2、REF 为正例，X 为负例；角色、AI 关系、资历和硬排除分别判定。
+- `requirements` 用于准入门槛和支持证据，不能把“某经验优先”单独解释成岗位主责；description 的日常职责证据最强。
+- 正式 jobs 与冻结回归集使用同一套三字段 NFKC/逐行空白折叠/casefold 规范化内容键去重，不使用 job_id、公司或地区。
+- 排除原因按固定优先级排序并去重；输出显式写入 P1/P2/REF/X 岗位池。
 """
 
 

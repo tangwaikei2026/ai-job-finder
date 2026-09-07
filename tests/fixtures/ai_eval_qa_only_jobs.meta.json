@@ -1,0 +1,16 @@
+{
+  "fixture_path": "tests/fixtures/ai_eval_qa_only_jobs.json",
+  "source_snapshot_path": "data/raw/2026-09-01.json",
+  "source_snapshot_sha256": "52e7055e8d6de418ab347ae800308d211403196d391d11e3aa50ac735172c9ed",
+  "source_fields": [
+    "job_id",
+    "title",
+    "description",
+    "requirements"
+  ],
+  "expected_labels_source": "docs/audit/codex_final_instruction_qa_ai_eval_filter_fix.md",
+  "expected_labels_source_sha256": "9c9b2237caa20594bb05dfa93e11f0a47ac6766108ea32f121dc092013c10902",
+  "fixture_count": 59,
+  "expected_positive": 23,
+  "expected_negative": 36
+}

@@ -45,8 +45,8 @@ def test_run_analysis_selects_extracts_and_respects_company_scope(
                 "job_id": "1",
                 "platform": "tencent",
                 "company": "腾讯",
-                "title": "大模型评测工程师",
-                "description": "负责评测体系和Benchmark建设，使用Python处理数据。\u2028第二段。",
+                "title": "大模型测试工程师",
+                "description": "负责大模型产品质量保障、评测体系和Benchmark建设，使用Python处理数据。\u2028第二段。",
                 "requirements": "本科及以上学历，计算机相关专业，三年以上评测经验，有大模型项目经验，沟通协作能力强。",
                 "city_norm": ["北京"],
                 "education": "本科",
@@ -57,8 +57,8 @@ def test_run_analysis_selects_extracts_and_respects_company_scope(
                 "job_id": "2",
                 "platform": "feishu",
                 "company": "MiniMax",
-                "title": "Agent评测产品经理",
-                "description": "负责Agent评测体系搭建和用户体验优化。",
+                "title": "Agent测试开发工程师",
+                "description": "负责Agent产品质量保障和评测体系搭建。",
                 "requirements": "有AI产品经验，具备跨团队沟通能力。",
                 "city_norm": ["上海", "深圳"],
                 "education": "硕士",
@@ -109,8 +109,7 @@ def test_run_analysis_selects_extracts_and_respects_company_scope(
     assert analysis["manifest"]["selected_job_count"] == 2
     assert analysis["data_quality"]["configured_companies_without_matches"] == []
     assert {row["cohort"] for row in analysis["matched_jobs"]} == {
-        "AI/模型评测",
-        "Agent评测",
+        "ai_product_quality"
     }
     skill_counts = {row["name"]: row["count"] for row in analysis["skills"]}
     assert skill_counts["评测体系与指标设计"] == 2
@@ -126,20 +125,25 @@ def test_run_analysis_selects_extracts_and_respects_company_scope(
     assert raw_matches[0]["job_id"] == "1"
     assert raw_matches[0]["company"] == "腾讯"
     assert raw_matches[0]["url"] == "https://example.test/1"
-    assert raw_matches[0]["description"].startswith("负责评测体系")
+    assert raw_matches[0]["description"].startswith("负责大模型产品质量保障")
     assert raw_matches[0]["requirements"].startswith("本科及以上")
     assert raw_matches[0]["city_norm"] == ["北京"]
     assert raw_matches[0]["education"] == "本科"
     assert raw_matches[0]["experience"] == "3年以上"
     assert raw_matches[0]["selection_rule_id"] == (
-        "title_evaluation_term_and_ai_context"
+        "qa_test_ai_product_quality_p1"
     )
-    assert "title 命中评测/评估职责词“评测”" in raw_matches[0][
-        "selection_reason"
-    ]
-    assert raw_matches[0]["selection_evidence"][
-        "title_evaluation_terms"
-    ] == ["评测"]
+    assert "进入 P1 池" in raw_matches[0]["selection_reason"]
+    assert raw_matches[0]["body_primary_ai_evaluation"] == {
+        "role_family": "qa_test",
+        "ai_relation": "ai_product_quality",
+        "seniority_level": "regular",
+        "career_pool": "P1",
+    }
+    assert raw_matches[0]["selection_evidence"]["role"]["field"] == "title"
+    assert raw_matches[0]["selection_evidence"]["ai_primary_duty"][
+        "field"
+    ] == "description"
     details_jsonl = Path(analysis["manifest"]["raw_matches_jsonl_file"])
     details_report = Path(analysis["manifest"]["raw_matches_report_file"])
     exclusions_jsonl = Path(
@@ -156,7 +160,7 @@ def test_run_analysis_selects_extracts_and_respects_company_scope(
     assert len(detail_lines) == 2
     assert [json.loads(line)["job_id"] for line in detail_lines] == ["1", "2"]
     details_text = details_report.read_text(encoding="utf-8")
-    assert "## 1. 大模型评测工程师" in details_text
+    assert "## 1. 大模型测试工程师" in details_text
     assert "- city_norm: 北京" in details_text
     assert "- education: 本科" in details_text
     assert "- experience: 3年以上" in details_text
@@ -172,7 +176,7 @@ def test_run_analysis_selects_extracts_and_respects_company_scope(
         "name": "北京",
         "count": 1,
         "share": 0.5,
-        "example_titles": ["大模型评测工程师"],
+        "example_titles": ["大模型测试工程师"],
     }
     assert {row["name"] for row in analysis["education"]} == {"本科", "硕士"}
     assert analysis["majors"][0]["name"] == "计算机/软件工程"
@@ -190,8 +194,8 @@ def test_run_analysis_deduplicates_by_content(tmp_path: Path) -> None:
     base_job = {
         "platform": "tencent",
         "company": "腾讯",
-        "title": "AI评测工程师",
-        "description": "负责大模型评测平台建设。",
+        "title": "AI测试开发工程师",
+        "description": "负责大模型产品质量保障和评测平台建设。",
         "requirements": "有Python和测试经验。",
     }
     input_path = _write_jobs(
@@ -232,8 +236,8 @@ def test_run_analysis_records_missing_source_fields(tmp_path: Path) -> None:
                 "job_id": "1",
                 "platform": "tencent",
                 "company": "腾讯",
-                "title": "大模型评测工程师",
-                "description": None,
+                "title": "大模型测试开发工程师",
+                "description": "负责大模型产品质量保障。",
                 "requirements": "",
             }
         ],
@@ -248,10 +252,10 @@ def test_run_analysis_records_missing_source_fields(tmp_path: Path) -> None:
     assert analysis["manifest"]["selected_job_count"] == 1
     assert analysis["data_quality"]["missing_fields_in_selected_jobs"] == {
         "title": 0,
-        "description": 1,
+        "description": 0,
         "requirements": 1,
     }
-    assert analysis["skills"] == []
+    assert analysis["skills"][0]["name"] == "大语言模型/LLM"
     assert analysis["requirements"] == []
 
 
@@ -266,8 +270,8 @@ def test_education_prefers_structured_value_then_falls_back_to_text(
                 "job_id": "structured",
                 "platform": "tencent",
                 "company": "腾讯",
-                "title": "AI评测工程师",
-                "description": "负责大模型评测",
+                "title": "AI测试开发工程师",
+                "description": "负责大模型产品质量保障和评测",
                 "requirements": "本科及以上学历",
                 "education": "硕士",
                 "experience": "三年以上工作经验",
@@ -276,8 +280,8 @@ def test_education_prefers_structured_value_then_falls_back_to_text(
                 "job_id": "fallback",
                 "platform": "tencent",
                 "company": "腾讯",
-                "title": "Agent评测工程师",
-                "description": "负责Agent评测",
+                "title": "Agent测试开发工程师",
+                "description": "负责Agent产品质量保障和评测",
                 "requirements": "本科及以上学历",
                 "education": "",
                 "experience": "",
@@ -345,8 +349,8 @@ def test_run_analysis_accounts_for_each_exclusion_reason(tmp_path: Path) -> None
                 "job_id": "outside",
                 "platform": "feishu",
                 "company": "未配置公司",
-                "title": "Agent评测工程师",
-                "description": "负责Agent评测",
+                "title": "Agent测试开发工程师",
+                "description": "负责Agent产品质量保障和评测",
                 "requirements": "本科",
             },
             {
@@ -416,18 +420,18 @@ def test_run_analysis_accounts_for_each_exclusion_reason(tmp_path: Path) -> None
 
     assert analysis["manifest"]["selected_raw_count"] == 0
     assert analysis["manifest"]["excluded_job_count"] == 8
-    counts = {
-        row["reason_code"]: row["count"]
-        for row in analysis["exclusion_reasons"]
-    }
-    assert counts == {
-        "outside_config_scope": 1,
-        "missing_title": 1,
-        "evaluation_title_without_ai_context": 1,
-        "hardware_or_manufacturing_test_excluded": 1,
-        "ai_title_without_evaluation_or_quality_term": 1,
-        "quality_title_ai_context_only_in_body": 1,
-        "ai_context_only_in_body_without_role_title_terms": 1,
-        "no_ai_context": 1,
-    }
     assert len(analysis["excluded_jobs"]) == 8
+    reasons_by_id = {
+        row["job_id"]: row["exclusion_reason_codes"]
+        for row in analysis["excluded_jobs"]
+    }
+    assert reasons_by_id == {
+        "outside": ["outside_config_scope"],
+        "missing-title": ["role_general_rnd"],
+        "eval-no-ai": ["ai_not_primary_duty"],
+        "hardware": ["domain_hardware"],
+        "ai-title": ["role_algorithm_or_research"],
+        "quality-body-ai": ["ai_not_primary_duty"],
+        "body-ai": ["role_product"],
+        "no-ai": ["role_general_rnd"],
+    }

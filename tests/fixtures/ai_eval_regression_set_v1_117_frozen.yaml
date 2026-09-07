@@ -1,0 +1,3983 @@
+# AI evaluation job regression set v1 (frozen)
+# Grain: one normalized title + description + requirements triple.
+# Classification inputs: title, description, requirements only.
+# company, location, and job_id are audit-only fields.
+# Expected labels are regression assertions; evidence explains failures.
+---
+case_id: "REG-40892b50071c08fb"
+job_id: "2035701614215593984"
+content_sha256: "40892b50071c08fba3b522cfd179a67f3d2f73bc7b7e05bc898a4bb27f3071a4"
+title: "AI方向-高级测试开发工程师（质量效能方向）"
+description: |-
+  1.结合AI产品业务特点，设计解决业务测试痛点及高人力投入方向的Test Harness体系，帮助业务测试团队提升测试效率；
+  2.建设AI提效与质量量化体系，通过量化指标衡量提效落地成果，牵引业务测试方向；
+  3.跟进前沿AI测试方法论、工程规范及实践，推动团队测试模式升级。
+requirements: |-
+  1.计算机相关专业本科及以上学历，5年以上开发或者测试开发经验，有Agent开发及相关落地成果经验者优先；
+  2.精通至少1个Agent开发框架，包括但不限于：CrewAI、AutoGen、LangGraph等或者具备自研及有成果佐证的框架；
+  3.熟悉大模型常用技术，包括但不限于：RAG、Function Calling、MCP、Multi-Agent等等；
+  4.热爱学习，擅于沟通协作，逻辑表达清晰，能够联动多方团队共同推动解决方案落地。
+company: "腾讯"
+location: "上海"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI方向-高级测试开发工程师（质量效能方向）"]
+  description: ["2.建设AI提效与质量量化体系，通过量化指标衡量提效落地成果，牵引业务测试方向；", "1.结合AI产品业务特点，设计解决业务测试痛点及高人力投入方向的Test Harness体系，帮助业务测试团队提升测试效率；"]
+  requirements: ["1.计算机相关专业本科及以上学历，5年以上开发或者测试开发经验，有Agent开发及相关落地成果经验者优先；", "2.精通至少1个Agent开发框架，包括但不限于：CrewAI、AutoGen、LangGraph等或者具备自研及有成果佐证的框架；"]
+
+boundary_tags: []
+---
+case_id: "REG-f3057f252ed0715c"
+job_id: "2092600134906064896"
+content_sha256: "f3057f252ed0715c4a6e19d0f3622c9bbab2a8e3d05cfecc7d1bc52fae86cbcf"
+title: "基模生产平台QA（深圳/北京）"
+description: |-
+  1.负责基础模型生产平台质量保障工作，设计并落地覆盖模型训练、部署、推理、评估等流程的准确性、稳定性测试方案；
+  2.建设自动化平台/工具，测试过程高度自动化，持续沉淀可复用的用例资产与质量基线；
+  3.面向 Agent CLI 等形态的产品能力开展端到端测试，保障使用场景下的可靠性；
+  4.能够统筹把控需求质量、缺陷跟踪与风险同步，推动问题闭环。
+requirements: |-
+  1.有 Agent  CLI 类产品的测试经验优先；
+  2.熟悉 模型 部署/ 推理 / 评测者优先；
+  3.有过复杂平台端到端质量保障经验，有前端或后端自动化经验；
+  4.对新技术抱有热情，具备扎实的编码能力，能独立开发测试工具；
+  5.细心、靠谱，对质量有敬畏心——这一点比资历更重要：我们更看重能把事情稳稳做扎实的人。
+company: "腾讯"
+location: "深圳"
+
+expected_role_family: "qa_test"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["基模生产平台QA（深圳/北京）"]
+  description: ["1.负责基础模型生产平台质量保障工作，设计并落地覆盖模型训练、部署、推理、评估等流程的准确性、稳定性测试方案；", "2.建设自动化平台/工具，测试过程高度自动化，持续沉淀可复用的用例资产与质量基线；"]
+  requirements: ["1.有 Agent  CLI 类产品的测试经验优先；", "2.熟悉 模型 部署/ 推理 / 评测者优先；"]
+
+boundary_tags: []
+---
+case_id: "REG-3116367f1c04c226"
+job_id: "2003325251534082048"
+content_sha256: "3116367f1c04c2260c0b523c5752fc05f80274130066ee24cbb4709369c8b344"
+title: "应用产品高级测试工程师"
+description: |-
+  1.负责C端业务的客户端与服务端测试，覆盖功能、性能、稳定性、兼容性等环节，守护端到端的产品体验；
+  2.从0到1建设并完善过程质量体系，通过深度用例设计与复杂场景构造，持续提升核心模块高风险缺陷的提前暴露能力；
+  3.参与算法和大模型相关的评测工作，力求评判标准科学严谨，以数据驱动发现质量薄弱环节，推动过程质量与运营质量的持续改进；
+  4.具备"端云协同"架构下的全链路质量把控能力，独立完成复杂链路拆解、疑难问题复现与根因定位，输出有效的防御与改进策略；
+  5.关注AI技术发展，主动探索AI如何落地到测试和评测，赋能提质增效有自己的理解和想法，愿意主动探索并推动新方法在团队内生根发芽。
+requirements: |-
+  1.3-5年及以上软件测试/测试开发经验，具备扎实的测试基本功，能独立完成从需求分析、用例设计到执行验证的全链路质量把控；
+  2.具备"端云协同"架构（内核+云+端）的测试经验，擅长复杂链路拆解与疑难问题复现两大核心能力；
+  3.掌握至少一项测试专项技术（自动化测试、性能测试、稳定性测试、数据驱动测试等），并能在实际业务中产出可量化的质量收益；
+  4.具备较强的问题定位与根因分析能力，能独立完成复杂问题的排查归因，并输出有效的防御与改进方案；
+  5.能理解并实践AI/ML在测试领域的应用，比如用AI做测试管理、缺陷分析、质量预测等，对新鲜技术愿意“上手试一试”并推进落地；
+  6.视质量为生命线，习惯"多问几个为什么"，具备良好的跨团队协作与向上沟通能力，主动沉淀可复用的测试方法与最佳实践。
+company: "腾讯"
+location: "北京"
+
+expected_role_family: "qa_test"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["应用产品高级测试工程师"]
+  description: ["3.参与算法和大模型相关的评测工作，力求评判标准科学严谨，以数据驱动发现质量薄弱环节，推动过程质量与运营质量的持续改进；", "2.从0到1建设并完善过程质量体系，通过深度用例设计与复杂场景构造，持续提升核心模块高风险缺陷的提前暴露能力；"]
+  requirements: ["1.3-5年及以上软件测试/测试开发经验，具备扎实的测试基本功，能独立完成从需求分析、用例设计到执行验证的全链路质量把控；", "2.具备\"端云协同\"架构（内核+云+端）的测试经验，擅长复杂链路拆解与疑难问题复现两大核心能力；"]
+
+boundary_tags: []
+---
+case_id: "REG-628da65d560b9344"
+job_id: "2020809468387946496"
+content_sha256: "628da65d560b9344d3e099fed47d22543d943df74ffb9f397d21116fb5040e0c"
+title: "元宝全链路高级测试工程师"
+description: |-
+  1.负责 Agent 服务及底层分布式系统的功能正确性、高可用性及性能压测，确保在复杂长链路下的系统稳定与响应效率；
+  2.针对 Prompt、RAG、Tool Use 等核心环节，研发自动化评估工具（如 LLM-as-a-Judge），将模糊的生成式体验转化为可量化的技术指标；
+  3.分析从代码变更、架构调整到模型策略优化全过程中的工程与算法风险，建立覆盖全链路的异常检测与预警机制；
+  4.通过对线上/线下数据的建模与分析，定位链路瓶颈与模型失效点，驱动工程架构与算法策略的持续优化。
+requirements: |-
+  1.精通 Python 或 Go，具备扎实的计算机基础，有大型复杂系统测试开发经验，熟悉性能调优、全链路追踪或自动化基建者优先；
+  2.理解大模型基本原理，有 Agent 架构或策略质量保障经验，能独立设计效果度量标准；
+  3.能解决传统的逻辑缺陷、性能瓶颈等确定性问题，也能通过数据驱动、概率统计等手段应对模型输出的不确定性挑战；
+  4.具备良好的业务体感与数据敏感度，能够快速跟进 AI 领域前沿技术并转化为实际的质量保障手段。
+company: "腾讯"
+location: "深圳"
+
+expected_role_family: "qa_test"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["元宝全链路高级测试工程师"]
+  description: ["1.负责 Agent 服务及底层分布式系统的功能正确性、高可用性及性能压测，确保在复杂长链路下的系统稳定与响应效率；", "2.针对 Prompt、RAG、Tool Use 等核心环节，研发自动化评估工具（如 LLM-as-a-Judge），将模糊的生成式体验转化为可量化的技术指标；"]
+  requirements: ["1.精通 Python 或 Go，具备扎实的计算机基础，有大型复杂系统测试开发经验，熟悉性能调优、全链路追踪或自动化基建者优先；", "2.理解大模型基本原理，有 Agent 架构或策略质量保障经验，能独立设计效果度量标准；"]
+
+boundary_tags: []
+---
+case_id: "REG-fced04cbcd0cb744"
+job_id: "2088194556695855104"
+content_sha256: "fced04cbcd0cb744816c6deb28828c33611fa3ce1ea74eb43126ab8d2b9e5a8d"
+title: "测试工程师"
+description: |-
+  1.负责安全系统的测试工作，包括测试计划设计、用例开发、测试执行、缺陷分析及跟踪；
+  2.参与安全测试场景下 AI Agent 协作能力与评测体系的落地，支撑用例生成、代码转换、缺陷修复、自评估等能力在实际测试中的应用；
+  3.跟进线上问题并参与复盘，输出质量报告，推动研发流程与质量体系优化；
+  4.持续优化测试流程、方法和工具，提升团队测试效能。
+requirements: |-
+  1.本科及以上学历，计算机相关专业；
+  2.年以上测试开发相关工作经验；
+  3.熟练掌握 Python，具有自动化测试框架设计经验；
+  4.熟悉 HTTP/HTTPS、TCP/IP、gRPC 等网络协议，能独立分析抓包数据（Charles/Wireshark/Fiddler）；
+  5.熟悉软件测试流程，能独立完成测试计划、用例设计及测试执行；
+  6.对 LLM/Agent 技术有实际使用或实践经验（如 Prompt 工程、RAG、Agent 编排框架），参与过 AI 辅助测试工具/平台建设者优先。
+company: "腾讯"
+location: "深圳"
+
+expected_role_family: "qa_test"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试工程师"]
+  description: ["1.负责安全系统的测试工作，包括测试计划设计、用例开发、测试执行、缺陷分析及跟踪；", "2.参与安全测试场景下 AI Agent 协作能力与评测体系的落地，支撑用例生成、代码转换、缺陷修复、自评估等能力在实际测试中的应用；"]
+  requirements: ["6.对 LLM/Agent 技术有实际使用或实践经验（如 Prompt 工程、RAG、Agent 编排框架），参与过 AI 辅助测试工具/平台建设者优先。", "3.熟练掌握 Python，具有自动化测试框架设计经验；"]
+
+boundary_tags: []
+---
+case_id: "REG-a987e1d7374c1777"
+job_id: "1950026512501678080"
+content_sha256: "a987e1d7374c17777af197dd1d9152481290f5eca830a156c45d3e6e3b31e873"
+title: "资深测试开发工程师（AI评测方向）"
+description: |-
+  1.负责腾讯云AI Coding产品质量保障工作，深度参与产品质量体系建设，识别全链路上的质量风险，建立稳定性保障体系，推动稳定性建设落地；
+  2.腾讯云AI 产品相关的评测工作，包含AI算法的评测体系建设、评测集构建、以及相关评测工程化建设等；
+  3.负责AI算法的评测标准和评测流程制定，构建评测集，并推进评测执行，分析评测结果，对模型质量给予充分评估；
+  4.建设相关评测工具/平台，推动评测工程化和无人化。
+requirements: |-
+  1.大学本科及以上学历，计算机科学与技术、软件工程、大数据技术、人工智能、智能科学与技术等专业；
+  2.精通Python程序开发，有良好的编码风格及创新优化意识，具备较强的程序开发能力；
+  3.有大模型训练或模型评估经验，熟悉大模型评测方法 , 有大模型Bench数据接入经验优先；
+  4.对预训练语言模型、精调、PE、RAG等大模型技术有一定理解；
+  5.有责任心和较强的团队意识，对人工智能有较强的兴趣；
+  6.具备优秀的沟通协调能力和团队协作意识，有项目管理或团队负责人经验优先；
+  7.大模型产品深度用户，PE（提示工程）实践经验者优先。
+company: "腾讯"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["资深测试开发工程师（AI评测方向）"]
+  description: ["1.负责腾讯云AI Coding产品质量保障工作，深度参与产品质量体系建设，识别全链路上的质量风险，建立稳定性保障体系，推动稳定性建设落地；", "3.负责AI算法的评测标准和评测流程制定，构建评测集，并推进评测执行，分析评测结果，对模型质量给予充分评估；"]
+  requirements: ["3.有大模型训练或模型评估经验，熟悉大模型评测方法 , 有大模型Bench数据接入经验优先；", "6.具备优秀的沟通协调能力和团队协作意识，有项目管理或团队负责人经验优先；"]
+
+boundary_tags: []
+---
+case_id: "REG-42fdded4a6b959db"
+job_id: "2066499012814618624"
+content_sha256: "42fdded4a6b959db2c039ee49b78f6975b5710776732f8d981becb343bd2aa90"
+title: "微信-小程序测试开发工程师"
+description: |-
+  1.负责微信小程序业务质量保障，包括小程序Agent、小程序基础库、开发者生态（工具、社区）等业务的日常版本跟进，改进、完善研发测试过程；
+  2.参与设计、完善微信小程序测试体系，包括开发相关测试工具和平台，补全测试能力，完善测试领域AI提效能力在小程序业务的落地和应用，帮助业务提升测试效率和质量。
+requirements: |-
+  1.本科及以上学历，计算机相关专业，3 年及以上软件测试或开发经验；
+  2.热爱软件测试，熟悉主流的自动化测试框架和方法，具备风险把控能力；
+  3.具备扎实的程序设计基础和较强的工程能力，精通Python、Go、Node.js等 其中1种或多门语言；
+  4.熟练掌握操作系统原理、TCP/IP、HTTP协议、数据库等基础知识；
+  5.责任感强、有快速学习能力和较强的逻辑思维能力、沟通能力，能够承担工作压力；
+  6.熟悉小程序开发和原理优先，有AI相关技术研究及实践提效经验优先。
+company: "腾讯"
+location: "广州"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["微信-小程序测试开发工程师"]
+  description: ["2.参与设计、完善微信小程序测试体系，包括开发相关测试工具和平台，补全测试能力，完善测试领域AI提效能力在小程序业务的落地和应用，帮助业务提升测试效率和质量。", "1.负责微信小程序业务质量保障，包括小程序Agent、小程序基础库、开发者生态（工具、社区）等业务的日常版本跟进，改进、完善研发测试过程；"]
+  requirements: ["6.熟悉小程序开发和原理优先，有AI相关技术研究及实践提效经验优先。", "2.热爱软件测试，熟悉主流的自动化测试框架和方法，具备风险把控能力；"]
+
+boundary_tags: []
+---
+case_id: "REG-efa6e9f03b359e49"
+job_id: "76383"
+content_sha256: "efa6e9f03b359e49cc007e1941674d83999742c5b7d3e8e95603c16d22a62180"
+title: "高级/资深测试工程师"
+description: |-
+  1.质量体系规划：负责第三方支付产品全链路质量保障体系规划与落地，制定测试策略、流程规范和质量标准，统一当前多业务域的测试管理；
+  2.团队目标与交付：根据部门质量管理体系战略目标，制定测试团队工作目标和能力建设，推进测试左移，确保产品高质量交付；
+  3.质量风险管控：识别项目质量风险，建立预警机制和应急预案，确保产品上线质量；建立全局质量度量体系和数据看板；
+  4.技术建设与 AI 转型：推进团队技术成长和测试理念创新，主导团队从传统测试向「AI 智能体 + 自动化」模式转型，包括：
+  1）引入 LLM、Agent、RAG 等 AI 技术重构测试流程，推动 AI 辅助测试用例生成、智能问题归因等场景落地；
+  2）将 AI 融入接口自动化和回归测试体系，突破传统脚本自动化的覆盖率瓶颈；
+  3）搭建版本全生命周期质量评估模型，实现 AI 驱动的质量预警；
+  4）建立 AI 使用效能度量体系，定期输出 AI 应用情况报告；
+  5）主导研发流程改进，建立持续集成/持续交付流水线。
+  5.团队建设：负责团队成员招聘和培养，推动团队 AI 技能升级，建立人才梯队。
+requirements: |-
+  1.计算机或相关专业本科及以上学历，5 年+ 互联网测试开发经验，其中 3 年+ 团队管理经验；
+  2.对大型软件质量保障有成熟的方法论，熟练掌握测试需求分析和设计方法，熟悉 CI/CD 流程并有完整实践经验；
+  3.对质量保障有深刻理解，能够建立和完善质量管理体系，有多业务域测试管理经验者优先；
+  4.具备 AI 驱动测试的实践认知：熟悉 LLM 基本原理和 Prompt Engineering，了解 RAG、Agent 等 AI 应用范式；有 AI辅助测试用例生成、智能自动化测试的实践经验，能以数据驱动质量度量（线上问题率、拦截率、召回率）；
+  5.自我驱动、独立思考、乐于接受挑战，善于沟通和事务推进，能在人手紧缺和高目标压力下统筹多线作战；
+  6.有金融/支付类业务质量保障经验，或有 AI 测试平台从 0 到 1 搭建经验者优先。
+company: "网易"
+location: "杭州"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "expert_lead"
+expected_career_pool: "REF"
+expected_reason_codes: ["level_expert_lead"]
+
+evidence:
+  title: ["高级/资深测试工程师"]
+  description: ["5.团队建设：负责团队成员招聘和培养，推动团队 AI 技能升级，建立人才梯队。", "2.团队目标与交付：根据部门质量管理体系战略目标，制定测试团队工作目标和能力建设，推进测试左移，确保产品高质量交付；"]
+  requirements: ["4.具备 AI 驱动测试的实践认知：熟悉 LLM 基本原理和 Prompt Engineering，了解 RAG、Agent 等 AI 应用范式；", "6.有金融/支付类业务质量保障经验，或有 AI 测试平台从 0 到 1 搭建经验者优先。"]
+
+boundary_tags: ["management_duty_in_description", "management_requirement", "career_pool_boundary"]
+---
+case_id: "REG-f1621a75a256feda"
+job_id: "77571"
+content_sha256: "f1621a75a256feda0ccb065d3dfa35a78075c59babc89043cd3fe8f1fbb91e9f"
+title: "测试工程师（数据产品）-派遣"
+description: |-
+  1. 负责数据领域系统的测试工作，可以将大模型/智能体应用于测试用例自动生成、测试数据智能构造、缺陷自动归因与自愈型自动化测试，切实落地为日常测试工具链
+  2. 负责数据领域 AI 产品的质量保障工作：制定 AI 模型及应用的质量评估标准，包括模型效果评测、鲁棒性测试、偏见检测、幻觉评估，建立 AI 产品测试体系，支撑 智能问数、智能搭建、智能分析等场景
+  3. 自动化测试框架/工具深度使用：熟练掌握 服务端、Web 端 的测试方法论，具备充分的测试工具使用经验
+  4. 工具研发和提效：可以使用vibe-coding等等方式，进行适配域内的相应质量工具的研发
+requirements: |-
+  1. 工科、计算机或相关专业本科以上学历，2 年以上测试开发工作经验
+  2. 熟悉 Java / Python / C++ 中至少一门语言，可以在AI辅助的情况下完成相应的测试工具/系统开发
+  3. 有 AI 在测试领域的实际落地经验者 优先，有 WEB 端canvas相关 测试经验优先
+  4. 逻辑能力强，高度的责任心和自我驱动，乐于接受挑战
+company: "网易"
+location: "杭州"
+
+expected_role_family: "qa_test"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试工程师（数据产品）-派遣"]
+  description: ["2. 负责数据领域 AI 产品的质量保障工作：制定 AI 模型及应用的质量评估标准，包括模型效果评测、鲁棒性测试、偏见检测、幻觉评估，建立 AI 产品测试体系，支撑 智能问数、智能搭建、智能分析等场景", "1. 负责数据领域系统的测试工作，可以将大模型/智能体应用于测试用例自动生成、测试数据智能构造、缺陷自动归因与自愈型自动化测试，切实落地为日常测试工具链"]
+  requirements: ["3. 有 AI 在测试领域的实际落地经验者 优先，有 WEB 端canvas相关 测试经验优先", "2. 熟悉 Java / Python / C++ 中至少一门语言，可以在AI辅助的情况下完成相应的测试工具/系统开发"]
+
+boundary_tags: []
+---
+case_id: "REG-3b9eddd5adc0d865"
+job_id: "77570"
+content_sha256: "3b9eddd5adc0d86573c8305e3de3a57c6f84dd0b140ba94dce29465d182fad66"
+title: "测试工程师（杭州）-派遣"
+description: |-
+  1. 负责采购、HR、行政、法务等领域部分系统的测试工作：将大模型/智能体应用于测试用例自动生成、测试数据智能构造、缺陷自动归因与自愈型自动化测试，切实落地为日常测试工具链
+  2. 负责上述领域 AI 产品的质量保障工作：制定 AI 模型及应用的质量评估标准，包括模型效果评测、鲁棒性测试、偏见检测、幻觉评估，建立 AI 产品测试体系
+  3. 自动化测试框架/工具深度使用：熟练掌握 服务端、Web 端 的测试方法论，具备充分的测试工具使用经验
+  4. 工具研发和提效：可以使用vibe-coding等等方式，进行适配域内的相应质量工具的研发
+requirements: |-
+  1. 工科、计算机或相关专业本科以上学历，2 年以上测试开发工作经验
+  2. 熟悉 Java / Python / C++ 中至少一门语言，可以在AI辅助的情况下完成相应的测试工具/系统开发
+  3. 有 AI 在测试领域的实际落地经验者 优先，有 APP 端、Windows 客户端 测试经验优先
+  4. 逻辑能力强，高度的责任心和自我驱动，乐于接受挑战
+company: "网易"
+location: "杭州"
+
+expected_role_family: "qa_test"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试工程师（杭州）-派遣"]
+  description: ["2. 负责上述领域 AI 产品的质量保障工作：制定 AI 模型及应用的质量评估标准，包括模型效果评测、鲁棒性测试、偏见检测、幻觉评估，建立 AI 产品测试体系", "1. 负责采购、HR、行政、法务等领域部分系统的测试工作：将大模型/智能体应用于测试用例自动生成、测试数据智能构造、缺陷自动归因与自愈型自动化测试，切实落地为日常测试工具链"]
+  requirements: ["3. 有 AI 在测试领域的实际落地经验者 优先，有 APP 端、Windows 客户端 测试经验优先", "2. 熟悉 Java / Python / C++ 中至少一门语言，可以在AI辅助的情况下完成相应的测试工具/系统开发"]
+
+boundary_tags: []
+---
+case_id: "REG-1ce265ed3df4e724"
+job_id: "77848"
+content_sha256: "1ce265ed3df4e724517218f5262fac9c7ba1eb0d3f44874f45ea314346b31cd1"
+title: "CW-Agent测试工程师"
+description: |-
+  1、负责SDD高码Agent平台整体质量保障，覆盖Agent编排引擎、工具调用链路、接口服务、页面兼容性、版本回归及线上问题复盘，保障Agent产品稳定迭代与交付质量。
+  2、主导SDD全研发流程测试，重点聚焦技术设计阶段的测试建模与验证（架构设计、组件设计、接口契约、数据建模、业务规则等设计产物），规范研发测试流程，保障质量可控、流程合规。
+  3、负责Agent工具调用链路搭建与验证，围绕编排流程与工具调用场景搭建端到端（E2E）测试链路，设计链路验证方案与异常注入用例，确保链路正确性与容错能力。
+  4、独立完成测试环境搭建与维护，开展手工与自动化测试，跟进缺陷修复、验证与闭环，按时输出测试报告、质量风险评估等标准化文档。
+  5、利用AI大模型赋能测试，高效生成接口测试用例、E2E链路测试脚本、Mock数据及异常场景用例，提升测试覆盖率与产出效率。
+  6、参与测试平台体系建设，基于Java、Python、React技术栈开发维护接口自动化、E2E链路自动化及回归测试脚本，基于Locust搭建性能压测场景，沉淀可复用组件与自动化流水线。
+  7、跟进产品版本迭代全流程，复盘线上质量问题和故障根因，推动编排逻辑与产品设计优化，持续完善测试规范、质量管控与风险防控体系。
+requirements: |-
+  1、本科及以上学历，计算机相关专业，3年以上软件开发或测试经验，具备扎实的计算机基础与研发思维。
+  2、熟练掌握Java、Python，具备Java研发经验，能独立完成测试脚本开发、平台及环境维护。
+  3、熟悉SDD标准化研发流程，具备高码平台技术设计阶段测试经验（架构设计评审、接口契约验证、组件设计测试等），精通软件测试方法论与全流程质量管控。
+  4、了解Agent平台基础架构（Agent编排、工具调用、LLM推理链路等）及常见测试难点（模型不确定性、工具调用可靠性、上下文窗口管理等）。
+  5、理解SDD高码与低码场景差异，能识别高码技术设计的广度（架构、组件、接口、规则等多维度）并针对性设计测试策略。
+  6、具备AI Coding实战经验，能运用AI工具完成测试脚本开发、代码核查、问题定位及自动化测试落地。
+  7、有本地高码编辑器插件（SDD）相关测试或项目经验者优先。
+company: "网易"
+location: "杭州"
+
+expected_role_family: "qa_test"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["CW-Agent测试工程师"]
+  description: ["6、参与测试平台体系建设，基于Java、Python、React技术栈开发维护接口自动化、E2E链路自动化及回归测试脚本，基于Locust搭建性能压测场景，沉淀可复用组件与自动化流水线。", "2、主导SDD全研发流程测试，重点聚焦技术设计阶段的测试建模与验证（架构设计、组件设计、接口契约、数据建模、业务规则等设计产物），规范研发测试流程，保障质量可控、流程合规。"]
+  requirements: ["3、熟悉SDD标准化研发流程，具备高码平台技术设计阶段测试经验（架构设计评审、接口契约验证、组件设计测试等），精通软件测试方法论与全流程质量管控。", "2、熟练掌握Java、Python，具备Java研发经验，能独立完成测试脚本开发、平台及环境维护。"]
+
+boundary_tags: []
+---
+case_id: "REG-05eb7cab6434f365"
+job_id: "100021420003"
+content_sha256: "05eb7cab6434f36510501b82f7ffcc96602f8a360a71ea8637994f09fe3834ca"
+title: "千问事业部-高级AI自动化测试开发工程师-广州"
+description: |-
+  1. 负责 浏览器内核 /  跨端渲染引擎 / 播放器内核 / PDF 内核 等相关技术领域方向的 AI 自动化测试及质量保障工作；
+  2. 负责 “持续集成保障体系” 建设 及 “AI 自动化测试工具平台” 开发工作，提升团队的研测效率和代码质量；
+  3. 负责通过全链路数据分析、效果评测、竞对分析等手段帮助发现技术及产品优劣势，驱动技术持续优化演进，打造极致用户体验；
+  4. 负责持续跟进及研究行业 AI 自动化测试领域前沿技术，推进团队内部 AI 自动化测试技术不断演进完善。
+requirements: |-
+  1. 本科及以上学历，计算机相关专业，熟悉 桌面端 / Android / iOS 等平台技术，熟悉 AI Coding，有多端 AI 自动化测试经验者优先；
+  2. 熟练掌握 java / python 等至少一种编程语言，可独立完成 AI 自动化测试脚本和工具开发；
+  3. 熟悉性能测试、内存稳定性测试及白盒测试等领域相关技术，具备良好的问题分析和解决能力；
+  4. 具有数据驱动意识，能够通过数据分析辅助质量决策、用户体验提升及产品目标达成；
+  5. 对技术有激情，喜欢钻研，追求卓越，学习能力强，具有良好的中英文沟通能力和团队合作精神。
+company: "夸克"
+location: "广州"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["千问事业部-高级AI自动化测试开发工程师-广州"]
+  description: ["2. 负责 “持续集成保障体系” 建设 及 “AI 自动化测试工具平台” 开发工作，提升团队的研测效率和代码质量；", "1. 负责 浏览器内核 /  跨端渲染引擎 / 播放器内核 / PDF 内核 等相关技术领域方向的 AI 自动化测试及质量保障工作；"]
+  requirements: ["1. 本科及以上学历，计算机相关专业，熟悉 桌面端 / Android / iOS 等平台技术，熟悉 AI Coding，有多端 AI 自动化测试经验者优先；", "3. 熟悉性能测试、内存稳定性测试及白盒测试等领域相关技术，具备良好的问题分析和解决能力；"]
+
+boundary_tags: []
+---
+case_id: "REG-26bad50d160e3ddb"
+job_id: "100018600002"
+content_sha256: "26bad50d160e3ddbd63cceb14057f161694a4673efebe318afbdef2abf3d55f0"
+title: "智元科技-测试开发工程师-智能助手"
+description: |-
+  1、参与千问toC智能助手产品功能日常迭代测试&质量保障工作，覆盖对话、语音、多模态创作等产品功能；
+  2、参与多模态测试能力及质量保障体系的建设，覆盖功能、性能、稳定性、容灾等方面；
+  3、参与完善发布质量体系和线上巡检能力的建设，提升上线前问题的拦截效率和线上问题发现的效率。
+requirements: |-
+  1、本科及以上学历，计算机相关专业；
+  2、有测试或质量保障经验，有 AI / 大模型 / 互联网C端场景经验者优先；
+  3、熟悉至少一种自动化测试技术栈（如 Python），具备接口测试、功能测试实战经验；
+  4、较强的责任心，具备良好的问题定位能力与跨团队协作能力，对 AI 技术有好奇心和学习。
+  
+  说明：本岗位为智元科技（千问全资子公司）直招岗位，劳动合同与智元签订。
+company: "夸克"
+location: "<missing>"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["智元科技-测试开发工程师-智能助手"]
+  description: ["2、参与多模态测试能力及质量保障体系的建设，覆盖功能、性能、稳定性、容灾等方面；", "3、参与完善发布质量体系和线上巡检能力的建设，提升上线前问题的拦截效率和线上问题发现的效率。"]
+  requirements: ["2、有测试或质量保障经验，有 AI / 大模型 / 互联网C端场景经验者优先；", "3、熟悉至少一种自动化测试技术栈（如 Python），具备接口测试、功能测试实战经验；"]
+
+boundary_tags: []
+---
+case_id: "REG-a152f2c1e04dc964"
+job_id: "100019300009"
+content_sha256: "a152f2c1e04dc9644607b8a492167d15efa7425b54d6f6b068e79707093e0e75"
+title: "千问事业部-Agent高级测试开发工程师-杭州"
+description: |-
+  1. 负责千问大模型产品（对话/搜索/图像/文档/语音等全场景）的质量保障工作，构建和完善大模型产品质量体系，保障产品高质量交付；
+  2. 覆盖大模型全链路质量（功能、性能、稳定性、监控、容灾），深入各业务线场景挖掘 badcase，推动问题闭环和模型优化；
+  3. 参与评测体系建设和用例体系建设，设计和维护金标用例集，提升评测覆盖率和准确性；
+  4. 与算法、产研团队紧密协作，建立质量度量指标和监控机制，为模型迭代和产品优化提供数据支撑；
+  5. 支持多语言、多模态等业务场景的质量验证，确保全球化产品的本地化体验。
+requirements: |-
+  1. 本科及以上学历，计算机相关专业；
+  2. 有 3 年以上测试或质量保障经验，有 AI / 大模型 / 互联网产品经验者优先；
+  3. 熟悉至少一种自动化测试技术栈（如 Python），具备接口测试、功能测试实战经验；
+  4. 能够从业务视角定义质量问题并推动解决，具备模型效果评估及数据分析能力者优先；
+  5. 较强的责任心，具备良好的问题定位能力与跨团队协作能力；
+  6. 了解大模型的基本原理和常见应用场景（TOKEN、MEMORY、意图识别、RAG 等），理解 Agent/Workflow 编排逻辑；
+  7. 对 AI 技术有好奇心，关心行业发展，有自主信息检索和方案调研能力，热衷实践新方案。
+company: "夸克"
+location: "杭州"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["千问事业部-Agent高级测试开发工程师-杭州"]
+  description: ["3. 参与评测体系建设和用例体系建设，设计和维护金标用例集，提升评测覆盖率和准确性；", "1. 负责千问大模型产品（对话/搜索/图像/文档/语音等全场景）的质量保障工作，构建和完善大模型产品质量体系，保障产品高质量交付；"]
+  requirements: ["2. 有 3 年以上测试或质量保障经验，有 AI / 大模型 / 互联网产品经验者优先；", "3. 熟悉至少一种自动化测试技术栈（如 Python），具备接口测试、功能测试实战经验；"]
+
+boundary_tags: []
+---
+case_id: "REG-317cc50aa5f5d24c"
+job_id: "100007403008"
+content_sha256: "317cc50aa5f5d24c9b0d4ee4b74e0004cd2e2ad60c15a14e9b125cf72759bc9e"
+title: "阿里云智能-AI Agent 测试开发工程师-秒悟-杭州"
+description: |-
+  ● 负责 AI Agent 平台的测试体系建设，设计和实现用例自动生成、缺陷根因分析、测试执行编排等 Agent，打造智能化质量保障平台
+  ● 建立 LLM 应用的测试方法论和评估体系，应对非确定性输出的测试挑战，覆盖 Prompt、RAG、Function Calling、多轮对话等场景的专项测试
+  ● 深入理解复杂业务系统，设计有效的测试策略和自动化框架，参与全站架构升级中的可测性建设和稳定性保障，支撑千万级用户的业务质量
+  ● 探索 AI 驱动的测试新范式，沉淀 Agent 协作框架、智能测试工具、模型评估体系等技术方案，推动测试工程智能化转型
+requirements: |-
+  ● 深度理解 AI 技术栈，熟悉 LLM、Agent、Prompt Engineering、RAG、Tool Calling 等核心概念，对 AI 系统的质量风险有认知（幻觉、偏见、安全性等）
+  ● 具备 AI 应用测试思维，理解流式响应、多轮对话、上下文管理等 AI 场景的测试方法，能设计针对非确定性输出的验证策略
+  ● 扎实的测试基本功和工程能力，精通性能测试、自动化测试、安全测试或白盒测试之一，熟练掌握至少一门编程语言（Python/Java/Go）
+  ● 丰富的中大型复杂系统测试经验，能从 0 到 1 构建测试框架和平台，有测试工具研发和方案整合能力
+  ● 逻辑思维强，对新技术敏感，学习能力强，能独立解决 AI 应用中的质量保障难题，具备良好的沟通协作能力
+  加分项
+  ● 开发过 LLM 应用、AI Agent、代码生成工具等 AI 原生产品的测试体系
+  ● 有 Agent 框架使用或研发经验（LangChain/LangGraph/AutoGPT/CrewAI 等），了解 Agent 工作流和评估方法
+  ● 熟悉模型评估框架（RAGAS/LangSmith/Phoenix），有 LLM 模型调优、Prompt 优化或 RAG 系统测试经验
+  ● 了解向量数据库、Embedding 技术，有 AI 系统性能测试和稳定性保障实战经验
+  ●  在顶会/期刊发表过测试或 AI 相关论文，有开源测试框架或 AI 项目贡献
+company: "阿里云"
+location: "杭州"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["阿里云智能-AI Agent 测试开发工程师-秒悟-杭州"]
+  description: ["● 负责 AI Agent 平台的测试体系建设，设计和实现用例自动生成、缺陷根因分析、测试执行编排等 Agent，打造智能化质量保障平台", "● 深入理解复杂业务系统，设计有效的测试策略和自动化框架，参与全站架构升级中的可测性建设和稳定性保障，支撑千万级用户的业务质量"]
+  requirements: ["● 深度理解 AI 技术栈，熟悉 LLM、Agent、Prompt Engineering、RAG、Tool Calling 等核心概念，对 AI 系统的质量风险有认知（幻觉、偏见、安全性等）", "● 熟悉模型评估框架（RAGAS/LangSmith/Phoenix），有 LLM 模型调优、Prompt 优化或 RAG 系统测试经验"]
+
+boundary_tags: ["preference_or_skill_not_hard_exclusion"]
+---
+case_id: "REG-56f22d5516305366"
+job_id: "100025340001"
+content_sha256: "56f22d55163053662133ea7e7102e398f8b78b550a59fbf27250ceb3c4ba2674"
+title: "千问办公-AI 测试工程师-杭州"
+description: |-
+  1.负责 AI 工作台产品的端到端功能测试，覆盖多租户管控、权限模型、配额计费、模型准入、Agent 编排与工具调用等核心业务链路，确保功能正确性与业务一致性。
+  2.主导 AI 应用与 Agent 运行链路的效果测试体系建设，围绕模型输出质量、意图识别准确率、工具调用成功率、端到端任务完成率等维度，设计可量化的评测方案与基准集。
+  3.构建自动化测试框架，覆盖接口测试、集成测试、回归测试与性能基线验证，支撑持续集成流水线中的质量门禁。
+  4.设计 AI 场景专项测试策略，包括 Prompt 鲁棒性测试、对抗样本注入、幻觉检测、内容安全护栏验证、多轮对话一致性校验等。
+  5.参与可观测性与质量度量体系建设，定义测试覆盖率、缺陷逃逸率、效果评测回归趋势等核心质量指标，驱动产品质量持续改进。
+  6.与研发、算法团队紧密协作，参与需求评审与技术方案评审，前置识别质量风险并推动测试左移。
+requirements: |-
+  1.扎实的软件测试工程能力，熟练使用 Python / Java / Go 中至少一门语言编写自动化测试脚本，具备复杂分布式系统的测试设计与执行经验。
+  2.熟悉 AI/LLM 应用测试方法论，理解 Prompt Engineering、Function Calling、Agent 执行链路、Context Window 等核心概念，具备 AI 输出质量评估的实战经验。
+  3.具备端到端测试框架设计能力，熟悉 Pytest / JUnit / TestNG 等主流框架，有接口自动化、契约测试或混沌测试落地经验。
+  4.熟悉 CI/CD 流程与质量门禁集成，能独立搭建自动化回归体系并嵌入持续交付流水线。
+  5.良好的数据分析能力，能基于测试结果进行效果评测数据统计、趋势分析与归因定位。
+  6.持续关注 AI 测试与评测领域前沿，能独立消化英文一手资料并转化为测试实践；习惯使用 AI 工具辅助测试用例生成与缺陷分析。加分项
+  7.有 LLM 评测 / AI 效果测试平台建设经验，熟悉 RAGAS、DeepEval、Promptfoo 等评测框架或自建评测体系。
+  8.有 Agent 端到端测试经验，包括多步骤任务链路验证、工具调用结果校验、异常恢复路径测试。
+  9.有性能测试与稳定性保障经验，能设计高并发场景下的 AI 推理服务压测方案。
+  10.有安全测试或红队测试经验，如 Prompt 注入攻防、越权检测、数据泄露验证等
+company: "钉钉"
+location: "杭州"
+
+expected_role_family: "qa_test"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["千问办公-AI 测试工程师-杭州"]
+  description: ["2.主导 AI 应用与 Agent 运行链路的效果测试体系建设，围绕模型输出质量、意图识别准确率、工具调用成功率、端到端任务完成率等维度，设计可量化的评测方案与基准集。", "5.参与可观测性与质量度量体系建设，定义测试覆盖率、缺陷逃逸率、效果评测回归趋势等核心质量指标，驱动产品质量持续改进。"]
+  requirements: ["2.熟悉 AI/LLM 应用测试方法论，理解 Prompt Engineering、Function Calling、Agent 执行链路、Context Window 等核心概念，具备 AI 输出质量评估的实战经验。", "7.有 LLM 评测 / AI 效果测试平台建设经验，熟悉 RAGAS、DeepEval、Promptfoo 等评测框架或自建评测体系。"]
+
+boundary_tags: ["preference_or_skill_not_hard_exclusion"]
+---
+case_id: "REG-9cb13053fcb589eb"
+job_id: "7651601796775069971"
+content_sha256: "9cb13053fcb589eb6ed1ba974e6538d1a9dd0aa696f4afd60476e8a59b9aa890"
+title: "Agent测试开发工程师-支付"
+description: |-
+  MiniMax 是国内头部大模型公司，开放平台是商业化的核心战场。Token 是大模型公司的"货币"——怎么让开发者用起来、怎么让企业愿意付费、怎么设计商业模式让收入规模化，是现在以及未来大模型服务最需要回答的问题。而账号体系是用户与公司建立信任的第一道门，支付系统是这份信任兑现为商业结果的最后一公里。这个岗位，就是要用工程化的质量保障能力，把账号与支付这条命脉守到"可信赖、零资损、可规模化"。
+  职责：
+  - 负责公司级账号体系、支付、套餐与计费的质量保障，覆盖全链路核心场景与端到端验收
+  - 设计与实现账号/支付场景的质量保障体系：包括但不限于功能与接口自动化、资金一致性校验、幂等与并发安全验证、异常资金回滚与补偿验证、容量评估、压测、限流降级验证、容灾切换演练等
+  - 设计与搭建 E2E 测试 Agent / 智能测试机器人，赋能账号注册、风控识别、支付路由、对账核对、异常资金感知等核心流程的自动化验证与质量度量
+requirements: |-
+  - 3 年以上测试开发经验，有账号体系、交易/支付、ToB业务质量保障与稳定性治理经验
+  - 熟悉Python/JavaScript/Golang等至少一门语言，具备脚本级独立开发能力；熟练vibe-coding优先
+  - 能端到端负责，从业务目标出发设计质量方案，并能在工程落地中持续演进
+  - 具备优秀的沟通协作能力，热衷hands on 解决问题，对质量与稳定性有长期追求
+  - 主导过大流量、高一致性、资金类系统的稳定性治理与资损防控项目者优先
+company: "MiniMax"
+location: "北京 / 上海"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["Agent测试开发工程师-支付"]
+  description: ["- 设计与搭建 E2E 测试 Agent / 智能测试机器人，赋能账号注册、风控识别、支付路由、对账核对、异常资金感知等核心流程的自动化验证与质量度量", "Token 是大模型公司的\"货币\"——怎么让开发者用起来、怎么让企业愿意付费、怎么设计商业模式让收入规模化，是现在以及未来大模型服务最需要回答的问题。"]
+  requirements: ["- 熟悉Python/JavaScript/Golang等至少一门语言，具备脚本级独立开发能力；", "- 3 年以上测试开发经验，有账号体系、交易/支付、ToB业务质量保障与稳定性治理经验"]
+
+boundary_tags: []
+---
+case_id: "REG-cc144c42e6a8605c"
+job_id: "7651581813773961526"
+content_sha256: "cc144c42e6a8605cc1dffa958a9c31b56f19b2357d32dbf663f6b9b3fcb2b9be"
+title: "Senior测试开发工程师-大模型方向"
+description: |-
+  -围绕模型能力、推理资源、Token 服务质量与开发者体验，定义模型效果与稳定性保障系统，推动产品、研发、算法
+  、运营等多角色协同，提供高质量 Token 服务。
+  -建设开放平台质量保障体系，覆盖模型效果评估与度量、 稳定性、开发者体验等核心场景；持续建设 Test Agent，赋能研发与算法团队。
+  -建设 Agent Native 的质量保障团队。
+requirements: |-
+  1、有云厂商、MaaS 服务厂商或相关 ToB 平台的质量保障与稳定性治理经验。
+  2、熟悉大模型 API、Token 计费、GPU 推理或 AI 基础设施相关场景，能与算法、研发和客户团队进行高质量沟通。
+  3、具备较强的问题定义和方案拆解能力，能独立推进复杂项目落地，追求结果至上。
+  4、有较强业务 sense，能从开发者体验与企业付费意愿出发定义质量目标。
+  5、具备团队管理与梯队建设经验，对质量与稳定性有长期追求。
+  加分项
+  兼具技术理解与跨团队推动能力，能直面研发、算法、产品推进复杂项目。
+  能从 0 到 1 搭建过质量保障或评测体系，熟悉 AI / Agent 在 QA 方向的落地路径。
+company: "MiniMax"
+location: "北京 / 上海"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "expert_lead"
+expected_career_pool: "REF"
+expected_reason_codes: ["level_expert_lead"]
+
+evidence:
+  title: ["Senior测试开发工程师-大模型方向"]
+  description: ["-建设开放平台质量保障体系，覆盖模型效果评估与度量、 稳定性、开发者体验等核心场景；", "-建设 Agent Native 的质量保障团队。"]
+  requirements: ["5、具备团队管理与梯队建设经验，对质量与稳定性有长期追求。", "能从 0 到 1 搭建过质量保障或评测体系，熟悉 AI / Agent 在 QA 方向的落地路径。"]
+
+boundary_tags: ["management_requirement", "career_pool_boundary"]
+---
+case_id: "REG-d3d43edc0e20aff9"
+job_id: "7495670973120645388"
+content_sha256: "d3d43edc0e20aff9c516dae205c3766db419c84e16920ab6d2d95db6487eb5cb"
+title: "Agent测试开发工程师-开放平台"
+description: |-
+  MiniMax 是国内头部大模型公司，开放平台是商业化的核心战场。Token 是大模型公司的"货币"——怎么让开发者用起来、怎么让企业愿意付费、怎么设计商业模式让收入规模化，是现在以及未来大模型服务最需要回答的问题。对于基于Token的大模型服务，如何量化把控服务质量，也同样期待你的答案。 
+  职责：
+  负责 MiniMax 开放平台核心框架质量保障和主流模型评测。具体工作包括：
+  - 设计并主要实现Token大模型服务的质量保障体系，保障Token服务的稳定性，持续提升服务效果
+  - 设计并搭建E2E测试Agent，赋能质量保障全流程
+  - 时刻关注AI、LLM领域前沿技术和开源社区，确保测试场景/方案与业界最新动态一致
+  - 对模型新版本能力有前沿认知，能实现各领域SOTA模型量化差异评估
+requirements: |-
+  1、熟悉Python/JavaScript/Golang等至少一门语言，具备脚本级独立开发能力；
+  2、有AI测试经验者优先，了解LLM、Agent生态更佳；
+  3、热衷于开源技术，熟悉常见AI/Agent框架，有实际落地经验者优先；
+  4、关注新技术趋势，具备快速学习和落地的能力，乐于探索创新方案。
+company: "MiniMax"
+location: "北京 / 上海"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["Agent测试开发工程师-开放平台"]
+  description: ["负责 MiniMax 开放平台核心框架质量保障和主流模型评测。具体工作包括：", "- 设计并搭建E2E测试Agent，赋能质量保障全流程"]
+  requirements: ["3、热衷于开源技术，熟悉常见AI/Agent框架，有实际落地经验者优先；", "2、有AI测试经验者优先，了解LLM、Agent生态更佳；"]
+
+boundary_tags: []
+---
+case_id: "REG-04cd1e8d4ef73a1c"
+job_id: "7478961208474749220"
+content_sha256: "04cd1e8d4ef73a1ce0c34eb69c7f581d2d579b900d66bb6e2b98443a645953ed"
+title: "MaaS-测试开发工程师"
+description: |-
+  1、跟进maas开放平台业务的测试项目，负责项目质量;
+  2、根据产品需求制定测试计划、设计、编写和执行测试用例、跟进 bug 的修复、回归，保证测试交付质量:
+  3、与研发同事密切配合，完成项目开发迭代过程
+  4、熟练掌握接口测试工具，有pc端测试经验，大模型测试经验，以及python/java经验优先考虑
+requirements: |-
+  1、本科及以上学历，计算机相关专业优先;
+  2、熟悉软件测试流程、软件测试理论和方法。熟悉功能测试、接口测试、压力测试，熟练掌握抓包分析工具的使用;
+  3、熟悉Java或Python，具备代码阅读和问题排查定位能力，有全链路压测、故障演练、问题诊断工具开发经验优先;
+  4、熟悉网络基础知识、http 协议、数据库相关知识了解 linux 系统及 Git 的使用;
+  5、有敏捷开发经验者和主流自动化框架实践经验优先考虑;
+  6、5年左右测试相关工作经验
+  7、个性开朗，有责任心且有较强的逻辑分析能力、学能力，具备良好的沟通能力和团队合作精神;
+company: "智谱AI"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["MaaS-测试开发工程师"]
+  description: ["1、跟进maas开放平台业务的测试项目，负责项目质量;", "2、根据产品需求制定测试计划、设计、编写和执行测试用例、跟进 bug 的修复、回归，保证测试交付质量:"]
+  requirements: ["3、熟悉Java或Python，具备代码阅读和问题排查定位能力，有全链路压测、故障演练、问题诊断工具开发经验优先;", "5、有敏捷开发经验者和主流自动化框架实践经验优先考虑;"]
+
+boundary_tags: []
+---
+case_id: "REG-4e5fa338f077f470"
+job_id: "JR2026081700I"
+content_sha256: "4e5fa338f077f4703522bee1df26ff69978fd1d6ecc9e5bb1a1511fcf538d9ff"
+title: "高级测试开发工程师"
+description: |-
+  1、参与两轮车业务的质量保障工作，深入理解业务链路，从用户视角把控质量；
+  2、参与需求评审/技术评审，能对需求和技术方案提出合理质疑与改进建议；
+  3、根据需求和技术文档制定测试计划和方案，不满足于"跑通用例"，注重沉淀可复用的测试基建能力，保障需求高质量按时交付；
+  4、根据业务做差异化测试设计，灵活运用AI工具、自动化、流量回放、日志监控等手段，保障业务质量，提升测试效率；
+  5、参与AI基建测试能力建设，方向包括但不限于：用例生成/自动化生成、缺陷分析、测试自愈、Agent评测、大模型产品效果评估；
+  6、与团队成员、项目组成员密切沟通，及时反馈项目进度与风险
+requirements: |-
+  1、本科及以上学历，计算机相关专业优先；
+  2、很强的学习能力、分析能力和解决问题的能力，有上进心、抗压性强——AI工具迭代极快，需要持续跟进并将新能力融入工作流；
+  3、良好的沟通和协作能力，责任心强，具备质量Owner意识；
+  4、熟悉测试理论与方法（白盒/黑盒、等价类、边界值、场景法等），对互联网质量保障领域有强烈兴趣；
+  5、对AI有实质认知和实践：日常使用AI工具辅助学习或开发，了解LLM基本原理，有AI相关项目经验（RAG应用/Agent开发/Prompt工程/大模型评测等 任一方向均可）；
+  6、具备工程化思维：不满足于手工测试，追求用工具解决质量问题，有实际项目经验；
+  7、有AI Coding实践经验：使用AI工具独立完成过项目开发，搭建过Agent Workflow或Harness，对AI驱动的开发及质量保障有实际理解和体会
+company: "滴滴"
+location: "杭州"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["高级测试开发工程师"]
+  description: ["5、参与AI基建测试能力建设，方向包括但不限于：用例生成/自动化生成、缺陷分析、测试自愈、Agent评测、大模型产品效果评估；", "4、根据业务做差异化测试设计，灵活运用AI工具、自动化、流量回放、日志监控等手段，保障业务质量，提升测试效率；"]
+  requirements: ["5、对AI有实质认知和实践：日常使用AI工具辅助学习或开发，了解LLM基本原理，有AI相关项目经验（RAG应用/Agent开发/Prompt工程/大模型评测等 任一方向均可）；", "6、具备工程化思维：不满足于手工测试，追求用工具解决质量问题，有实际项目经验；"]
+
+boundary_tags: []
+---
+case_id: "REG-1f86b54eba378c29"
+job_id: "JR2026082600N"
+content_sha256: "1f86b54eba378c29d945eb0bab4d154064a81665793687d14c26ed9a75700e68"
+title: "测试开发工程师"
+description: |-
+  1、AI及数据平台测试：负责AI应用、Agent、模型服务及数据平台的测试与质量保障，深入业务和技术链路，识别并推动解决质量风险。
+  2、AI能力验证：针对AI问答、Agent、RAG等场景，设计测试数据与验证方案，评估AI输出的准确性、完整性、一致性和稳定性。
+  3、自动化与工程化：通过Python/Java/JS/TS等进行接口、E2E、数据校验及测试工具开发，推进自动化回归、质量门禁和测试工程化。
+  4、AI赋能测试提效：探索AI Coding、Agent、LLM等在Case生成、自动化开发、缺陷分析、测试执行及结果分析中的应用，持续提升测试效率和覆盖率。
+  5、质量体系建设：参与测试规范、测试资产及质量门禁建设，做好线上问题复盘和根因分析，推动质量问题闭环。
+  
+  一句话岗位定位：
+  通过代码能力 + AI能力 + 测试能力，做好AI及数据平台的质量验证，并持续推动测试智能化提效。
+requirements: |-
+  1、专业背景：本科及以上学历，计算机、软件工程、数据科学、人工智能等相关专业优先。
+  2、技术能力：具备良好的代码能力，熟练掌握 Python / Java / JavaScript / TypeScript 至少一门；熟悉 Git、Linux、SQL 等基本工程能力。
+  3、测试能力：掌握软件测试基本理论和方法，具备功能、接口、异常、数据校验、回归等测试能力，能够独立完成测试方案设计、Case设计及问题定位。
+  4、AI能力：了解大模型、Agent、RAG、AI Coding等相关技术，对AI应用及测试验证有兴趣，具备较强的AI工具使用和提效意识。
+  5、工程与质量意识：具备较强的风险识别、问题分析和质量意识，能够主动发现潜在问题，并推动问题闭环。
+  6、学习与创新能力：具备较强的学习能力和技术探索意识，愿意持续探索AI + 测试自动化 + 测试工程化，推动测试效率和质量持续提升。
+company: "滴滴"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试开发工程师"]
+  description: ["1、AI及数据平台测试：负责AI应用、Agent、模型服务及数据平台的测试与质量保障，深入业务和技术链路，识别并推动解决质量风险。", "2、AI能力验证：针对AI问答、Agent、RAG等场景，设计测试数据与验证方案，评估AI输出的准确性、完整性、一致性和稳定性。"]
+  requirements: ["4、AI能力：了解大模型、Agent、RAG、AI Coding等相关技术，对AI应用及测试验证有兴趣，具备较强的AI工具使用和提效意识。", "6、学习与创新能力：具备较强的学习能力和技术探索意识，愿意持续探索AI + 测试自动化 + 测试工程化，推动测试效率和质量持续提升。"]
+
+boundary_tags: []
+---
+case_id: "REG-e9a3abce8780a2cb"
+job_id: "7211027771644381498"
+content_sha256: "e9a3abce8780a2cb188125f7cddafc3d097b908eec7e6bcc35eae8fc499209d9"
+title: "测试开发工程师-用户增长"
+description: |-
+  1、深度参与公司用户增长、投放、营销等核心系统的质量保障工作，从系统设计、研发流程、发布机制等维度识别质量风险，参与或主导质量工程体系建设，持续提升测试质量、效率及研发协作效率；
+  2、负责制定并持续演进面向复杂业务与快速迭代场景的质量策略与测试体系，探索并实践AI/大模型在质量保障领域的应用；
+  3、结合业务特点与工程实践，引入并建设自动化测试、稳定性保障及智能化质量能力，推动测试从“覆盖驱动”向“风险与决策驱动”演进；
+  4、深入业务质量痛点和复杂技术问题，利用或定制开源工具、平台能力或内部系统，形成可复用的质量解决方案。
+requirements: |-
+  1、本科及以上学历，具备3年及以上测试开发或质量工程相关经验，有参与复杂系统或核心业务质量保障的实际经验；
+  2、扎实的软件测试基础，能够基于业务与系统特性设计测试策略，理解并实践敏捷研发与CI/CD场景下的质量控制与风险治理；
+  3、具备良好的计算机基础，理解常见数据结构与算法思想，能够使用至少一门编程语言（如Java/Python/Go等）进行测试工具、平台或质量能力的工程化建设；
+  4、对AI技术（如大模型、智能Agent、自动化推理等）有较强兴趣，具备主动学习能力；有AI+测试/质量工程（如AI生成自动化/案例，测试Agent等）相关经验优先；
+  5、对测试与质量工程的长期演进有独立思考，具备自驱力和技术前瞻意识；具备良好的沟通与推动能力，能够在多角色协作中推动质量问题的识别与闭环；
+  6、在自动化框架、压测工具、稳定性保障、大数据处理工具者等方向有深层技术积累与实践者优先；具备服务端白盒测试经验者优先。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试开发工程师-用户增长"]
+  description: ["1、深度参与公司用户增长、投放、营销等核心系统的质量保障工作，从系统设计、研发流程、发布机制等维度识别质量风险，参与或主导质量工程体系建设，持续提升测试质量、效率及研发协作效率；", "2、负责制定并持续演进面向复杂业务与快速迭代场景的质量策略与测试体系，探索并实践AI/大模型在质量保障领域的应用；"]
+  requirements: ["有AI+测试/质量工程（如AI生成自动化/案例，测试Agent等）相关经验优先；", "具备服务端白盒测试经验者优先。"]
+
+boundary_tags: []
+---
+case_id: "REG-73c6cc7430903ebc"
+job_id: "6990611257088002340"
+content_sha256: "73c6cc7430903ebceafb67eb889abf3163aa9256b95540228efc6b0aebb00424"
+title: "测试开发工程师-素材生态（北京/深圳）"
+description: |-
+  1、深度参与产品研发全流程，保障复杂业务场景下的高质量交付；
+  2、负责自建Agent能力持续迭代，探索AI下的质量保障新范式，包括智能测试、AI用例生成、AI自动化、质量预警等，推动质量能力体系化、智能化、平台化建设；
+  3、负责AIGC评测能力建设，联合产品、设计共建科学评测体系，提升评测效能与业务决策支撑能力；
+  4、结合业务痛点与低效环节，推动AI在质量保障场景中的实际落地，覆盖场景挖掘、方案设计、技术实现与收益度量。
+requirements: |-
+  1、本科及以上学历，计算机相关专业优先；
+  2、具备软件测试经验，熟悉测试理论方法，具备良好的沟通协作与问题分析能力；
+  3、掌握一种或多种语言，如Python/Node.js/Java/OC，熟悉服务端、客户端、PC端常用测试工具与框架；
+  4、对复杂业务链路质量保障有兴趣，有评测、安全、体验等专项经验者优先；
+  5、具备AI大模型相关实践经验，有LLM应用、Agent、多模态、模型微调或AI测试落地经验者优先；
+  6、持续关注AIGC、Agent、多模态模型等工程实践，具备较强学习能力、技术敏感度与落地能力者优先。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试开发工程师-素材生态（北京/深圳）"]
+  description: ["2、负责自建Agent能力持续迭代，探索AI下的质量保障新范式，包括智能测试、AI用例生成、AI自动化、质量预警等，推动质量能力体系化、智能化、平台化建设；", "3、负责AIGC评测能力建设，联合产品、设计共建科学评测体系，提升评测效能与业务决策支撑能力；"]
+  requirements: ["5、具备AI大模型相关实践经验，有LLM应用、Agent、多模态、模型微调或AI测试落地经验者优先；", "2、具备软件测试经验，熟悉测试理论方法，具备良好的沟通协作与问题分析能力；"]
+
+boundary_tags: []
+---
+case_id: "REG-a7a1d3f57e8f7616"
+job_id: "7667101009635199285"
+content_sha256: "a7a1d3f57e8f76168577157e0b96c5c15ae7c4cb4fe17fcf5da2ded09150795d"
+title: "AI测试开发工程师 - 抖音研发中台"
+description: |-
+  团队介绍：抖音研发中台团队主要负责抖音、剪映、今日头条、番茄小说、财经等产品的质量建设，面向质量、体验、安全提供全方位、深层次、高效的解决方案。
+  
+  1、负责全流程质量保障工作，参与质量体系规划和建设，结合AI技术优化保障流程、提升效率与覆盖度；
+  2、深度参与产品研发项目，协同产品研发团队高质量交付，运用AI工具或自研AI能力解决质量瓶颈；
+  3、建立完善质量度量标准，结合AI技术实现质量问题精准定位与趋势预判，推动过程改进落地；
+  4、引入优化AI测试工具，探索AI在测试场景的应用，开发适配业务的AI提效工具，提升产品质量与研发效能；
+  5、利用AI技术前沿，将成熟提效方案融入工作，推动测试流程智能化升级。
+requirements: |-
+  1、本科及以上学历，计算机或者相关专业；
+  2、扎实的数据结构与算法基础，熟悉至少一门编程语言（包括但不限于Java、Go、Python等），能独立完成简单AI工具开发或二次开发；
+  3、自驱性强、对质量负责，具备跨团队沟通能力，能主动发现问题并推动项目改进；
+  4、熟悉自动化框架、压测工具等，具备AI提效实践经验，熟练使用主流AI测试提效工具，了解原理和选型，有AI提效工具开发的实战经验者优先；
+  5、了解AI基础原理，能结合测试场景提出AI提效方案，具备AI工具定制化开发或适配能力者优先。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI测试开发工程师 - 抖音研发中台"]
+  description: ["1、负责全流程质量保障工作，参与质量体系规划和建设，结合AI技术优化保障流程、提升效率与覆盖度；", "4、引入优化AI测试工具，探索AI在测试场景的应用，开发适配业务的AI提效工具，提升产品质量与研发效能；"]
+  requirements: ["4、熟悉自动化框架、压测工具等，具备AI提效实践经验，熟练使用主流AI测试提效工具，了解原理和选型，有AI提效工具开发的实战经验者优先；", "5、了解AI基础原理，能结合测试场景提出AI提效方案，具备AI工具定制化开发或适配能力者优先。"]
+
+boundary_tags: []
+---
+case_id: "REG-5344ede037e905f4"
+job_id: "7623068658255939845"
+content_sha256: "5344ede037e905f4d739a07c30a4bef1b275cb887dc3ecc91be8570cacc203c4"
+title: "AI测试开发工程师-豆包手机助手"
+description: |-
+  1、负责AI产品相关的服务端及客户端的质量保障工作，独立负责业务端、云协同整体测试交付；
+  2、能够从端&云全流程角度，设计相应的测试方案，负责产品相关的业务测试设计、测试策略和质量评估等；
+  3、业务上线全流程交付，熟悉上线发布流程，制定灰度发布策略，布置前置问题拦截流水线；
+  4、搭建线上质量监控能力，业务监控看板，善于运用AI能力提升测试效率。
+requirements: |-
+  1、计算机、通信、电子、自动化等相关专业本科及以上学历，具备云业务测试开发工作经验；
+  2、精通Python/Java/C等至少一种脚本语言，能够运用技术和AI提升测试效率；
+  3、云服务业务（如云同步、云盘）、线上质量监控有资深经验优先；
+  4、安卓系统、服务端测试有资深经验优先。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI测试开发工程师-豆包手机助手"]
+  description: ["2、能够从端&云全流程角度，设计相应的测试方案，负责产品相关的业务测试设计、测试策略和质量评估等；", "1、负责AI产品相关的服务端及客户端的质量保障工作，独立负责业务端、云协同整体测试交付；"]
+  requirements: ["2、精通Python/Java/C等至少一种脚本语言，能够运用技术和AI提升测试效率；", "1、计算机、通信、电子、自动化等相关专业本科及以上学历，具备云业务测试开发工作经验；"]
+
+boundary_tags: []
+---
+case_id: "REG-db163839aaf1f98d"
+job_id: "7368327519172856090"
+content_sha256: "db163839aaf1f98db99bfec4ca9c2d4908b887f43ee36d901d9bdd11d09392b6"
+title: "测试开发工程师-火山引擎"
+description: |-
+  1、负责汽车行业领域大模型的质量保障工作，其中包含软件的需求分析、模型评测、效果评估等，支持行业内的工程化落地；
+  2、负责汽车行业领域大模型的测试基建、评测体系的建设，提升业务评测效率和质量；
+  3、负责大模型业务测试数据的分析和统计，对模型结果、过程数据进行分析、提取、统计；
+  4、根据产品设计制定测试计划、风险评估、设计测试数据和测试用例，执行测试用例，进行Bug追踪等；
+  5、对大模型以及相关方向（如NLP、CV、多模态等）的前沿技术、评测体系进行持续跟踪和调研。
+requirements: |-
+  1、本科及以上学历，计算机、通信、统计等相关专业三年以上测试或开发工作经验；
+  2、熟悉NLP、深度学习、生成式语言大模型等基本原理和技术，熟悉常见的评测指标、效果评估方法；
+  3、熟悉掌握Python/Shell等语言中的一门或者多门；
+  4、具有良好的沟通能力和团队合作精神、快速的学习能力，具备一定的抗压能力和强烈的责任心；
+  5、有过AI类产品的质量保障工作经历或算法评测经验或有汽车行业相关经验、ToB交付业务经验最佳。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试开发工程师-火山引擎"]
+  description: ["2、负责汽车行业领域大模型的测试基建、评测体系的建设，提升业务评测效率和质量；", "1、负责汽车行业领域大模型的质量保障工作，其中包含软件的需求分析、模型评测、效果评估等，支持行业内的工程化落地；"]
+  requirements: ["5、有过AI类产品的质量保障工作经历或算法评测经验或有汽车行业相关经验、ToB交付业务经验最佳。", "2、熟悉NLP、深度学习、生成式语言大模型等基本原理和技术，熟悉常见的评测指标、效果评估方法；"]
+
+boundary_tags: []
+---
+case_id: "REG-80a32c22d0290054"
+job_id: "7651525297135585541"
+content_sha256: "80a32c22d0290054815adb867a44d88195d0bca14a707b183d7c05d2d8a8e2b9"
+title: "高级AI测试开发工程师-番茄小说"
+description: |-
+  团队介绍：番茄小说是抖音在2019年推出的免费阅读产品，致力于为读者提供优质的阅读体验；番茄小说拥有海量正版小说，涵盖言情、都市、玄幻、悬疑等主流网文类型，以及大量热剧原著和经典出版物，支持用户看书、听书。
+  
+  1、负责小说、红果短剧等系列产品全流程质量保障工作，参与质量体系规划和建设，结合AI技术优化保障流程、提升效率与覆盖度；
+  2、深度参与产品研发项目，协同产品研发团队高质量交付，运用AI工具或自研AI能力解决质量瓶颈；
+  3、建立完善质量度量标准，结合AI技术实现质量问题精准定位与趋势预判，推动过程改进落地；
+  4、引入优化AI测试工具，探索AI在测试场景的应用，开发适配业务的AI提效工具，提升产品质量与研发效能；
+  5、利用AI技术前沿，将成熟提效方案融入工作，推动测试流程智能化升级。
+requirements: |-
+  1、本科及以上学历，计算机或者相关专业；
+  2、扎实的数据结构与算法基础，熟悉至少一门编程语言（包括但不限于Java、Go、Python等），能独立完成简单AI工具开发或二次开发；
+  3、自驱性强、对质量负责，具备跨团队沟通能力，能主动发现问题并推动项目改进；
+  4、熟悉自动化框架、压测工具等，具备AI提效实践经验，熟练使用主流AI测试提效工具，了解原理和选型，有AI提效工具开发的实战经验者优先；
+  5、了解AI基础原理，能结合测试场景提出AI提效方案，具备AI工具定制化开发或适配能力者优先。
+company: "字节跳动"
+location: "深圳"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["高级AI测试开发工程师-番茄小说"]
+  description: ["1、负责小说、红果短剧等系列产品全流程质量保障工作，参与质量体系规划和建设，结合AI技术优化保障流程、提升效率与覆盖度；", "4、引入优化AI测试工具，探索AI在测试场景的应用，开发适配业务的AI提效工具，提升产品质量与研发效能；"]
+  requirements: ["4、熟悉自动化框架、压测工具等，具备AI提效实践经验，熟练使用主流AI测试提效工具，了解原理和选型，有AI提效工具开发的实战经验者优先；", "5、了解AI基础原理，能结合测试场景提出AI提效方案，具备AI工具定制化开发或适配能力者优先。"]
+
+boundary_tags: []
+---
+case_id: "REG-946b664960aac86f"
+job_id: "7322719782364137778"
+content_sha256: "946b664960aac86fdde2e94b139f44006bf5a727c43a9208ec3b186bf9590a30"
+title: "AI质效测试开发工程师（抖音创作） - 抖音"
+description: |-
+  团队介绍：抖音致力于打造一个开放、积极、多元、友善的平台，鼓励表达、沟通和记录，激发创造，丰富人们的精神世界，让现实生活更美好。我们通过AI算法驱动的个性化推荐与智能创作工具，满足用户表达、学习、娱乐、社交、消费等需求。回顾抖音一路走来的历程，我们在帮助亿万用户记录美好生活的过程中，努力变得更好。
+  
+  1、负责抖音智能创作-相机产品研发全流程的质量闭环，包括但不限于：参与产品方案评审、测试方案设计、测试执行，以及线上线下的质量分析等；
+  2、发现工作中的痛点、低效问题，并能结合AI技术进行系统性提效提质建设，将大模型能力应用到质量保障各环节中，包括但不限于：基于LLM的测试用例生成、基于多模态模型的效果评测与异常检测、基于Agent的自动化测试与问题归因分析，从挖掘场景→方案设计→技术落地→收益度量全流程参与；
+  3、负责建立质量度量标准，对项目问题进行监控、定位及排查，驱动产品质量提升；
+  4、关注行业前沿技术（LLM、多模态模型、AIGC等），学习研究新技术，不断丰富团队内的测试能力；
+  5、与产品、研发团队建立高效协作流程，并对产品提出改进建议，基于AICoding探索新的质量保障范式，提升用户产品体验。
+requirements: |-
+  1、本科及以上学历，计算机相关专业优先；
+  2、具备一定的软件测试经验，熟悉测试理论和方法，具备良好的沟通协作和问题分析能力；
+  3、掌握一种或多种语言，如Python/Nodejs/Java/OC，熟悉服务端、客户端常用的测试工具和测试框架；
+  4、了解Android/iOS/鸿蒙系统特性及语言特性，有相关专项测试经验优先；
+  5、具备AI大模型相关技术实践经验，有以下一个或多个方向的实际落地经验优先：LLM应用（Prompt Engineering、RAG、Agent等）、多模态模型（图像/视频理解、生成模型）、模型微调（SFT/LoRA/DPO等）、AI在测试领域的应用（如自动生成用例、智能评测、缺陷分析等）。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI质效测试开发工程师（抖音创作） - 抖音"]
+  description: ["2、发现工作中的痛点、低效问题，并能结合AI技术进行系统性提效提质建设，将大模型能力应用到质量保障各环节中，包括但不限于：基于LLM的测试用例生成、基于多模态模型的效果评测与异常检测、基于Agent的自动化测试与问题归因分析，从挖掘场景→方案设计→技术落地→收益度量全流程参与；", "1、负责抖音智能创作-相机产品研发全流程的质量闭环，包括但不限于：参与产品方案评审、测试方案设计、测试执行，以及线上线下的质量分析等；"]
+  requirements: ["5、具备AI大模型相关技术实践经验，有以下一个或多个方向的实际落地经验优先：LLM应用（Prompt Engineering、RAG、Agent等）、多模态模型（图像/视频理解、生成模型）、模型微调（SFT/LoRA/DPO等）、AI在测试领域的应用（如自动生成用例、智能评测、缺陷分析等）。", "2、具备一定的软件测试经验，熟悉测试理论和方法，具备良好的沟通协作和问题分析能力；"]
+
+boundary_tags: []
+---
+case_id: "REG-bf9898199c6cf1b2"
+job_id: "7587328437223393541"
+content_sha256: "bf9898199c6cf1b25ff7ddce3b94ca09b746a4c61c8a61d2313191461e349cf0"
+title: "AI助手测试开发工程师-豆包手机助手"
+description: |-
+  1、负责AI产品相关的服务端和客户端质量保障工作，完成端/云模型部署运行的交付工作；
+  2、参与产品需求、开发设计的评审工作，并提出改进意见；
+  3、负责AI产品质量体系的搭建，负责重点难点领域测试方案设计和技术选型，承担测试领域技术攻坚；
+  4、通过业内先进理论技术引入、自主创新等方式，持续在专项领域探索和创新。
+requirements: |-
+  1、计算机及相关专业本科及以上学历，具备AI相关应用质量保障工作经验；
+  2、具有客户端/服务端、智能硬件、模型算法测试或研发经验；
+  3、熟悉掌握Java、C、C++、Python、Go等语言中的两种以上；
+  4、具有技术发展视野，对AI产品/LLM有一定的认知和技术前瞻，有相关测试经验者优先；
+  5、具备良好的沟通能力与严谨的工作态度，具有扎实的技术文档报告撰写能力。
+  
+  加分项
+  1、有移动端、智能硬件、AI产品等测试经验者优先；
+  2、对于AI行业新技术、新方向有兴趣，有敏锐度者优先；
+  3、熟练掌握机器学习、深度学习概念和主流框架；
+  4、对模型有技术热情，熟悉GPT/BERT/T5等模型的原理者优先。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI助手测试开发工程师-豆包手机助手"]
+  description: ["3、负责AI产品质量体系的搭建，负责重点难点领域测试方案设计和技术选型，承担测试领域技术攻坚；", "2、参与产品需求、开发设计的评审工作，并提出改进意见；"]
+  requirements: ["1、计算机及相关专业本科及以上学历，具备AI相关应用质量保障工作经验；", "4、具有技术发展视野，对AI产品/LLM有一定的认知和技术前瞻，有相关测试经验者优先；"]
+
+boundary_tags: []
+---
+case_id: "REG-2ac177d9017ce658"
+job_id: "7552818717446211858"
+content_sha256: "2ac177d9017ce65874ab6de6774bc244ca7d732164cbd1ecba2f4e17c462ed6d"
+title: "AI应用测试开发工程师-移动OS"
+description: |-
+  1、负责AI应用的客户端/服务端质量保障工作，与产品研发团队配合，完成不同应用场景下的质量保障工作；
+  2、探索创新型模型评测方法，训练评测模型等；
+  3、分析业务产品需求、技术方案，负责测试场景和测试用例的设计，制定合理高效的测试方案；
+  4、独立搭建并维护测试环境，执行测试用例，输出测试报告等相关文档，保证业务产品质量和进度；
+  5、发现、定位、跟踪产品缺陷，协同研发工程师快速解决问题；
+  6、构建AI应用的质量体系，对过程中的痛点难点提出改进方案，对生命周期的各个阶段的质量进行全面把控，并通过开发测试工具平台，提高测试工作效率。
+requirements: |-
+  1、计算机及相关专业，本科及以上学历，具备AI相关应用质量保障工作经验；
+  2、熟悉Android，有客户端/服务端测试经验；
+  3、熟悉一种或多种编程语言，例如：Python/Go/Java/Shell/C++等，具有工程化落地能力，有效提高测试工作效率；
+  4、具备较强的学习分析、解决问题及抽象问题特征的能力，具备积极的问题沟通方式，能良好驱动问题快速解决；
+  5、具备一定规划和推动能力，自驱力，对测试行业发展有自己的思考；广泛的技术视野和较强的技术前瞻性；
+  6、具有独立解决问题的能力，良好的团队合作意识和沟通能力，吃苦耐劳，有一定抗压能力。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI应用测试开发工程师-移动OS"]
+  description: ["6、构建AI应用的质量体系，对过程中的痛点难点提出改进方案，对生命周期的各个阶段的质量进行全面把控，并通过开发测试工具平台，提高测试工作效率。", "3、分析业务产品需求、技术方案，负责测试场景和测试用例的设计，制定合理高效的测试方案；"]
+  requirements: ["1、计算机及相关专业，本科及以上学历，具备AI相关应用质量保障工作经验；", "2、熟悉Android，有客户端/服务端测试经验；"]
+
+boundary_tags: []
+---
+case_id: "REG-5fba03dda6f8845e"
+job_id: "7654418520847386933"
+content_sha256: "5fba03dda6f8845e9fe9850964c351babbf90efb307fcfc58113d89243f837d1"
+title: "测试开发工程师-抖音搜索"
+description: |-
+  1、负责抖音搜索产品研发全流程的质量闭环，包括但不限于：参与产品方案评审、测试方案设计、测试执行，以及线上线下的质量分析等；
+  2、发现工作中的痛点、低效问题，并能结合AI技术进行系统性提效提质建设，将大模型能力应用到质量保障各环节中，包括但不限于：基于LLM的测试用例生成、基于多模态模型的效果评测与异常检测、基于Agent的自动化测试与问题归因分析，从挖掘场景→方案设计→技术落地→收益度量全流程参与；
+  3、负责建立质量度量标准，对项目问题进行监控、定位及排查，驱动产品质量提升；
+  4、关注行业前沿技术（LLM、多模态模型、AIGC等），学习研究新技术，不断丰富团队内的测试能力；
+  5、与产品、研发团队建立高效协作流程，并对产品提出改进建议，基于AICoding探索新的质量保障范式，提升用户产品体验。
+requirements: |-
+  1、本科及以上学历，计算机相关专业优先，具备良好的沟通协作和问题分析能力；
+  2、掌握一种或多种语言，如Python/Nodejs/Java/OC，熟悉服务端、客户端常用的测试工具和测试框架；
+  3、熟悉端到端的敏捷测试流程，了解测试左移和测试右移的思想，有较好的质量运营意识；
+  4、具备AI大模型相关技术实践经验，有以下一个或多个方向的实际落地经验优先：LLM应用（Prompt Engineering、RAG、Agent等）、多模态模型（图像/视频理解、生成模型）、模型微调（SFT/LoRA/DPO等）、AI在测试领域的应用（如自动生成用例、智能评测、缺陷分析等）。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试开发工程师-抖音搜索"]
+  description: ["2、发现工作中的痛点、低效问题，并能结合AI技术进行系统性提效提质建设，将大模型能力应用到质量保障各环节中，包括但不限于：基于LLM的测试用例生成、基于多模态模型的效果评测与异常检测、基于Agent的自动化测试与问题归因分析，从挖掘场景→方案设计→技术落地→收益度量全流程参与；", "1、负责抖音搜索产品研发全流程的质量闭环，包括但不限于：参与产品方案评审、测试方案设计、测试执行，以及线上线下的质量分析等；"]
+  requirements: ["4、具备AI大模型相关技术实践经验，有以下一个或多个方向的实际落地经验优先：LLM应用（Prompt Engineering、RAG、Agent等）、多模态模型（图像/视频理解、生成模型）、模型微调（SFT/LoRA/DPO等）、AI在测试领域的应用（如自动生成用例、智能评测、缺陷分析等）。", "2、掌握一种或多种语言，如Python/Nodejs/Java/OC，熟悉服务端、客户端常用的测试工具和测试框架；"]
+
+boundary_tags: []
+---
+case_id: "REG-90e75fbe442354d8"
+job_id: "7072993027098872072"
+content_sha256: "90e75fbe442354d81481316e9bf8d4146b39802da7bcfb7e2a7c9f32cb7e8283"
+title: "AI测试开发工程师（内容体验方向） - 抖音"
+description: |-
+  团队介绍：抖音致力于打造一个开放、积极、多元、友善的平台，鼓励表达、沟通和记录，激发创造，丰富人们的精神世界，让现实生活更美好。我们通过AI算法驱动的个性化推荐与智能创作工具，满足用户表达、学习、娱乐、社交、消费等需求。回顾抖音一路走来的历程，我们在帮助亿万用户记录美好生活的过程中，努力变得更好。
+  
+  1、负责抖音基础体验质量保障工作，围绕内容消费、内容价值及分发链路建设评测体系；
+  2、构建专家级AI Agent系统，提升内容体验问题发现、分析诊断与优化效率；
+  3、深入理解业务场景，构建效果评测体系、知识库等基础能力，持续优化大模型应用效果、性能与稳定性；
+  4、对产品提出改进建议以建立极致的用户感受，对项目提出改进建议以提高项目整体效率。
+requirements: |-
+  1、本科及以上学历，计算机、软件工程、人工智能等相关专业优先；
+  2、熟练使用TRAE、Codex等AI编程工具，具备高质量Skill、MCP开发能力，对AI技术及应用有浓厚兴趣；
+  3、具备较强的业务理解、数据分析和问题解决能力，能够运用AI技术解决实际业务问题；
+  4、热爱AI相关技术，对应用和落地工程感兴趣，富有钻研创新精神。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI测试开发工程师（内容体验方向） - 抖音"]
+  description: ["1、负责抖音基础体验质量保障工作，围绕内容消费、内容价值及分发链路建设评测体系；", "2、构建专家级AI Agent系统，提升内容体验问题发现、分析诊断与优化效率；"]
+  requirements: ["2、熟练使用TRAE、Codex等AI编程工具，具备高质量Skill、MCP开发能力，对AI技术及应用有浓厚兴趣；", "3、具备较强的业务理解、数据分析和问题解决能力，能够运用AI技术解决实际业务问题；"]
+
+boundary_tags: []
+---
+case_id: "REG-851c3acc587a91f0"
+job_id: "7550666470776015122"
+content_sha256: "851c3acc587a91f0f5ff56fd7aaa1793963bf4ca8db33af48e185b9b4d7dbf7d"
+title: "AI测试开发工程师-飞书技术中台"
+description: |-
+  团队介绍：飞书技术中台是围绕字节跳动飞书产品矩阵所建设的研发团队，一方面助力业务进行AI、搜索等相关前沿技术探索，同时提供安全、数据、架构等基础服务支撑；另一方面也致力于打造行业领先的开放平台、交付（包含私有化）工具平台。以技术为驱动，提升企业内外部的资源利用率、协作效率和创造力。
+  
+  1、负责飞书知识问答等企业级AI应用质量保障，内容包括但不限于AI产品测试、稳定性、自动化；
+  2、深入业务主动挖掘产品品质、算法效果、用户体验问题，构建完备的质量防控体系；
+  3、挖掘质量和效率相关问题，分析并提出明确的改进意见，推动改进落地，提升研发质量和效率；
+  4、探索大模型时代AI应用质量保障方案，构建符合AI业务特性的质量保障体系。
+requirements: |-
+  1、计算机或相关专业本科及以上学历；
+  2、扎实的计算机基础知识，掌握至少一种编程语言（Go、Java、C++、Python）及相应框架环境和常用技术组件；
+  3、熟悉各种服务端测试方法，比如性能压测、自动化等；
+  4、自驱能力强，对项目质量负责，能主动发现问题，推动质量持续改进；
+  5、对AI充满好奇心、有较强的动手能力，能及时关注和学习业界最新技术。
+company: "字节跳动"
+location: "深圳"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI测试开发工程师-飞书技术中台"]
+  description: ["1、负责飞书知识问答等企业级AI应用质量保障，内容包括但不限于AI产品测试、稳定性、自动化；", "4、探索大模型时代AI应用质量保障方案，构建符合AI业务特性的质量保障体系。"]
+  requirements: ["3、熟悉各种服务端测试方法，比如性能压测、自动化等；", "2、扎实的计算机基础知识，掌握至少一种编程语言（Go、Java、C++、Python）及相应框架环境和常用技术组件；"]
+
+boundary_tags: []
+---
+case_id: "REG-8769f301e316d5c8"
+job_id: "7232131024691333433"
+content_sha256: "8769f301e316d5c8cc737a3d9daaafc765661b8ba6ed8cc419e012d91f545fb3"
+title: "测试开发工程师（AI算法评测）-飞书"
+description: |-
+  1、负责飞书AI产品相关的评测工作，包含AI算法的评测体系建设、评测集构建、以及相关评测工程化建设等；
+  2、负责ASR、MT、NLP等相关领域产品的交付品质，制定合理的验收机制，来评估模型品质，指导模型优化方向；
+  3、负责AI算法的评测标准和评测流程制定，构建评测集，并推进评测执行，分析评测结果，对模型质量给予充分评估；
+  4、建设相关评测工具/平台，推动评测工程化和无人化。
+requirements: |-
+  1、计算机或者人工智能等相关专业，本科学历及以上；
+  2、有3年以上AI相关的模型评测经验；
+  3、至少熟练使用Python/Go/Java其中一种语言，可进行相关开发；
+  4、需要有较好的数据处理能力，沟通协调能力，认真负责；
+  5、对于AI行业新技术、新方向有兴趣，有敏感度者优先。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试开发工程师（AI算法评测）-飞书"]
+  description: ["1、负责飞书AI产品相关的评测工作，包含AI算法的评测体系建设、评测集构建、以及相关评测工程化建设等；", "3、负责AI算法的评测标准和评测流程制定，构建评测集，并推进评测执行，分析评测结果，对模型质量给予充分评估；"]
+  requirements: ["2、有3年以上AI相关的模型评测经验；", "5、对于AI行业新技术、新方向有兴趣，有敏感度者优先。"]
+
+boundary_tags: []
+---
+case_id: "REG-6785387b3f3d93b9"
+job_id: "7307502810760366362"
+content_sha256: "6785387b3f3d93b932262c7be34e3d6be5196a0e7f4b687b81eb039dceba4733"
+title: "AI应用测试开发工程师-豆包手机助手"
+description: |-
+  1、负责AI产品相关的服务端、客户端、GUI智能体相关的全链路质量保障；
+  2、参与产品核心需求、开发设计的评审工作，并提出改进意见；
+  3、负责AI产品质量体系的搭建，负责重点难点领域测试方案设计和技术选型，承担测试领域技术攻坚；
+  4、通过业内先进理论技术引入、自主创新等方式，持续在专项领域探索和创新。
+requirements: |-
+  1、计算机或相关专业本科及以上学历，具备移动端或AI产品测试开发经验；
+  2、扎实的编程基础，熟练掌握Python/Golang/Java中的至少一种，有GUI智能体/大模型智能体相关测试或开发经验者优先；
+  3、具有行业技术发展视野，对智能产品/模型效果评测/LLM有一定的认知和技术前瞻，有相关测试经验者优先；
+  4、对移动端生态有深入理解，熟悉Android系统特性，对厂商语音助手生态有认知或相关质量保障经验者优先；
+  5、具备出色的问题分析与解决能力，逻辑思维清晰，能够主动发现、跟进并解决复杂技术问题；
+  6、优秀的综合能力：具备良好的沟通谈判、跨团队协调和项目推动能力，积极主动。
+  
+  加分项
+  1、熟悉机器学习、深度学习基础概念，对LLM/VLM/智能体技术有深入了解，有大模型或AI智能体产品评测、效果优化经验者优先；
+  2、有千万级日活C端移动产品或头部AI产品的质量保障经验，在自动化、工具化、智能化测试方面有深入实践；
+  3、有跨端、复杂项目的质量技术POC实践经验者优先。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI应用测试开发工程师-豆包手机助手"]
+  description: ["3、负责AI产品质量体系的搭建，负责重点难点领域测试方案设计和技术选型，承担测试领域技术攻坚；", "2、参与产品核心需求、开发设计的评审工作，并提出改进意见；"]
+  requirements: ["1、熟悉机器学习、深度学习基础概念，对LLM/VLM/智能体技术有深入了解，有大模型或AI智能体产品评测、效果优化经验者优先；", "2、扎实的编程基础，熟练掌握Python/Golang/Java中的至少一种，有GUI智能体/大模型智能体相关测试或开发经验者优先；"]
+
+boundary_tags: []
+---
+case_id: "REG-0ceee9eef3da2966"
+job_id: "7655631946246064389"
+content_sha256: "0ceee9eef3da296691311d0fa9188bd443f305ed5b50485d7fe68ed857f04a6b"
+title: "高级测试开发工程师（质量架构）-剪映"
+description: |-
+  1、负责剪映部门内产品评测，包括评测标准的制定、评测Agent建设、评测的数据集建设、评测结果准出等；
+  2、负责基于AIGC技术构建内部效能工具平台，覆盖需求研发流程中的典型场景，负责平台的开发与运营工作；
+  3、持续追踪AI领域的最新技术趋势和研究成果，建设具备市场竞争力的项目质效解决方案；
+  4、深入学习业务领域知识，能够分析和洞察业务痛点，合理设计质量方案，辅助业务团队提升质量收益。
+requirements: |-
+  1、本科及以上学历，有质量架构，自动化测试、性能测试等多个领域经验优先；
+  2、具备持续学习和创新意识，对业务和AI技术敏感，有较好的抽象能力和架构能力；
+  3、良好的沟通能力，团队协作能力及项目掌控能力，有较强的责任心，追求极致；
+  4、扎实的编程基础，熟悉Go、Python等至少一种编程语言，有全栈开发经验优先。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["高级测试开发工程师（质量架构）-剪映"]
+  description: ["2、负责基于AIGC技术构建内部效能工具平台，覆盖需求研发流程中的典型场景，负责平台的开发与运营工作；", "1、负责剪映部门内产品评测，包括评测标准的制定、评测Agent建设、评测的数据集建设、评测结果准出等；"]
+  requirements: ["4、扎实的编程基础，熟悉Go、Python等至少一种编程语言，有全栈开发经验优先。", "1、本科及以上学历，有质量架构，自动化测试、性能测试等多个领域经验优先；"]
+
+boundary_tags: []
+---
+case_id: "REG-71c0bcea80eb4d85"
+job_id: "7537622862884210951"
+content_sha256: "71c0bcea80eb4d85012ee6cf66c187913ff9f7f16d73ab586e18e7a3cf3e1b1a"
+title: "大模型测试开发工程师-抖音"
+description: |-
+  1、质量保障大模型提效场景挖掘、方案设计与落地实施；
+  2、具备识别并挖掘大模型在测试提效、质量提升等方面可落地场景和创新的能力，能够将其转化为可执行的技术方案；
+  3、理解大模型基础原理，基于业务测试场景开展模型训练、RAG等技术落地，持续优化模型效果与稳定性；
+  4、探索并应用Agent、MCP等前沿技术，结合测试业务特点设计并推动测试提效工具链建设及工具、平台研发优化；
+  5、与合作方跨团队高效协作，推动技术方案落地并衡量收益，不断优化测试效率和质量。
+requirements: |-
+  1、本科及以上学历，计算机、软件工程或相关专业，1年及以上大模型相关工作经验；
+  2、熟悉大模型原理，具备大模型落地经验，掌握LoRA微调、RAG等技术，并能结合业务场景进行应用优化；
+  3、具备识别、评估和落地大模型可应用场景的能力，有从思路到落地的完整推动经验；
+  4、了解Agent、MCP等技术原理，能够设计并推动大模型驱动的测试提效方案落地；
+  5、具备良好的业务理解能力与跨团队沟通能力，能将技术与业务紧密结合，推动产出可衡量的提效成果。
+  
+  加分项
+  1、有大模型在质量保障或软件工程领域落地案例（如智能测试、用例生成、缺陷预测等）；
+  2、有Agent/RAG/MCP等技术的深度实践经验；
+  3、参与过AI工程平台、测试平台或自动化体系建设。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["大模型测试开发工程师-抖音"]
+  description: ["4、探索并应用Agent、MCP等前沿技术，结合测试业务特点设计并推动测试提效工具链建设及工具、平台研发优化；", "1、质量保障大模型提效场景挖掘、方案设计与落地实施；"]
+  requirements: ["2、熟悉大模型原理，具备大模型落地经验，掌握LoRA微调、RAG等技术，并能结合业务场景进行应用优化；", "3、具备识别、评估和落地大模型可应用场景的能力，有从思路到落地的完整推动经验；"]
+
+boundary_tags: []
+---
+case_id: "REG-ff80751bff11f875"
+job_id: "7514687891781355783"
+content_sha256: "ff80751bff11f8755d703d0bab604c2c91bb1244ba409f730d33a4452b9bf535"
+title: "资深测试开发工程师（稳定性/AI评测方向）-飞书"
+description: |-
+  1、负责飞书AI产品相关的稳定性保障工作，深度参与飞书知识问答业务，能够了解业务完整链路，识别全链路上的稳定性风险，建立稳定性保障体系，推动稳定性建设落地；
+  2、负责AI算法的评测标准和评测流程制定，包含AI算法的评测体系建设、评测集构建、以及相关评测工程化建设等；
+  3、负责持续建设相关工具/平台，推动稳定性建设/评测工程化和无人化。
+requirements: |-
+  1、计算机或者人工智能等相关专业，本科学历及以上；
+  2、有AI相关的模型评测经验者优先；
+  3、至少熟练使用Python/Go/Java其中一种语言，可进行相关开发；
+  4、需要有较好的数据处理能力，优秀的沟通、团队合作和快速学习的能力；
+  5、对于AI行业新技术、新方向有兴趣，有敏感度者优先。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["资深测试开发工程师（稳定性/AI评测方向）-飞书"]
+  description: ["2、负责AI算法的评测标准和评测流程制定，包含AI算法的评测体系建设、评测集构建、以及相关评测工程化建设等；", "1、负责飞书AI产品相关的稳定性保障工作，深度参与飞书知识问答业务，能够了解业务完整链路，识别全链路上的稳定性风险，建立稳定性保障体系，推动稳定性建设落地；"]
+  requirements: ["2、有AI相关的模型评测经验者优先；", "5、对于AI行业新技术、新方向有兴趣，有敏感度者优先。"]
+
+boundary_tags: []
+---
+case_id: "REG-672ddae0e63a8398"
+job_id: "7361731010130741513"
+content_sha256: "672ddae0e63a8398585d9a42b2fdfdbf0c8435dbc9e07b302eaacf704929beae"
+title: "数据库AI测试开发高级工程师-基础设施"
+description: |-
+  1、负责基础设施数据库团队全栈AI工具链集成，整合Cursor、Windsurf、Bolt以及开源Agent（如OpenDevin、MetaGPT）构建闭环测试环境，落地Vibe Coding开发范式，指导团队通过“描述意图”而非“堆砌代码”来快速构建高性能测试框架和模拟环境；
+  2、负责Agentic QA体系构建，推动从传统的“自动化脚本”向“自主测试智能体”转型，实现测试用例的自动生成、自我修复以及探索性测试的AI化；
+  3、负责横向组织与思维赋能，跨越部门边界，组织横向提效工作组，制定AI协作标准与提效度量体系；
+  4、负责团队“AI思维重塑”，培养团队利用AI进行日志深度分析、缺陷根因定位及风险预测的能力。
+requirements: |-
+  1、本科及以上学历，5年以上研发测试工作经验，计算机、软件工程相关专业优先；
+  2、具备较强的开发能力，熟悉Java/Go/C++/Python中某一种或多种语言，全栈开发经验者优先；
+  3、对AI辅助编程有肌肉记忆，能熟练切换不同AI工具以应对不同测试场景；
+  4、深刻理解并实践过Vibe Coding，能够利用AI快速产出测试工具或平台；
+  5、具备较强的学习能力和逻辑思维能力，关注前沿技术，能够持续学习。
+  
+  加分项
+  1、在AI+Testing领域有深入研究，在特定测试领域的使用有实际思考或尝试；
+  2、熟悉MySQL/Redis/PG/MongoDB等某一种或多种数据库，有相关开发或测试经验。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["数据库AI测试开发高级工程师-基础设施"]
+  description: ["1、负责基础设施数据库团队全栈AI工具链集成，整合Cursor、Windsurf、Bolt以及开源Agent（如OpenDevin、MetaGPT）构建闭环测试环境，落地Vibe Coding开发范式，指导团队通过“描述意图”而非“堆砌代码”来快速构建高性能测试框架和模拟环境；", "2、负责Agentic QA体系构建，推动从传统的“自动化脚本”向“自主测试智能体”转型，实现测试用例的自动生成、自我修复以及探索性测试的AI化；"]
+  requirements: ["2、具备较强的开发能力，熟悉Java/Go/C++/Python中某一种或多种语言，全栈开发经验者优先；", "1、本科及以上学历，5年以上研发测试工作经验，计算机、软件工程相关专业优先；"]
+
+boundary_tags: []
+---
+case_id: "REG-9cecf5189be70e23"
+job_id: "7070391819599972615"
+content_sha256: "9cecf5189be70e23b94afca2341b23e82805a17348496210cc995e376bb5d6db"
+title: "高级AI测试开发工程师-抖音社交"
+description: |-
+  1、深度参与产品研发全流程，协同产品、研发、运营等角色推进需求高质量交付，围绕需求评审、方案设计、测试策略制定、上线准出等关键环节，识别核心质量风险并推动闭环；
+  2、参与AI质量体系建设，基于业务场景持续沉淀质量上下文、业务功能树、测试要点、风险地图等核心知识资产，推动质量保障从经验驱动向规则化、结构化、可复用升级；
+  3、参与统一风险决策与验证能力建设，围绕需求分级、功能点分级、测试分级等机制，设计并落地静态测试、动态测试、自动化测试、专项测试等多种质量保障手段；
+  4、参与质量效能与AI工具建设，结合大模型和工程能力，探索AI在风险识别、用例生成、问题分析、回归提效等场景中的落地，持续提升测试效率与质量覆盖能力；
+  5、负责线上线下质量问题的追踪、分析与回流，结合监控、日志、埋点、用户反馈等信号进行故障定位和归因，沉淀可复用的防控策略，持续提升稳定性及重点风险场景保障能力。
+requirements: |-
+  1、本科及以上学历，计算机、软件工程等相关专业优先，具备扎实的计算机基础知识，对质量工程、软件工程或AI工程方向有持续兴趣；
+  2、具备测试与质量保障相关实践经验，能够结合业务特点开展功能测试、专项测试、自动化测试或线上质量分析，理解质量保障体系、工程效率和平台化建设相关问题；
+  3、具备较强的问题分析与系统思考能力，能够基于需求、代码实现、日志、监控、缺陷、用户反馈等信息进行定位、归因，并抽象沉淀为可复用的质量策略或规则。
+  
+  加分项：
+  1、具备AI落地能力，能够结合实际业务场景推动大模型或AI能力在质量保障中的应用，包括但不限于风险识别、用例生成、问题分析、回归提效、知识沉淀等方向，能够从效果出发持续优化落地方案；
+  2、具备AI场景设计能力，能够围绕质量保障链路识别高价值场景，完成场景拆解、流程设计、规则抽象和应用方案设计；具备良好的协作沟通能力和推动力，有AI质量工程实践经验者优先。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["高级AI测试开发工程师-抖音社交"]
+  description: ["4、参与质量效能与AI工具建设，结合大模型和工程能力，探索AI在风险识别、用例生成、问题分析、回归提效等场景中的落地，持续提升测试效率与质量覆盖能力；", "3、参与统一风险决策与验证能力建设，围绕需求分级、功能点分级、测试分级等机制，设计并落地静态测试、动态测试、自动化测试、专项测试等多种质量保障手段；"]
+  requirements: ["具备良好的协作沟通能力和推动力，有AI质量工程实践经验者优先。", "1、本科及以上学历，计算机、软件工程等相关专业优先，具备扎实的计算机基础知识，对质量工程、软件工程或AI工程方向有持续兴趣；"]
+
+boundary_tags: []
+---
+case_id: "REG-69d82b54204f1423"
+job_id: "6776120567071246600"
+content_sha256: "69d82b54204f14231c043dae5abf8351e4e4e911f15c9b14bcc6ce2efcfa527d"
+title: "高级测试开发工程师（大模型方向）-抖音搜索"
+description: |-
+  1、负责公司LLM大模型方向质量保障工作，具体包括但不限于LLM模型服务、LLM插件、LLM试用评估平台、LLM解决方案平台、LLM安全平台、稳定性、模型部署、训练、微调等方向；
+  2、构建大模型相关质量体系，参与变更管控、自动化测试、稳定性建设等质效专项；
+  3、基于工程和算法团队现有质效问题给出合理质效解决方案，推动落地提高交付质效；
+  4、及时关注和学习，并探索新的大模型相关质效解决方案。
+requirements: |-
+  1、本科及以上学历，计算机相关专业，精通测试流程、方法和工具；
+  2、扎实的编程基础，熟练使用Python/Go/Java/C++ 其中一种或多种语言；
+  3、具备持续学习和创新意识，勇于尝试新技术和新方法；
+  4、对AIGC技术有深入的理解和一定的经验，对大模型领域有热情，有AI相关测试开发和评测经验者优先。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["高级测试开发工程师（大模型方向）-抖音搜索"]
+  description: ["2、构建大模型相关质量体系，参与变更管控、自动化测试、稳定性建设等质效专项；", "1、负责公司LLM大模型方向质量保障工作，具体包括但不限于LLM模型服务、LLM插件、LLM试用评估平台、LLM解决方案平台、LLM安全平台、稳定性、模型部署、训练、微调等方向；"]
+  requirements: ["4、对AIGC技术有深入的理解和一定的经验，对大模型领域有热情，有AI相关测试开发和评测经验者优先。", "1、本科及以上学历，计算机相关专业，精通测试流程、方法和工具；"]
+
+boundary_tags: []
+---
+case_id: "REG-1a112f424158e230"
+job_id: "7325034940398405925"
+content_sha256: "1a112f424158e2302e39b7ade0823aca62c7f17795633f8166060a030da62b8a"
+title: "高级测试开发工程师-抖音研发（上海/深圳）"
+description: |-
+  1、深度参与账号服务质量保障体系建设，包括但不限于账号注册/登录、找回、实名、安全等能力；
+  2、深入业务质量痛点及复杂技术问题，开展极端风险挖掘等稳定性保障工作，保障核心链路高可用；
+  3、负责中台用户行为数据分析，清洗、聚合用户特征和能力调用信息，开展业务价值挖掘；
+  4、探索并落地大模型在测试领域的应用，利用AI能力提升测试效率与深度，构建智能化测试体系。
+requirements: |-
+  1、本科及以上学历，计算机相关专业毕业，2年以上测试开发工作经验；
+  2、扎实的数据结构和算法基础，熟悉至少一门编程语言，包括但不仅限于：Python、Go等；
+  3、有产品评测/算法评测等任意一个方向经验为加分项，对数据敏感，具备解决复杂问题的数据分析能力者优先；
+  4、具备大模型在软件测试领域的实践经验，具备测试效率提升或者质量评估能力经验者优先。
+company: "字节跳动"
+location: "上海"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["高级测试开发工程师-抖音研发（上海/深圳）"]
+  description: ["4、探索并落地大模型在测试领域的应用，利用AI能力提升测试效率与深度，构建智能化测试体系。", "1、深度参与账号服务质量保障体系建设，包括但不限于账号注册/登录、找回、实名、安全等能力；"]
+  requirements: ["4、具备大模型在软件测试领域的实践经验，具备测试效率提升或者质量评估能力经验者优先。", "3、有产品评测/算法评测等任意一个方向经验为加分项，对数据敏感，具备解决复杂问题的数据分析能力者优先；"]
+
+boundary_tags: []
+---
+case_id: "REG-f2226d8dc80dbc74"
+job_id: "6885587026939496712"
+content_sha256: "f2226d8dc80dbc74df9346b62a21b58886f4659d4cee2c9c0f5b2b1e036f1e0d"
+title: "测试开发工程师 （大模型/AI Agent方向）-抖音"
+description: |-
+  1、负责抖音基础体验质量保障工作，围绕客户端性能、交互、内容体验完成线下测试与线上质量分析；
+  2、参与构建智能测试Agent（专家智能体），探索利用LLM实现自动化测试、智能归因分析等前沿场景落地；
+  3、负责测试中台能力的智能化升级，引入业界先进的AI测试技术，推动从“自动化测试”向“智能化测试”的演进；
+  4、对产品提出改进建议以建立极致的用户感受，对项目提出改进建议以提高项目整体效率。
+requirements: |-
+  1、本科及以上学历，计算机相关专业，1-3年测试开发或模型应用开发经验；
+  2、熟悉Python/Java/Go/Objective-C中至少一门语言，有实际的工具开发或模型应用开发经验；
+  3、熟悉iOS/Android平台特性，了解主流自动化框架（Appium/WDA/Uiautomator2等），有移动端产品测试经验者加分；
+  4、对大模型（LLM）应用开发有热情，了解LangChain、AutoGPT等框架或有相关Demo实践经验者优先；
+  5、有将AI技术应用于UI自动化、日志分析等测试场景的经验者加分；
+  6、具备较强的问题分析与推动能力，能跨团队协作解决复杂技术难题，对产品质量有极致追求。
+company: "字节跳动"
+location: "上海"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试开发工程师 （大模型/AI Agent方向）-抖音"]
+  description: ["2、参与构建智能测试Agent（专家智能体），探索利用LLM实现自动化测试、智能归因分析等前沿场景落地；", "1、负责抖音基础体验质量保障工作，围绕客户端性能、交互、内容体验完成线下测试与线上质量分析；"]
+  requirements: ["2、熟悉Python/Java/Go/Objective-C中至少一门语言，有实际的工具开发或模型应用开发经验；", "3、熟悉iOS/Android平台特性，了解主流自动化框架（Appium/WDA/Uiautomator2等），有移动端产品测试经验者加分；"]
+
+boundary_tags: []
+---
+case_id: "REG-1eeb66bb9a96a04a"
+job_id: "7639997727846664501"
+content_sha256: "1eeb66bb9a96a04a369724adfcc368b02edc2bbb4bd17969479c16502fa65529"
+title: "测试开发工程师（AI测评方向）-火山引擎"
+description: |-
+  1、测试Agent开发：负责测试相关Agent和相关套件工具的设计与开发工作，使其能高效应用于火山引擎平台的质量保障体系，涵盖对不同测试场景（如功能、性能、兼容性等）的适配，以提升整体测试效率与准确性；
+  2、协同AI测试策略制定：深度介入火山引擎官网平台质量保障工作，与团队协作制定并推进AI相关的测试策略、计划及方法；确保测试Agent与整体测试流程紧密协同，有力保障平台产品的高质量交付；
+  3、质量体系创新建设：积极投身火山引擎质量体系建设，探索质量Agent领域的创新技术与方法；结合质量要求与官网业务需求，提出前沿的Agent范式，推动测试流程向自动化、智能化迈进，全面提升测试效率。
+requirements: |-
+  1、本科及以上学历，计算机科学与技术、软件工程等相关专业；
+  2、需要对大模型有深入理解，熟悉LLM技术原理与应用方法，有Agent系统设计与实现经验；了解Memory机制、RAG、工具调用、规划执行等Agent关键技术，有相关实践经验；
+  3、熟练掌握Python/Java/Go等至少一门编程语言，精通计算机基础技术，熟悉测试流程、质量保证方法、目标及常用工具，并能在Agent开发与测试工作中灵活运用；
+  4、需具备：在测试工具开发过程中实际应用AI技术或拥有丰富的Agent系统设计与实现经验；
+  5、拥有To B相关产品或云服务产品的质量保障经验者优先，熟悉此类产品的测试特点与Agent应用场景者优先。
+company: "字节跳动"
+location: "上海"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试开发工程师（AI测评方向）-火山引擎"]
+  description: ["1、测试Agent开发：负责测试相关Agent和相关套件工具的设计与开发工作，使其能高效应用于火山引擎平台的质量保障体系，涵盖对不同测试场景（如功能、性能、兼容性等）的适配，以提升整体测试效率与准确性；", "3、质量体系创新建设：积极投身火山引擎质量体系建设，探索质量Agent领域的创新技术与方法；"]
+  requirements: ["5、拥有To B相关产品或云服务产品的质量保障经验者优先，熟悉此类产品的测试特点与Agent应用场景者优先。", "3、熟练掌握Python/Java/Go等至少一门编程语言，精通计算机基础技术，熟悉测试流程、质量保证方法、目标及常用工具，并能在Agent开发与测试工作中灵活运用；"]
+
+boundary_tags: []
+---
+case_id: "REG-b520c6646281cebc"
+job_id: "7549173122882636040"
+content_sha256: "b520c6646281cebcd347b365104156193ad04f23e508738c7526f5df266c8995"
+title: "测试开发工程师-抖音搜索"
+description: |-
+  1、负责抖音搜索产品研发全流程的质量闭环，包括但不限于：产品方案评审、测试方案设计、测试执行，以及线上线下的质量分析等；
+  2、发现工作中的痛点、低效问题，并能结合AI技术进行系统性提效提质建设，将大模型能力应用到质量保障各环节中，包括但不限于：基于LLM的测试用例生成、基于多模态模型的效果评测与异常检测、基于Agent的自动化测试与问题归因分析，从挖掘场景→方案设计→技术落地→收益度量全流程参与；
+  3、负责建立质量度量标准，对项目问题进行监控、定位及排查，驱动产品质量提升；
+  4、关注行业前沿技术（LLM、多模态模型、AIGC等），学习研究新技术，不断丰富团队内的测试能力；
+  5、与产品、研发团队建立高效协作流程，并对产品提出改进建议，基于AICoding探索新的质量保障范式，提升用户产品体验。
+requirements: |-
+  1、本科及以上学历，计算机相关专业优先，具备良好的沟通协作和问题分析能力；
+  2、掌握一种或多种语言，如Python/Node.js/Java/OC，熟悉服务端、客户端常用的测试工具和测试框架；
+  3、熟悉端到端的敏捷测试流程，了解测试左移和测试右移的思想，有较好的质量运营意识；
+  4、具备AI大模型相关技术实践经验，有以下一个或多个方向的实际落地经验优先：LLM应用（Prompt Engineering、RAG、Agent等）、多模态模型（图像/视频理解、生成模型）、模型微调（SFT/LoRA/DPO等）、AI在测试领域的应用（如自动生成用例、智能评测、缺陷分析等）。
+company: "字节跳动"
+location: "上海"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试开发工程师-抖音搜索"]
+  description: ["2、发现工作中的痛点、低效问题，并能结合AI技术进行系统性提效提质建设，将大模型能力应用到质量保障各环节中，包括但不限于：基于LLM的测试用例生成、基于多模态模型的效果评测与异常检测、基于Agent的自动化测试与问题归因分析，从挖掘场景→方案设计→技术落地→收益度量全流程参与；", "1、负责抖音搜索产品研发全流程的质量闭环，包括但不限于：产品方案评审、测试方案设计、测试执行，以及线上线下的质量分析等；"]
+  requirements: ["4、具备AI大模型相关技术实践经验，有以下一个或多个方向的实际落地经验优先：LLM应用（Prompt Engineering、RAG、Agent等）、多模态模型（图像/视频理解、生成模型）、模型微调（SFT/LoRA/DPO等）、AI在测试领域的应用（如自动生成用例、智能评测、缺陷分析等）。", "2、掌握一种或多种语言，如Python/Node.js/Java/OC，熟悉服务端、客户端常用的测试工具和测试框架；"]
+
+boundary_tags: []
+---
+case_id: "REG-7ccb18e07b6ed366"
+job_id: "7094511582437280037"
+content_sha256: "7ccb18e07b6ed366567b10eec8cb17408e49a95b1bd2ce46c58eb273fad9c4c7"
+title: "高级测试开发工程师-火山引擎"
+description: |-
+  1、测试Agent开发：负责测试相关Agent和相关套件工具的设计与开发工作，使其能高效应用于火山引擎平台的质量保障体系，涵盖对不同测试场景（如功能、性能、兼容性等）的适配，以提升整体测试效率与准确性；
+  2、协同AI测试策略制定：深度介入火山引擎官网平台质量保障工作，与团队协作制定并推进AI相关的测试策略、计划及方法；确保测试Agent与整体测试流程紧密协同，有力保障平台产品的高质量交付；
+  3、质量体系创新建设：积极投身火山引擎质量体系建设，探索质量Agent领域的创新技术与方法；结合质量要求与官网业务需求，提出前沿的Agent范式，推动测试流程向自动化、智能化迈进，全面提升测试效率。
+requirements: |-
+  1、本科及以上学历，计算机科学与技术、软件工程等相关专业；
+  2、需要对大模型有深入理解，熟悉LLM技术原理与应用方法，有Agent系统设计与实现经验；了解Memory机制、RAG、工具调用、规划执行等Agent关键技术，有相关实践经验；
+  3、熟练掌握Python/Java/Go等至少一门编程语言，精通计算机基础技术，熟悉测试流程、质量保证方法、目标及常用工具，并能在Agent开发与测试工作中灵活运用；
+  4、需具备：在测试工具开发过程中实际应用AI技术或拥有丰富的Agent系统设计与实现经验；
+  5、拥有To B相关产品或云服务产品的质量保障经验者优先，熟悉此类产品的测试特点与Agent应用场景者优先。
+company: "字节跳动"
+location: "上海"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["高级测试开发工程师-火山引擎"]
+  description: ["1、测试Agent开发：负责测试相关Agent和相关套件工具的设计与开发工作，使其能高效应用于火山引擎平台的质量保障体系，涵盖对不同测试场景（如功能、性能、兼容性等）的适配，以提升整体测试效率与准确性；", "3、质量体系创新建设：积极投身火山引擎质量体系建设，探索质量Agent领域的创新技术与方法；"]
+  requirements: ["5、拥有To B相关产品或云服务产品的质量保障经验者优先，熟悉此类产品的测试特点与Agent应用场景者优先。", "3、熟练掌握Python/Java/Go等至少一门编程语言，精通计算机基础技术，熟悉测试流程、质量保证方法、目标及常用工具，并能在Agent开发与测试工作中灵活运用；"]
+
+boundary_tags: []
+---
+case_id: "REG-f32bbc4f6a0e9d82"
+job_id: "7623068849918937397"
+content_sha256: "f32bbc4f6a0e9d8247542217703949e881ff96adf849b368939229e692e57122"
+title: "AI测试开发工程师-豆包手机助手"
+description: |-
+  1、负责AI产品相关的服务端和客户端质量保障工作，完成端/云模型部署运行的交付工作；
+  2、参与产品需求、开发设计的评审工作，并提出改进意见；
+  3、负责AI产品质量体系的搭建，负责重点难点领域测试方案设计和技术选型，承担测试领域技术攻坚；
+  4、通过业内先进理论技术引入、自主创新等方式，持续在专项领域探索和创新。
+requirements: |-
+  1、计算机及相关专业本科及以上学历，具备AI相关应用质量保障工作经验；
+  2、具有客户端/服务端、智能硬件、模型算法测试或研发经验；
+  3、熟悉掌握Java、C、C++、Python、Go等语言中的两种以上；
+  4、具有技术发展视野，对AI产品/LLM有一定的认知和技术前瞻，有相关测试经验者优先；
+  5、具备良好的沟通能力与严谨的工作态度，具有扎实的技术文档报告撰写能力。
+  
+  加分项
+  1、有移动端、智能硬件、AI产品等测试经验者优先；
+  2、对于AI行业新技术、新方向有兴趣，有敏锐度者优先；
+  3、熟练掌握机器学习、深度学习概念和框架；
+  4、对模型有技术热情，熟悉GPT/BERT/T5等模型的原理者优先。
+company: "字节跳动"
+location: "上海"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI测试开发工程师-豆包手机助手"]
+  description: ["3、负责AI产品质量体系的搭建，负责重点难点领域测试方案设计和技术选型，承担测试领域技术攻坚；", "2、参与产品需求、开发设计的评审工作，并提出改进意见；"]
+  requirements: ["1、计算机及相关专业本科及以上学历，具备AI相关应用质量保障工作经验；", "4、具有技术发展视野，对AI产品/LLM有一定的认知和技术前瞻，有相关测试经验者优先；"]
+
+boundary_tags: []
+---
+case_id: "REG-76ec525b283a6b6e"
+job_id: "7418081693820700965"
+content_sha256: "76ec525b283a6b6e31e327ae256d676bf3cbf39c4f3dc432b3a85b8e6de5aa11"
+title: "测试开发工程师（搜索LLM）-TikTok内容发现（北京/上海）"
+description: |-
+  团队介绍：TikTok是一个覆盖150个国家和地区的国际短视频平台，我们希望通过TikTok发现真实、有趣的瞬间，让生活更美好。TikTok在全球各地设有办公室，全球总部位于洛杉矶和新加坡，办公地点还包括纽约、伦敦、都柏林、巴黎、柏林、迪拜、雅加达、首尔和东京等多个城市。
+  
+  TikTok内容发现团队负责的产品功能涵盖TikTok所有内容分发的场景，包括首页的搜索、推荐信息流等核心场景，通过个性化手段以及产品功能来满足用户发现内容的诉求。在这里，有大牛带队与大家一同不断探索前沿，突破想象空间。在这里，你的每一行代码都将服务亿万用户。在这里，团队专业且纯粹，合作氛围平等且轻松。
+  
+  1、负责TikTok搜索LLM方向质量保障工作，构建大模型相关质量体系，参与变更管控、自动化测试、LLM评测、LLM安全等质效专项；
+  2、基于工程和算法团队现有质效问题给出合理质效解决方案，推动落地提高交付质效；
+  3、能及时关注和学习，并探索新的大模型相关质效解决方案。
+requirements: |-
+  1、本科及以上学历，计算机相关专业，精通测试流程、方法和工具；
+  2、扎实的编程基础，熟练使用Python/Go/Java/C++其中一种或多种语言；
+  3、具备持续学习和创新意识，勇于尝试新技术和新方法；
+  4、对AIGC技术有深入的理解和一定的经验，对大模型领域有热情，有AI相关测试开发和评测经验者优先。
+company: "字节跳动"
+location: "上海"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试开发工程师（搜索LLM）-TikTok内容发现（北京/上海）"]
+  description: ["1、负责TikTok搜索LLM方向质量保障工作，构建大模型相关质量体系，参与变更管控、自动化测试、LLM评测、LLM安全等质效专项；", "TikTok内容发现团队负责的产品功能涵盖TikTok所有内容分发的场景，包括首页的搜索、推荐信息流等核心场景，通过个性化手段以及产品功能来满足用户发现内容的诉求。"]
+  requirements: ["4、对AIGC技术有深入的理解和一定的经验，对大模型领域有热情，有AI相关测试开发和评测经验者优先。", "1、本科及以上学历，计算机相关专业，精通测试流程、方法和工具；"]
+
+boundary_tags: []
+---
+case_id: "REG-13d62d5c8f0e4c16"
+job_id: "7472724464199797010"
+content_sha256: "13d62d5c8f0e4c16104d5924ba9de2ee4ab62715b9071cc3a67d0b71dd3e5024"
+title: "测试开发工程师-抖音相机"
+description: |-
+  1、负责抖音智能创作-相机产品研发全流程的质量闭环，包括但不限于：参与产品方案评审、测试方案设计、测试执行，以及线上线下的质量分析等；
+  2、发现工作中的痛点、低效问题，并能结合AI技术进行系统性提效提质建设，将大模型能力应用到质量保障各环节中，包括但不限于：基于LLM的测试用例生成、基于多模态模型的效果评测与异常检测、基于Agent的自动化测试与问题归因分析，从挖掘场景→方案设计→技术落地→收益度量全流程参与；
+  3、负责建立质量度量标准，对项目问题进行监控、定位及排查，驱动产品质量提升；
+  4、关注行业技术（LLM、多模态模型、AIGC等），学习研究新技术，不断丰富团队内的测试能力；
+  5、与产品、研发团队建立高效协作流程，并对产品提出改进建议，基于AICoding探索新的质量保障范式，提升用户产品体验。
+requirements: |-
+  1、本科及以上学历，计算机相关专业优先；
+  2、具备一定的软件测试经验，熟悉测试理论和方法，具备良好的沟通协作和问题分析能力；
+  3、掌握一种或多种语言，如Python/Node.js/Java/Objective-C，熟悉服务端、客户端常用的测试工具和测试框架；
+  4、了解Android/iOS/鸿蒙系统特性及语言特性，有相关专项测试经验优先；
+  5、具备AI大模型相关技术实践经验，有以下一个或多个方向的实际落地经验优先：LLM应用（Prompt Engineering、RAG、Agent等）、多模态模型（图像/视频理解、生成模型）、模型微调（SFT/LoRA/DPO等）、AI在测试领域的应用（如自动生成用例、智能评测、缺陷分析等）。
+company: "字节跳动"
+location: "<missing>"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试开发工程师-抖音相机"]
+  description: ["2、发现工作中的痛点、低效问题，并能结合AI技术进行系统性提效提质建设，将大模型能力应用到质量保障各环节中，包括但不限于：基于LLM的测试用例生成、基于多模态模型的效果评测与异常检测、基于Agent的自动化测试与问题归因分析，从挖掘场景→方案设计→技术落地→收益度量全流程参与；", "1、负责抖音智能创作-相机产品研发全流程的质量闭环，包括但不限于：参与产品方案评审、测试方案设计、测试执行，以及线上线下的质量分析等；"]
+  requirements: ["5、具备AI大模型相关技术实践经验，有以下一个或多个方向的实际落地经验优先：LLM应用（Prompt Engineering、RAG、Agent等）、多模态模型（图像/视频理解、生成模型）、模型微调（SFT/LoRA/DPO等）、AI在测试领域的应用（如自动生成用例、智能评测、缺陷分析等）。", "2、具备一定的软件测试经验，熟悉测试理论和方法，具备良好的沟通协作和问题分析能力；"]
+
+boundary_tags: []
+---
+case_id: "REG-155cbec923bbabfe"
+job_id: "7324699106323958026"
+content_sha256: "155cbec923bbabfe10816a46ba93b592fc93c66d8780efc9e602eaa763f251cd"
+title: "资深测试开发工程师-飞书"
+description: |-
+  1、负责飞书创作工具和内容管理类产品的测试开发工作，通过建立系统化的测试技术，推动产品质量不断提高；
+  2、负责Prompt/Agent/Chain等相关模块的质量保障工作，制定有效的验证机制，评估系统品质、指导相关模块的优化方向；
+  3、积极参与质量体系规划和建设；完善研发流程中的质量和效率问题，提出明确的改进意见，并推动改进；
+  4、负责设计、开发质效工具，推动测试技术、工具平台的突破创新。
+requirements: |-
+  1、本科及以上学历，计算机或人工智能等相关专业优先；
+  2、有服务端测试经验者优先；
+  3、有微服务测试/治理经验优先；
+  4、至少熟练使用Python/Go/Java其中一种语言，可进行相关开发；
+  5、有AI、大数据相关应用测试开发和评测经验者优先。
+company: "字节跳动"
+location: "<missing>"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["资深测试开发工程师-飞书"]
+  description: ["4、负责设计、开发质效工具，推动测试技术、工具平台的突破创新。", "1、负责飞书创作工具和内容管理类产品的测试开发工作，通过建立系统化的测试技术，推动产品质量不断提高；"]
+  requirements: ["5、有AI、大数据相关应用测试开发和评测经验者优先。", "2、有服务端测试经验者优先；"]
+
+boundary_tags: []
+---
+case_id: "REG-90675d11eef4387f"
+job_id: "7478901849873975559"
+content_sha256: "90675d11eef4387fba8184169467952622ad4fe259da73d8ebc411c31390b7e9"
+title: "高级测试开发工程师（大模型方向）-抖音搜索"
+description: |-
+  1、负责公司LLM大模型方向质量保障工作，具体包括但不限于LLM模型服务、LLM插件、LLM试用评估平台、LLM解决方案平台、LLM安全平台、稳定性、模型部署、训练、微调等方向；
+  2、构建大模型相关质量体系，参与变更管控、自动化测试、稳定性建设等质效专项；
+  3、基于工程和算法团队现有质效问题给出合理质效解决方案，推动落地提高交付质效；
+  4、能及时关注和学习，并探索新的大模型相关质效解决方案。
+requirements: |-
+  1、本科及以上学历，计算机相关专业，精通测试流程、方法和工具；
+  2、扎实的编程基础，熟练使用Python/Go/Java/C++其中一种或多种语言；
+  3、具备持续学习和创新意识，勇于尝试新技术和新方法；
+  4、对AIGC技术有深入的理解和一定的经验，对大模型领域有热情，有AI相关测试开发和评测经验者优先。
+company: "字节跳动"
+location: "<missing>"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["高级测试开发工程师（大模型方向）-抖音搜索"]
+  description: ["2、构建大模型相关质量体系，参与变更管控、自动化测试、稳定性建设等质效专项；", "1、负责公司LLM大模型方向质量保障工作，具体包括但不限于LLM模型服务、LLM插件、LLM试用评估平台、LLM解决方案平台、LLM安全平台、稳定性、模型部署、训练、微调等方向；"]
+  requirements: ["4、对AIGC技术有深入的理解和一定的经验，对大模型领域有热情，有AI相关测试开发和评测经验者优先。", "1、本科及以上学历，计算机相关专业，精通测试流程、方法和工具；"]
+
+boundary_tags: []
+---
+case_id: "REG-abe88fde7b3a0eb5"
+job_id: "7662676551271794997"
+content_sha256: "abe88fde7b3a0eb5def48208945816265982dbe874815469fc9033942beef589"
+title: "AI测试开发工程师 - 抖音"
+description: |-
+  团队介绍：抖音致力于打造一个开放、积极、多元、友善的平台，鼓励表达、沟通和记录，激发创造，丰富人们的精神世界，让现实生活更美好。我们通过AI算法驱动的个性化推荐与智能创作工具，满足用户表达、学习、娱乐、社交、消费等需求。回顾抖音一路走来的历程，我们在帮助亿万用户记录美好生活的过程中，努力变得更好。
+  
+  1、深度参与直播产品研发项目，协同产品经理、业务研发、用户反馈团队优质交付产品；
+  2、发现工作中的痛点、低效问题，并能结合AI技术进行系统性提效提质建设，将大模型能力应用到质量保障各环节中，包括但不限于：基于LLM的测试用例生成、模型效果评测与异常检测、基于Agent的自动化测试与问题归因分析，从挖掘场景→方案设计→技术落地→收益度量全流程参与；
+  3、负责建立质量度量标准，对项目问题进行监控、定位及排查，驱动产品质量提升；
+  4、关注行业前沿技术（LLM、多模态模型、AIGC等），学习研究新技术，不断丰富团队内的测试能力；
+  5、与产品、研发团队建立高效协作流程，并对产品提出改进建议，基于AICoding探索新的质量保障范式，提升用户产品体验。
+requirements: |-
+  1、本科及以上学历，计算机相关专业优先，具备良好的沟通协作和问题分析能力；
+  2、掌握一种或多种语言，如Python/Nodejs/Java/OC，熟悉服务端、客户端常用的测试工具和测试框架；
+  3、熟悉端到端的敏捷测试流程，了解测试左移和测试右移的思想，有较好的质量运营意识；
+  4、具备AI大模型相关技术实践经验，有以下一个或多个方向的实际落地经验优先：LLM应用（Prompt Engineering、RAG、Agent等）、多模态模型（图像/视频理解、生成模型）、模型微调（SFT/LoRA/DPO等）、AI在测试领域的应用（如自动生成用例、智能评测、缺陷分析等）。
+company: "字节跳动"
+location: "深圳"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI测试开发工程师 - 抖音"]
+  description: ["2、发现工作中的痛点、低效问题，并能结合AI技术进行系统性提效提质建设，将大模型能力应用到质量保障各环节中，包括但不限于：基于LLM的测试用例生成、模型效果评测与异常检测、基于Agent的自动化测试与问题归因分析，从挖掘场景→方案设计→技术落地→收益度量全流程参与；", "3、负责建立质量度量标准，对项目问题进行监控、定位及排查，驱动产品质量提升；"]
+  requirements: ["4、具备AI大模型相关技术实践经验，有以下一个或多个方向的实际落地经验优先：LLM应用（Prompt Engineering、RAG、Agent等）、多模态模型（图像/视频理解、生成模型）、模型微调（SFT/LoRA/DPO等）、AI在测试领域的应用（如自动生成用例、智能评测、缺陷分析等）。", "2、掌握一种或多种语言，如Python/Nodejs/Java/OC，熟悉服务端、客户端常用的测试工具和测试框架；"]
+
+boundary_tags: []
+---
+case_id: "REG-bf2af879f03e27f1"
+job_id: "7538064048551250184"
+content_sha256: "bf2af879f03e27f13b93dc9e13b6cb7dbaa5a856bbaa3bdeb104d6380fb712ae"
+title: "测试开发工程师（AI算法评测）-飞书"
+description: |-
+  1、负责飞书AI产品相关的评测工作，包含AI算法的评测体系建设、评测集构建、以及相关评测工程化建设等；
+  2、负责RAG领域产品的交付品质，制定合理的验收机制，来评估模型品质，指导模型优化方向；
+  3、负责AI算法的评测标准和评测流程制定，构建评测集，并推进评测执行，分析评测结果，对模型质量给予充分评估；
+  4、建设相关评测工具/平台，推动评测工程化和无人化。
+requirements: |-
+  1、计算机或者人工智能等相关专业，本科学历及以上；
+  2、有AI相关的模型评测经验优先；
+  3、至少熟练使用Python/Go/Java其中一种语言，可进行相关开发；
+  4、需要有较好的数据处理能力，沟通协调能力，认真负责；
+  5、对于AI行业新技术、新方向有兴趣，有感知力者优先。
+company: "字节跳动"
+location: "深圳"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试开发工程师（AI算法评测）-飞书"]
+  description: ["1、负责飞书AI产品相关的评测工作，包含AI算法的评测体系建设、评测集构建、以及相关评测工程化建设等；", "3、负责AI算法的评测标准和评测流程制定，构建评测集，并推进评测执行，分析评测结果，对模型质量给予充分评估；"]
+  requirements: ["2、有AI相关的模型评测经验优先；", "5、对于AI行业新技术、新方向有兴趣，有感知力者优先。"]
+
+boundary_tags: []
+---
+case_id: "REG-fadab392ccbe3cfa"
+job_id: "7031785248094718245"
+content_sha256: "fadab392ccbe3cfa5d567b3f7baaea91f4907043201cb8729ccd17908ab66863"
+title: "AI测试开发工程师（Agent方向）（广州） - 抖音研发中台"
+description: |-
+  团队介绍：抖音研发中台团队主要负责抖音、剪映、今日头条、番茄小说、财经等产品的质量建设，面向质量、体验、安全提供全方位、深层次、高效的解决方案。
+  
+  1、深度参与公司用户增长、投放、营销等系统的质量保障工作，从系统设计、研发流程、发布机制等维度识别质量风险，参与或主导质量工程体系建设，持续提升测试质量、效率及研发协作效率；
+  2、负责制定并持续演进面向复杂业务与快速迭代场景的质量策略与测试体系，探索并实践AI/大模型在质量保障领域的应用；
+  3、结合业务特点与工程实践，引入并建设自动化测试、稳定性保障及智能化质量能力，推动测试从“覆盖驱动”向“风险与决策驱动”演进；
+  4、深入业务质量痛点和复杂技术问题，利用或定制开源工具、平台能力或内部系统，形成可复用的质量解决方案。
+requirements: |-
+  1、本科及以上学历，具备3年及以上测试开发或质量工程相关经验，有参与复杂系统或业务质量保障的实际经验；
+  2、扎实的软件测试基础，能够基于业务与系统特性设计测试策略，理解并实践敏捷研发与CI/CD场景下的质量控制与风险治理；
+  3、具备良好的计算机基础，理解常见数据结构与算法思想，能够使用至少一门编程语言（如Java/Python/Go等）进行测试工具、平台或质量能力的工程化建设；
+  4、对AI技术（如大模型、智能Agent、自动化推理等）有较强兴趣，具备主动学习能力；有AI+测试/质量工程（如AI生成自动化/案例，测试Agent等）相关经验优先；
+  5、对测试与质量工程的长期演进有独立思考，具备自驱力和技术前瞻意识；具备良好的沟通与推动能力，能够在多角色协作中推动质量问题的识别与闭环；
+  6、在自动化框架、压测工具、稳定性保障、大数据处理工具者等方向有深层技术积累与实践者优先；具备服务端白盒测试经验者优先。
+company: "字节跳动"
+location: "广州"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI测试开发工程师（Agent方向）（广州） - 抖音研发中台"]
+  description: ["1、深度参与公司用户增长、投放、营销等系统的质量保障工作，从系统设计、研发流程、发布机制等维度识别质量风险，参与或主导质量工程体系建设，持续提升测试质量、效率及研发协作效率；", "2、负责制定并持续演进面向复杂业务与快速迭代场景的质量策略与测试体系，探索并实践AI/大模型在质量保障领域的应用；"]
+  requirements: ["有AI+测试/质量工程（如AI生成自动化/案例，测试Agent等）相关经验优先；", "具备服务端白盒测试经验者优先。"]
+
+boundary_tags: []
+---
+case_id: "REG-09eb88d540e53e7b"
+job_id: "6b079175-05f3-4bea-9720-3da2f9856240"
+content_sha256: "09eb88d540e53e7bd96f2f9be7b769bb913a18dc9fce7463dd5a0e829c0a8641"
+title: "AI产品测试开发工程师（J104700）"
+description: |-
+  -负责内容审核类 AI 产品的测试体系建设，覆盖文本、图像、音视频等多媒体内容审核场景
+  -基于产品能力和业务规则，设计并维护功能测试、稳定性测试、效果测试及回归测试等方案
+  -参与测试效能建设，推动质量左移、自动化提效、测试资产复用和 AI 能力在测试环节规模化应用
+requirements: |-
+  -计算机、软件工程、人工智能、数据科学等相关专业，本科及以上学历，具备 3 年及以上测试开发、AI 测试效能建设、AI 效果评测经验优先
+  -熟悉 AI Coding，Claude Code等，具备较好的AI开发能力，熟悉Python、Java、Go 或 JavaScript 中至少一种语言
+  -具备较好的数据处理、问题分析能力，能够完成测试数据清洗、分析和从模型、规则、数据、服务等多个层面定位问题
+  -具有良好的沟通协作能力和质量意识，能够推动质量问题解决
+  -有文本审核、图像审核、音视频审核、多模态大模型、视觉语言模型、OCR或内容安全平台测试经验者优先
+  -具备线上质量监控和问题闭环机制跟踪模型效果波动建设经验者优先
+  -有私有化部署、国产化软硬件适配、容器化部署或离线环境测试经验者优先
+company: "百度"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI产品测试开发工程师（J104700）"]
+  description: ["-参与测试效能建设，推动质量左移、自动化提效、测试资产复用和 AI 能力在测试环节规模化应用", "-负责内容审核类 AI 产品的测试体系建设，覆盖文本、图像、音视频等多媒体内容审核场景"]
+  requirements: ["-计算机、软件工程、人工智能、数据科学等相关专业，本科及以上学历，具备 3 年及以上测试开发、AI 测试效能建设、AI 效果评测经验优先", "-具备线上质量监控和问题闭环机制跟踪模型效果波动建设经验者优先"]
+
+boundary_tags: []
+---
+case_id: "REG-d503e33631165f37"
+job_id: "e061fd99-2599-4059-b277-f9c921191544"
+content_sha256: "d503e33631165f37bafa54499fe04c6fdb07209673be007291b89f23004dd3a8"
+title: "AI效能与质量保障（J104103）"
+description: |-
+  -使用 AI 工具做服务端产品质量保证工作
+  -参与软件产品的需求分析，负责测试计划和方案制定，并能预先评估质量风险
+  -通过 AI 等技术手段完善测试方案，持续提升监控覆盖率以及敏感度，引进和开发各种工具来提高测试效率
+  -探索并落地AI原生测试工作方式：将质量标准转化为机器可执行的Eval/Benchmark体系，推动质量拦截前置到研发Agent生成环节，构建人机协同的测试Workflow
+requirements: |-
+  -本科及以上学历，计算机专业优先
+  -具有一定的服务端产品的测试经验，了解服务端各个纬度的测试方法
+  -能熟练地应用如java、Python、go等至少一门语言，基于 vibecoding进行软件开发
+  -有广告业务和AI工程化相关经验者优先
+  -具备AI First/AI Native思维方式者优先，包括但不限于：
+  -能将隐性的质量经验（安全红线、验收标准、埋点规范等）显性化为机器可读的Eval标准
+  -能借助AI快速生成测试用例、构造边界数据、辅助复现问题，形成人机协同测试流程
+  -具备设计针对AI生成代码/Agent产出的评测集（覆盖异常路径的"地狱级测试集"）经验
+  -清楚AI测试能力边界，知道哪些场景必须人工介入，并能设计双重校验机制
+  -能快速适应AI生成代码带来的新型缺陷模式，灵活调整测试策略
+company: "百度"
+location: "深圳"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI效能与质量保障（J104103）"]
+  description: ["-探索并落地AI原生测试工作方式：将质量标准转化为机器可执行的Eval/Benchmark体系，推动质量拦截前置到研发Agent生成环节，构建人机协同的测试Workflow", "-参与软件产品的需求分析，负责测试计划和方案制定，并能预先评估质量风险"]
+  requirements: ["-具备设计针对AI生成代码/Agent产出的评测集（覆盖异常路径的\"地狱级测试集\"）经验", "-有广告业务和AI工程化相关经验者优先"]
+
+boundary_tags: []
+---
+case_id: "REG-3e91936cbe3e23e5"
+job_id: "4721277378"
+content_sha256: "3e91936cbe3e23e58edccd220c22a5e6fdba4abfe913e854d657f79ffb3572d9"
+title: "高级测试开发工程师"
+description: |-
+  1. 负责基于测试Agent的全流程质量保障工作，覆盖需求分析、测试设计、执行及缺陷闭环管理。  
+  2. 构建并优化测试Agent能力，实现测试任务自主规划、用例生成、执行及结果分析的端到端自动化。  
+  3. 探索测试Agent在复杂场景下的应用，如智能回归测试、异常路径挖掘及多模态交互验证。  
+  4. 协同研发团队将测试Agent集成至CI/CD流程，提升测试效率与覆盖率。  
+  5. 跟踪AI测试技术趋势，推动测试Agent在性能测试、安全测试等领域的创新落地。
+  岗位亮点
+  1. 主导测试Agent从0到1的落地，打造行业先进的智能测试体系。  
+  2. 深度参与AI驱动的测试革命，技术成长与行业影响力双重提升。  
+  3. 弹性工作制，配备高性能算力资源支持创新实验。  
+  4. 成都AI产业生态完善，提供持续的技术交流与学习机会。
+requirements: |-
+  1. 硕士研究生学历，计算机、人工智能或相关专业背景。  
+  2. 5年以上测试开发经验，具备AI应用或智能测试工具实战经验。  
+  3. 熟悉测试Agent技术栈（如LLM、RPA、AutoML），有自主测试系统建设经验者优先。  
+  4. 精通Python/Java等语言，掌握主流测试框架及DevOps工具链。  
+  5. 具备优秀的系统思维和跨团队协作能力，能推动测试Agent规模化应用。
+company: "美团"
+location: "北京 / 成都"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["高级测试开发工程师"]
+  description: ["1. 负责基于测试Agent的全流程质量保障工作，覆盖需求分析、测试设计、执行及缺陷闭环管理。", "2. 构建并优化测试Agent能力，实现测试任务自主规划、用例生成、执行及结果分析的端到端自动化。"]
+  requirements: ["3. 熟悉测试Agent技术栈（如LLM、RPA、AutoML），有自主测试系统建设经验者优先。", "2. 5年以上测试开发经验，具备AI应用或智能测试工具实战经验。"]
+
+boundary_tags: []
+---
+case_id: "REG-cdd79180a707f459"
+job_id: "4701960271"
+content_sha256: "cdd79180a707f45948d9e233b9b55bdbd85ac55d5b366cb9b9a1d8c8fc43a37a"
+title: "Agent稳定性测试工程师"
+description: |-
+  负责 CatPaw Agent 稳定性测试和评测体系建设，设计并实现覆盖 Skill/Plugin、工具调用、端到端任务完成度的评测框架与自动化测试基建，支撑模型与策略选型决策，以及持续量化并提升开发者体验。
+  面向 CatPaw 多智能体集群构建运行时评测能力，针对路由调度、会话管理、记忆系统等模块设计场景化用例集与回归基线，识别多轮长链路下的能力衰减与稳定性风险。
+  主导长程任务 harness 效果评估工作，围绕Prompt 工程、tool Calling 、上下文管理、以及memory能力建立指标体系，评测驱动Agent持续优化。
+  主导CatPaw Agent产品需求交付质量保障、AI自动化测试开发，保障Agent产品的高质量高效上线。
+  覆盖 IM/社交/办公等多端渠道及浏览器自动化场景的真实链路验收，badcase分析，沉淀可复用的场景数据集与自动化巡检能力，推动线上质量可观测，以及数据飞轮建设。
+  参与安全与合规评测，针对多租户权限隔离、数据沙箱、越权与提示注入等风险构建红队用例与对抗性评测方案，保障系统安全性与稳定性。
+  岗位亮点
+  参与构建下一代 AI Agent 开发框架的评测标准与质量体系，结论直接影响框架演进方向，技术影响力广泛。
+  深度使用 AI 工具进行开发与评测，鼓励高效人机协作。
+  与前沿 AI 技术团队共同探索多智能体系统、浏览器自动化等创新方向的评估难题。
+  扁平化工作环境，支持技术自主决策与快速迭代。
+requirements: |-
+  大学本科及以上学历，3 年以上研发或质量工程经验，精通 TypeScript/Node.js 或 Python，具备较强的工程实现能力。
+  重度 AI Coding 用户，熟练使用 CatPaw/NoCode/Cursor/CC/CodeX 等 AI 编程工具完成日常开发与评测脚本建设。
+  深入理解 LLM 应用开发，掌握 Prompt 设计、Tool Use、RAG 等核心技术，理解其常见失效模式与对应的评估手段。
+  熟悉大模型评测方法论，包括自动化评测、LLM-as-a-Judge、人工标注与抽样、A/B 实验与统计显著性判断，能设计出可复现、低噪声的评测流程。
+  具备平台或框架级系统设计能力，能独立完成评测平台核心模块的架构与实现，并推动数据驱动的质量改进落地。
+  具备自驱力，善于与 AI 协作，主动探索技术边界并推动结论转化为产品迭代。
+company: "美团"
+location: "北京 / 成都"
+
+expected_role_family: "qa_test"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["Agent稳定性测试工程师"]
+  description: ["负责 CatPaw Agent 稳定性测试和评测体系建设，设计并实现覆盖 Skill/Plugin、工具调用、端到端任务完成度的评测框架与自动化测试基建，支撑模型与策略选型决策，以及持续量化并提升开发者体验。", "参与构建下一代 AI Agent 开发框架的评测标准与质量体系，结论直接影响框架演进方向，技术影响力广泛。"]
+  requirements: ["大学本科及以上学历，3 年以上研发或质量工程经验，精通 TypeScript/Node.js 或 Python，具备较强的工程实现能力。", "熟悉大模型评测方法论，包括自动化评测、LLM-as-a-Judge、人工标注与抽样、A/B 实验与统计显著性判断，能设计出可复现、低噪声的评测流程。"]
+
+boundary_tags: []
+---
+case_id: "REG-caa4c5d94c1faa91"
+job_id: "4258187656"
+content_sha256: "caa4c5d94c1faa919816d52c0e4d3dc0809a88303783c6f02fb0a3773a6523ce"
+title: "多模态测试开发工程师"
+description: |-
+  1. 参与多模态相关产品（语音、视觉方向）的功能测试与质量保障，包括 Web 页面与客户端（移动端 / PC 端）等。
+  2. 根据产品需求与设计文档，设计测试用例，执行功能测试、兼容性测试、接口测试等，及时发现并定位问题。
+  3. 参与语音识别、语音交互、图像识别、图像生成等多模态场景的专项测试，关注模型效果及用户体验。
+  4. 跟踪缺陷生命周期，推动问题及时修复并回归验证，输出测试报告。
+  5. 能够使用简单脚本或工具进行部分测试场景的自动化或半自动化，提高测试效率。
+  6. 与产品、研发、算法等多团队协作，参与需求评审和版本评审，对产品质量和可测试性提出合理建议。
+  岗位亮点
+  接触前沿的多模态大模型技术、使用前沿的大模型及工具，一起探索多模态大模型场景下的Agent质量保障新范式
+requirements: |-
+  1. 本科及以上学历，计算机、软件工程、信息技术等相关专业优先。
+  2. 熟悉基本的软件测试流程和方法，能够编写测试用例并执行测试，掌握常见缺陷管理工具。
+  3. 对语音识别、语音交互、图像处理、视觉识别等多模态产品有一定了解或浓厚兴趣，有相关测试经验者优先。
+  4. 具备一定编码能力，至少熟悉一种编程或脚本语言（如 Python / JavaScript / Java 等），能编写简单脚本或小工具辅助测试。
+  5. 了解 AI 技术，具备测试 AI Agent 的实践经验。
+  6. 具备多模态工程链路可靠性、性能测试的经验优先。
+  7. 具备多模态大模型评测经验优先。
+  7. 具备良好的问题定位与分析能力，逻辑清晰，责任心强，细致认真，能承受一定工作压力。
+company: "美团"
+location: "北京 / 成都"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["多模态测试开发工程师"]
+  description: ["1. 参与多模态相关产品（语音、视觉方向）的功能测试与质量保障，包括 Web 页面与客户端（移动端 / PC 端）等。", "6. 与产品、研发、算法等多团队协作，参与需求评审和版本评审，对产品质量和可测试性提出合理建议。"]
+  requirements: ["7. 具备多模态大模型评测经验优先。", "5. 了解 AI 技术，具备测试 AI Agent 的实践经验。"]
+
+boundary_tags: []
+---
+case_id: "REG-5f78c2a098f7b62e"
+job_id: "32357"
+content_sha256: "5f78c2a098f7b62ead29cc4546394423d5d0155ecf09862bdb3fb3ef95bac3ad"
+title: "AI测试开发工程师（增长方向）"
+description: |-
+  快手增长质量团队负责用户增长、广告投放、营销活动及相关平台的质量建设。团队面向复杂策略、高并发和快速迭代场景，建设风险驱动的质量保障体系，并通过大模型和智能 Agent 提升需求验证、测试执行、缺陷拦截及发布决策效率。
+  
+  岗位职责
+  1、深入用户增长、广告投放和营销业务，参与需求、架构及发布评审，识别业务规则、实验分流、权益发放、埋点归因、数据一致性等风险，制定测试策略和发布标准；
+  2、建设接口、服务端、数据和端到端测试能力，完善自动化测试、CI/CD 质量门禁、灰度验证及性能稳定性保障；
+  3、设计并落地测试 Agent，基于需求、技术方案、代码变更和历史缺陷，实现风险识别、用例与脚本生成、工具调用、自动执行、缺陷定位、智能回归和发布风险评估；
+  4、建立 AI 测试评测体系，持续提升 AI 承接率、生成内容有效率和缺陷拦截率；验证 Vibe Coding、Spec Coding、Harness Engineering 等技术在质量场景中的应用。
+requirements: |-
+  1、本科及以上学历，计算机相关专业优先；具备 3 年及以上测试开发、质量工程或相关研发经验，有增长、投放或营销系统经验优先；
+  2、软件测试基础扎实，能够基于业务和系统风险设计测试策略；熟悉敏捷研发、CI/CD、灰度发布及线上风险治理；
+  3、熟练使用 Python、Java、Go 等至少一种语言，具备测试工具、自动化框架或质量平台的工程开发能力；
+  4、对大模型和智能 Agent 有较强兴趣，具备 AI 应用或 Agent 建设经验，能够将其应用于测试生成、智能回归和缺陷分析等场景；
+  5、具备良好的问题分析、沟通协作和方案推动能力；在服务端测试、性能稳定性、数据质量或可观测性等方向有深入实践者优先。
+  
+  加分项
+  1、有生产级 AI 应用或 Agent 项目经验，熟悉架构设计、工作流编排、服务部署、监控和迭代；
+  2、熟悉 LangChain、LangGraph 等 Agent 框架，在提示工程、上下文优化、工具编排或 RAG 工程化方面有深入实践；
+  3、有 AI+测试、Vibe Coding、Spec Coding、Harness Engineering 或代码 Agent 落地经验，熟悉评测集构建、效果分析、误报漏报及安全控制，并取得可量化成果。
+company: "快手"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI测试开发工程师（增长方向）"]
+  description: ["团队面向复杂策略、高并发和快速迭代场景，建设风险驱动的质量保障体系，并通过大模型和智能 Agent 提升需求验证、测试执行、缺陷拦截及发布决策效率。", "快手增长质量团队负责用户增长、广告投放、营销活动及相关平台的质量建设。"]
+  requirements: ["4、对大模型和智能 Agent 有较强兴趣，具备 AI 应用或 Agent 建设经验，能够将其应用于测试生成、智能回归和缺陷分析等场景；", "3、有 AI+测试、Vibe Coding、Spec Coding、Harness Engineering 或代码 Agent 落地经验，熟悉评测集构建、效果分析、误报漏报及安全控制，并取得可量化成果。"]
+
+boundary_tags: []
+---
+case_id: "REG-1581858f99691f05"
+job_id: "32290"
+content_sha256: "1581858f99691f058f5da1b5ec876d69cf5d540e887f981b1ee08722f4666c1b"
+title: "服务端测试开发工程师（音视频）"
+description: |-
+  1、负责音视频服务端质量保障工作，包括流媒体服务、直播信令、直播转码；
+  2、主导跨团队项目，深度参与项目交付全流程，整体把控项目进度和风险；
+  3、参与稳定性和效能基建建设，探索AI测试工具提升覆盖率，提高测试效率和质量；
+  4、与开发团队紧密合作，快速定位和解决问题；
+  5、参与新技术和新工具的研究，提升测试的技术水平。
+requirements: |-
+  1. 计算机相关专业本科及以上学历，有音视频服务端测试经验优先；
+  2. 熟悉音视频编解码技术，熟悉直播/RTC全链路，熟练掌握服务端的测试流程、测试工具和测试方法；
+  3. 熟悉Linux操作系统，熟悉Java、C++、Python中至少一门语言；
+  4. 熟悉自动化测试工具和框架，熟悉性能测试工具，具备相关实战经验；
+  5. 跨团队协作和沟通能力强，工作主动性强，自驱力强，能够承受工作压力；
+  6. 具有良好的逻辑思维能力，问题定位能力和解决问题的能力；
+  7. 有大模型相关项目经验（如Prompt工程、微调、工作流开发、Agent开发、评测）者优先。
+company: "快手"
+location: "北京 / 深圳"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_context_only"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["ai_not_primary_duty"]
+
+evidence:
+  title: ["服务端测试开发工程师（音视频）"]
+  description: ["3、参与稳定性和效能基建建设，探索AI测试工具提升覆盖率，提高测试效率和质量；", "2、主导跨团队项目，深度参与项目交付全流程，整体把控项目进度和风险；"]
+  requirements: ["7. 有大模型相关项目经验（如Prompt工程、微调、工作流开发、Agent开发、评测）者优先。", "4. 熟悉自动化测试工具和框架，熟悉性能测试工具，具备相关实战经验；"]
+
+boundary_tags: ["ai_context_not_primary"]
+---
+case_id: "REG-badbaa9c1263f550"
+job_id: "28814"
+content_sha256: "badbaa9c1263f550e681857352a37cf7168934ff80b7db1e86f6689d071c7b47"
+title: "商业化AI测试开发-【KSIB】"
+description: |-
+  1、主导测试 Agent 的设计与开发落地，探索其在复杂场景用例生成、自动化探索式测试、智能问题诊断及线上风险主动发现等方面的应用；
+  2、主导 Agent 评测体系建设，设计评测方案与标准，构建评测数据集，开发自动化评测工具，对 Agent 的能力边界、鲁棒性与可靠性进行系统性度量；
+  3、参与模型评测体系建设与落地，包括制定评测标准、构建基准数据集、搭建自动化评测流水线；
+  4、高效协同产品、研发、运营等团队，在海外直播短视频复杂业务场景中推动质量左移，保障关键需求的高质量交付与线上问题的高效解决。
+requirements: |-
+  1、计算机及相关专业本科以上学历，5 年以上互联网大厂测试开发经验；
+  2、熟练掌握 C/C++/Java/Python 中至少一种语言及其相关技术栈；
+  3、具备 Agent 开发经验，熟悉主流 Agent 框架（如 LangChain、AutoGen 等），有测试 Agent 从 0 到 1 设计与落地经验者优先；
+  4、具备 Agent 评测经验，能够设计覆盖规划能力、工具调用、多轮对话鲁棒性等维度的系统性评测方案；
+  5、有海外直播、短视频等业务的测试或开发经验，了解相关核心技术与业务逻辑者优先；
+  6、沟通能力强，思维敏捷，逻辑清晰，执行力强，具备良好的团队合作精神与抗压能力。
+company: "快手"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["商业化AI测试开发-【KSIB】"]
+  description: ["2、主导 Agent 评测体系建设，设计评测方案与标准，构建评测数据集，开发自动化评测工具，对 Agent 的能力边界、鲁棒性与可靠性进行系统性度量；", "1、主导测试 Agent 的设计与开发落地，探索其在复杂场景用例生成、自动化探索式测试、智能问题诊断及线上风险主动发现等方面的应用；"]
+  requirements: ["3、具备 Agent 开发经验，熟悉主流 Agent 框架（如 LangChain、AutoGen 等），有测试 Agent 从 0 到 1 设计与落地经验者优先；", "4、具备 Agent 评测经验，能够设计覆盖规划能力、工具调用、多轮对话鲁棒性等维度的系统性评测方案；"]
+
+boundary_tags: []
+---
+case_id: "REG-e4ce134ee54565d8"
+job_id: "30926"
+content_sha256: "e4ce134ee54565d89a76ecec76e345ef6e565444a8949d0c9b15a5632e5db660"
+title: "服务端测试开发工程师-【品牌营销】"
+description: |-
+  1、负责快手商业化服务端质量保障工作，涵盖业务需求交付支持与质量效能体系的持续建设；
+  2、基于产品设计及业务需求，开展需求分析，制定测试策略与计划，识别关键风险，设计高质量测试数据与用例，并高效执行、精准定位及闭环跟踪缺陷；
+  3、主动开展线上问题复盘与根因分析，沉淀可复用的监控优化方案与测试能力提升方案；
+  4、深度参与 AI 赋能测试提效项目，推动 AI 技术在测试用例智能生成、自动化执行、异常诊断与根因推荐等关键场景的落地应用。
+requirements: |-
+  1、熟练掌握 C++ / Java / Python 中至少一门编程语言及相关技术栈，熟悉 Linux 常用命令及 MySQL 数据库操作；
+  2、熟练使用主流测试工具、自动化测试框架及性能测试工具，对互联网系统质量保障有扎实理解与持续热情；
+  3、具备优秀的跨团队沟通协作能力、快速学习能力与结构化思维，逻辑清晰、执行力强、责任心突出；
+  4、有互联网广告领域从业经验者优先；熟悉或对 PC/移动端广告产品、广告投放系统及商业化链路有深入理解或浓厚兴趣者优先。
+  
+  加分项
+  1、熟悉 LangChain、LlamaIndex 等 RAG 框架的测试方法论，具备相关实践或评测经验；
+  2、具有知识库构建、Harness 工程或 Context 工程等 AI 工程化落地实践经验；
+  3、持续关注 AI 评测工具、大模型质量保障、智能测试等前沿方向的行业动态与最佳实践。
+company: "快手"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["服务端测试开发工程师-【品牌营销】"]
+  description: ["1、负责快手商业化服务端质量保障工作，涵盖业务需求交付支持与质量效能体系的持续建设；", "2、基于产品设计及业务需求，开展需求分析，制定测试策略与计划，识别关键风险，设计高质量测试数据与用例，并高效执行、精准定位及闭环跟踪缺陷；"]
+  requirements: ["1、熟悉 LangChain、LlamaIndex 等 RAG 框架的测试方法论，具备相关实践或评测经验；", "3、持续关注 AI 评测工具、大模型质量保障、智能测试等前沿方向的行业动态与最佳实践。"]
+
+boundary_tags: []
+---
+case_id: "REG-0a6a0a68d97b8a7b"
+job_id: "2068944317736730624"
+content_sha256: "0a6a0a68d97b8a7b800af5cde597a46cd03964fc74c0b364e457eea412620b76"
+title: "AI智能体评测高级工程师（WorkBuddy方向）"
+description: |-
+  1.负责腾讯自研龙虾WorkBuddy/腾讯AI IDE CodeBuddy产品质量保障及AI评测工作，推动产品质量体系，生成效果提升；
+  2.负责大语言模型（LLM）及Agent系统的评测体系设计与持续演进，覆盖模型能力评测、Agent任务评测、端到端产品功能评测等，构建Benchmark；
+  3.跟踪业界评测基准动态（如 SWE-bench、HumanEval、MMLU、AgentBench 等），结合业务场景进行适配与创新；
+  4.从无到有参与产品AI评测算法、评测标准和评测流程制定，构建评测集、评测执行器，推进评测刚才体系建设。
+requirements: |-
+  1.本科及以上学历，计算机科学、软件工程、人工智能或相关专业；
+  2.熟练掌握 Python，具备脚本开发与数据处理能力；熟悉业界主流LLM评测基准与方法论（HumanEval、SWE-bench、MMLU、GSM8K等）；
+  3.了解大语言模型的基本原理（Transformer架构、预训练、微调、RLHF、推理优化等）。有主流深度学习框架（PyTorch / TensorFlow / JAX）的实践经验者优先；
+  4.具备Agen开发或测试经验，了解ReAct、Function Calling、Tool Use、Planning等核心概念；
+  5.有评测平台或自动化测试框架的开发经验者优先；具备数据分析能力，能从评测数据中提炼有价值的洞察。
+company: "腾讯"
+location: "深圳"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "senior"
+expected_career_pool: "P2"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI智能体评测高级工程师（WorkBuddy方向）"]
+  description: ["2.负责大语言模型（LLM）及Agent系统的评测体系设计与持续演进，覆盖模型能力评测、Agent任务评测、端到端产品功能评测等，构建Benchmark；", "4.从无到有参与产品AI评测算法、评测标准和评测流程制定，构建评测集、评测执行器，推进评测刚才体系建设。"]
+  requirements: ["5.有评测平台或自动化测试框架的开发经验者优先；", "4.具备Agen开发或测试经验，了解ReAct、Function Calling、Tool Use、Planning等核心概念；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-b771cd45e9ff82d9"
+job_id: "2068953220880973824"
+content_sha256: "b771cd45e9ff82d9f6b4cc44ab1538324f53411aae289482bdeb43c596d73216"
+title: "AI评测工程师"
+description: |-
+  1.负责医疗 Agent 核心业务的质量评测工作，覆盖健康问问、AI 诊室、医保智能助手等场景，围绕意图理解、多轮交互、信息收集、工具调用、结果生成、异常兜底等关键环节，完成评测方案设计、落地、结果记录与问题反馈；
+  2.参与医疗复杂场景专项评测，包括 AI 问诊流程、科室/服务匹配、医保政策问答与办理指引、多模态报告解读等场景，沉淀可量化、可复用的评测方法和评估标准；
+  3.推动评测数据与自动化能力建设，建设高质量评测集、标准答案、链路 Trace 标注规范和评测流水线，支持人工评测、规则评测及自动化评测任务落地；
+  4.跟进线上 Badcase 分析与问题闭环，针对医疗安全、内容安全、隐私合规、诊疗建议边界等高风险问题，协助定位问题原因，并推动产品、算法、研发侧跟进修复。
+requirements: |-
+  1.计算机或相关专业本科及以上学历，具备基本的软件测试与质量保障知识，理解测试用例设计、缺陷跟踪等基础测试流程；
+  2.熟悉 LLM、Agent、RAG、工具调用等大模型应用的核心概念及其基本技术实现方式，对 AI 产品质量评测、Agent 链路评测等工作方向有兴趣，愿意长期投入 AI 评测与质量保障领域；
+  3.具备较好的逻辑分析能力和问题拆解能力，能够根据业务场景设计基础测试点，准确记录问题现象，并进行初步的问题归类和原因分析；
+  4.具备一定的数据处理和工具使用能力，熟悉 Python、SQL、Excel 或其他数据分析工具之一，能够完成复杂的数据清洗、结果统计、日志查看或脚本辅助工作；
+  5.具备良好的学习能力、沟通能力和责任心。
+company: "腾讯"
+location: "深圳"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P2"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI评测工程师"]
+  description: ["1.负责医疗 Agent 核心业务的质量评测工作，覆盖健康问问、AI 诊室、医保智能助手等场景，围绕意图理解、多轮交互、信息收集、工具调用、结果生成、异常兜底等关键环节，完成评测方案设计、落地、结果记录与问题反馈；", "2.参与医疗复杂场景专项评测，包括 AI 问诊流程、科室/服务匹配、医保政策问答与办理指引、多模态报告解读等场景，沉淀可量化、可复用的评测方法和评估标准；"]
+  requirements: ["2.熟悉 LLM、Agent、RAG、工具调用等大模型应用的核心概念及其基本技术实现方式，对 AI 产品质量评测、Agent 链路评测等工作方向有兴趣，愿意长期投入 AI 评测与质量保障领域；", "4.具备一定的数据处理和工具使用能力，熟悉 Python、SQL、Excel 或其他数据分析工具之一，能够完成复杂的数据清洗、结果统计、日志查看或脚本辅助工作；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-16172e48aaccfde0"
+job_id: "2068953286446329856"
+content_sha256: "16172e48aaccfde0c1528395c0b7726e18aa83d81feccc0465be2d1914ce17fd"
+title: "AI高级评测工程师"
+description: |-
+  1.负责医疗 Agent 核心业务的质量评测工作，覆盖健康问问、AI 诊室、医保智能助手等场景，制定 Agent 全链路评测方案、准出标准、回归策略与质量风险判断机制；
+  2.建设医疗 Agent 评测指标体系，围绕意图理解、任务完成度、多轮追问有效性、信息收集完整性、工具调用准确性、RAG 检索与引用质量、结果生成质量、兜底与异常处理等维度进行系统化评估；
+  3.负责医疗复杂链路专项评测，包括 AI 问诊全流程、科室/服务匹配、医保政策问答与办理指引、多模态报告解读等场景，沉淀可量化、可复用的评测方法和评估标准；
+  4.推动 Agent 自动化评测与数据基准建设，建设高质量评测集、标准答案、链路 Trace 标注规范和评测流水线，结合人工评测、规则评测、自动化评测和 LLM-as-a-Judge 提升评测效率与稳定性；
+  5.建立线上 Badcase 分析与治理闭环，针对医疗安全、内容安全、隐私合规、诊疗建议边界等高风险问题，设计安全护栏评测策略，并推动算法、产品和研发团队持续优化。
+requirements: |-
+  1.计算机或相关专业本科及以上学历，具备扎实的软件测试与质量保证基础，有大型复杂系统、AI 产品或算法评测相关经验，能够独立负责核心模块或专项评测方向；
+  2.具备 AI 评测实战经验，熟悉大模型应用或 Agent 类产品的评测方法，能够围绕非确定性输出、复杂任务链路和多轮交互过程设计评测指标、测试集、验收标准、质量准出策略和回归评测方案；
+  3.深入理解 LLM/大模型技术原理，熟悉 Agent、RAG、Prompt Engineering、工具调用、工作流编排等大模型应用架构，能够识别模型能力、业务策略、工具链路和系统工程中的质量风险；
+  4.熟练掌握主流大模型与 Agent 评测方法，包括客观指标自动化评测、主观人工标注对齐、链路 Trace 分析、工具调用评测、模型互评机制、LLM-as-a-Judge 等，能够建设可复用的评测方法和质量判断标准；
+  5.具备优秀的工程化与数据分析能力，熟悉 Python 或其他脚本语言，能够独立开发数据处理脚本、自动化评测工具和评测结果分析能力；能够从对话日志、Agent Trace、工具调用记录、评测结果、用户反馈和线上 Badcase 中完成复杂问题分析、体系化归因和闭环推动。
+company: "腾讯"
+location: "深圳"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "senior"
+expected_career_pool: "P2"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI高级评测工程师"]
+  description: ["1.负责医疗 Agent 核心业务的质量评测工作，覆盖健康问问、AI 诊室、医保智能助手等场景，制定 Agent 全链路评测方案、准出标准、回归策略与质量风险判断机制；", "2.建设医疗 Agent 评测指标体系，围绕意图理解、任务完成度、多轮追问有效性、信息收集完整性、工具调用准确性、RAG 检索与引用质量、结果生成质量、兜底与异常处理等维度进行系统化评估；"]
+  requirements: ["2.具备 AI 评测实战经验，熟悉大模型应用或 Agent 类产品的评测方法，能够围绕非确定性输出、复杂任务链路和多轮交互过程设计评测指标、测试集、验收标准、质量准出策略和回归评测方案；", "1.计算机或相关专业本科及以上学历，具备扎实的软件测试与质量保证基础，有大型复杂系统、AI 产品或算法评测相关经验，能够独立负责核心模块或专项评测方向；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-ab191fbcd470ef65"
+job_id: "2082754347585941504"
+content_sha256: "ab191fbcd470ef65285f7ce3f849400e939ccbcd0a9cc709a12dd85d6d611269"
+title: "混元Agent评测Infra工程师（北京/上海/深圳）"
+description: |-
+  1.构建评测运行底座：统筹沙盒环境、依赖管理、网络访问、并发调度等关键能力建设，保障大规模评测在生产环境下的稳定、可复现与高效运行；
+  2.保障评测质量与可观测性：从 Harness 与打分逻辑出发，确保平台化改造后评测结果的准确可信，并建立完善的诊断与问题归因能力；
+  3.衔接算法与工程：深入理解各 Benchmark 所考察的模型能力维度，作为算法与平台之间的技术桥梁，推动评测需求高质量落地。
+requirements: |-
+  1.计算机相关专业本科及以上学历，3年及以上后端 / 平台 / Infra 研发经验；
+  2.精通至少一门主流后端语言（Python / Go / Java 等），主导过中大型平台或系统的设计与落地，具备优秀的系统设计与工程实现能力；
+  3.熟悉容器化与沙盒隔离、分布式系统、任务调度与并发控制，有大规模任务编排或性能优化经验；熟悉网络通信与代理机制，能处理外部接口访问与稳定性问题；
+  4.具备丰富的跨团队协作经验，能在算法、平台、底层基础设施等多方之间有效拉通与推进；具备较强的技术主导力与 Owner 意识，面对复杂不确定问题有冲劲、能扛事、能落地。
+company: "腾讯"
+location: "北京"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P2"
+expected_reason_codes: []
+
+evidence:
+  title: ["混元Agent评测Infra工程师（北京/上海/深圳）"]
+  description: ["1.构建评测运行底座：统筹沙盒环境、依赖管理、网络访问、并发调度等关键能力建设，保障大规模评测在生产环境下的稳定、可复现与高效运行；", "2.保障评测质量与可观测性：从 Harness 与打分逻辑出发，确保平台化改造后评测结果的准确可信，并建立完善的诊断与问题归因能力；"]
+  requirements: ["2.精通至少一门主流后端语言（Python / Go / Java 等），主导过中大型平台或系统的设计与落地，具备优秀的系统设计与工程实现能力；", "3.熟悉容器化与沙盒隔离、分布式系统、任务调度与并发控制，有大规模任务编排或性能优化经验；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-8f457909a623aa59"
+job_id: "2062775367093104640"
+content_sha256: "8f457909a623aa5961d16fa46dfbf952ba0fdb36f09b2ab17b2243ea5f2d0241"
+title: "混元Agent评测Infra工程专家（北京/上海/深圳）"
+description: |-
+  1.主导 Agent Benchmark 的平台化落地：负责 SWE、Terminal、Claw、MCP 等多类 Agent Benchmark 在评测平台上的整体接入与工程化，沉淀标准化、可复用的接入能力；
+  2.构建评测运行底座：统筹沙盒环境、依赖管理、网络访问、并发调度等关键能力建设，保障大规模评测在生产环境下的稳定、可复现与高效运行；
+  3.保障评测质量与可观测性：从 Harness 与打分逻辑出发，确保平台化改造后评测结果的准确可信，并建立完善的诊断与问题归因能力；
+  4.衔接算法与工程：深入理解各 Benchmark 所考察的模型能力维度，作为算法与平台之间的技术桥梁，推动评测需求高质量落地。
+requirements: |-
+  1.计算机相关专业本科及以上学历，3年及以上后端 / 平台 / Infra 研发经验；
+  2.精通至少一门主流后端语言（Python / Go / Java 等），主导过中大型平台或系统的设计与落地，具备优秀的系统设计与工程实现能力；
+  3.熟悉容器化与沙盒隔离、分布式系统、任务调度与并发控制，有大规模任务编排或性能优化经验；熟悉网络通信与代理机制，能处理外部接口访问与稳定性问题；
+  4.了解大模型与 Agent 的基本原理，熟悉主流 Agent Benchmark（如 SWE-bench、Terminal-Bench、MCP 相关评测等）的 Harness 与打分逻辑，并据此进行工程化抽象，能与算法团队就模型能力与评测指标深度对话；
+  5.具备丰富的跨团队协作经验，能在算法、平台、底层基础设施等多方之间有效拉通与推进；具备较强的技术主导力与 Owner 意识，面对复杂不确定问题有冲劲、能扛事、能落地。
+company: "腾讯"
+location: "北京"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "expert_lead"
+expected_career_pool: "REF"
+expected_reason_codes: ["level_expert_lead"]
+
+evidence:
+  title: ["混元Agent评测Infra工程专家（北京/上海/深圳）"]
+  description: ["1.主导 Agent Benchmark 的平台化落地：负责 SWE、Terminal、Claw、MCP 等多类 Agent Benchmark 在评测平台上的整体接入与工程化，沉淀标准化、可复用的接入能力；", "2.构建评测运行底座：统筹沙盒环境、依赖管理、网络访问、并发调度等关键能力建设，保障大规模评测在生产环境下的稳定、可复现与高效运行；"]
+  requirements: ["4.了解大模型与 Agent 的基本原理，熟悉主流 Agent Benchmark（如 SWE-bench、Terminal-Bench、MCP 相关评测等）的 Harness 与打分逻辑，并据此进行工程化抽象，能与算法团队就模型能力与评测指标深度对话；", "2.精通至少一门主流后端语言（Python / Go / Java 等），主导过中大型平台或系统的设计与落地，具备优秀的系统设计与工程实现能力；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-431d078360bea5f2"
+job_id: "7642653985177864501"
+content_sha256: "431d078360bea5f2f3a81f56e0f83bcbeee0320b8d1a4bab44f641836f19ab9b"
+title: "大模型/Agent评测工程师-剪映"
+description: |-
+  1、通用评测体系建设：包括评测标准，评测集，评估能力，评测结果分析与归因等系列能力建设，跟踪前沿评测技术与Benchmark趋势，开展技术调研与创新实践，推动评测体系升级；
+  2、评测分析：基于评测结果进行分析与诊断，挖掘模型或Agent在推理、规划、工具调用、代码执行等环节的问题，并输出改进建议。
+requirements: |-
+  1、本科及以上学历，计算机科学、人工智能、软件工程等相关专业；
+  2、对主流大模型的原理、能力边界及典型应用场景有较深入理解，熟悉大模型与Agent的常见评测方法；
+  3、具备良好的工程基础，能够参与或主导评测框架、工具或平台的设计与实现；
+  4、具备良好的业务理解能力、沟通与协作能力，能够与算法、产品、运营、研发团队高效协作，有技术判断力，逻辑思维清晰，学习能力强，能够推动评测体系在业务中的落地；
+  5、坦诚清晰、积极乐观，责任心强、有主人翁意识，工作认真细致严谨，热爱技术，有较强的学习能力，有强烈的求知欲、好奇心和进取心，能及时关注和学习业界最新技术，对解决挑战性问题充满激情。
+  
+  加分项：
+  1、对大模型技术及其应用有浓厚兴趣，有Agent及大模型评测体系建设经验、熟悉大模型训练、或熟悉LLM-as-a-Judge相关经验者优先；
+  2、有Agent在复杂业务场景的落地经验或多Agent系统设计经验的优先；
+  3、积极参与开源社区，有相关贡献者优先。
+company: "字节跳动"
+location: "深圳"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P2"
+expected_reason_codes: []
+
+evidence:
+  title: ["大模型/Agent评测工程师-剪映"]
+  description: ["1、通用评测体系建设：包括评测标准，评测集，评估能力，评测结果分析与归因等系列能力建设，跟踪前沿评测技术与Benchmark趋势，开展技术调研与创新实践，推动评测体系升级；", "2、评测分析：基于评测结果进行分析与诊断，挖掘模型或Agent在推理、规划、工具调用、代码执行等环节的问题，并输出改进建议。"]
+  requirements: ["1、对大模型技术及其应用有浓厚兴趣，有Agent及大模型评测体系建设经验、熟悉大模型训练、或熟悉LLM-as-a-Judge相关经验者优先；", "2、对主流大模型的原理、能力边界及典型应用场景有较深入理解，熟悉大模型与Agent的常见评测方法；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-c6b39385c741b32d"
+job_id: "7649591933002189061"
+content_sha256: "c6b39385c741b32d71a49c15dfc4c6531237078cfeb6a8a9fda7178ba9441033"
+title: "豆包AI大模型评测工程师-火山方舟MaaS"
+description: |-
+  团队介绍：火山方舟是火山引擎推出的一站式大模型服务平台，是中国大模型市场产品和份额领跑者。平台提供模型推理、评测、精调等全流程服务。方舟搭载了豆包及业界主流大模型，提供丰富的插件生态和AI应用开发服务，并通过稳定可靠的安全互信方案、专业的算法技术服务，全方位保障企业级AI应用落地。
+  
+  1、深入理解豆包AI大模型To B客户需求，将客户反馈转化为评测任务，确保评测结果真实反映客户使用效果；
+  2、基于真实业务场景构建端到端评测Pipeline（含Agent工具调用、RAG检索、多轮对话等复合链路）；
+  3、从实际使用视角设计评测案例——模拟客户真实Workflow，评估模型在完整工作流中的表现；
+  4、设计Agent和Coding场景的过程评测指标（如工具调用准确率、代码通过率、多步规划成功率等），能拆解模型每一步的效果；
+  5、实现评测自动化，在AI工具的帮助下，实现To B复杂场景的评测自动化。
+requirements: |-
+  1、本科及以上学历，硕士学位优先；计算机科学、软件工程、人工智能等相关专业；
+  2、对主流Agent和Vibe Coding工具非常熟悉，有丰富的使用经验；
+  3、对主流大模型（GPT系列、Claude系列、开源模型）有深入使用经验，熟悉各模型能力边界；
+  4、有数据分析能力，能从评测数据中发现Pattern、定位问题根因；
+  5、较强的自驱力，能主动提出新的思路，并推动落地执行。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P2"
+expected_reason_codes: []
+
+evidence:
+  title: ["豆包AI大模型评测工程师-火山方舟MaaS"]
+  description: ["2、基于真实业务场景构建端到端评测Pipeline（含Agent工具调用、RAG检索、多轮对话等复合链路）；", "方舟搭载了豆包及业界主流大模型，提供丰富的插件生态和AI应用开发服务，并通过稳定可靠的安全互信方案、专业的算法技术服务，全方位保障企业级AI应用落地。"]
+  requirements: ["2、对主流Agent和Vibe Coding工具非常熟悉，有丰富的使用经验；", "3、对主流大模型（GPT系列、Claude系列、开源模型）有深入使用经验，熟悉各模型能力边界；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-47c1a5ad5bb67e27"
+job_id: "7649591090892343557"
+content_sha256: "47c1a5ad5bb67e27dac0d77dfa46262504b3724ea5cb0a62749af8b53eeb9ae9"
+title: "豆包AI大模型评测工程师-火山方舟MaaS"
+description: |-
+  1、深入理解豆包AI大模型To B客户需求，将客户反馈转化为评测任务，确保评测结果真实反映客户使用效果；
+  2、基于真实业务场景构建端到端评测Pipeline（含Agent工具调用、RAG检索、多轮对话等复合链路）；
+  3、从实际使用视角设计评测案例——模拟客户真实Workflow，评估模型在完整工作流中的表现；
+  4、设计Agent和Coding场景的过程评测指标（如工具调用准确率、代码通过率、多步规划成功率等），能拆解模型每一步的效果；
+  5、实现评测自动化，在AI工具的帮助下，实现To B复杂场景的评测自动化。
+requirements: |-
+  1、获得本科及以上学历，硕士学位优先，计算机科学、软件工程、人工智能等相关专业；
+  2、对主流Agent和Vibe coding工具非常熟悉，有丰富的使用经验；
+  3、对主流大模型（GPT系列、Claude系列、开源模型）有深入使用经验，熟悉各模型能力边界；
+  4、有数据分析能力，能从评测数据中发现Pattern、定位问题根因；
+  5、较强的自驱力，能主动提出新的思路，并推动落地执行。
+company: "字节跳动"
+location: "<missing>"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P2"
+expected_reason_codes: []
+
+evidence:
+  title: ["豆包AI大模型评测工程师-火山方舟MaaS"]
+  description: ["2、基于真实业务场景构建端到端评测Pipeline（含Agent工具调用、RAG检索、多轮对话等复合链路）；", "4、设计Agent和Coding场景的过程评测指标（如工具调用准确率、代码通过率、多步规划成功率等），能拆解模型每一步的效果；"]
+  requirements: ["2、对主流Agent和Vibe coding工具非常熟悉，有丰富的使用经验；", "3、对主流大模型（GPT系列、Claude系列、开源模型）有深入使用经验，熟悉各模型能力边界；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-62818e05888c2954"
+job_id: "7563579438827637001"
+content_sha256: "62818e05888c2954ecddedf7903603fb4a16c8cb5afd9b38e6b0f11128b6ff17"
+title: "AI院-AI Coding 评测工程师"
+description: |-
+  1. 深度体验并评测主流大模型在AI编程工具（如Claude Code、Roo Code、Cline、OpenCode等）中的实际表现，挖掘其优势与短板。  
+  2. 参与构建和完善AI编程工具的评测体系与标准，确保评测过程科学、可复现、可迭代。  
+  3. 定期输出深度评测报告，涵盖不同工具/模型的对比分析、缺陷清单、优化建议及潜在产品机会。  
+  4. 设计并开发可复现、可扩展的自动化评测框架，支持多任务并行测试与结果对比分析。  
+  5. 构建高质量的模型DEMO示例，辅助团队理解工具特性，推动模型优化与产品方向探索。  
+  6. 基于评测结果，为模型优化提供数据支持与产品建议，并有机会参与孵化AI编程相关的新产品。
+requirements: |-
+  1. 具备独立开发者背景，有从0到1构建并落地项目的经验，对技术产品的实现路径有深刻理解。  ｜ 或者参加过完整的应用项目开发，能独立解决问题，负责重要业务板块的设计实现，能独立分析排查线上故障。2年以上Java/Golang应用开发经验。
+  2. 熟练掌握至少一门编程语言（如Python、TypeScript、Golang、Rust等），具备扎实的工程落地能力。  
+  3. 拥有6个月以上AI编程工具（如Cursor、Copilot、Claude等）的深度使用经验，能够熟练运用AI辅助完成实际开发任务。  
+  4. 具备较强的逻辑思维和数据分析能力，能够从复杂体验中提炼关键问题并推动解决。  
+  5. 对AI技术及其应用有浓厚兴趣，具备良好的沟通能力和团队协作精神。  
+  
+  【加分项】
+  有AI辅助开发的开源项目经验，或独立开发过具备实际用户群体的产品。  ｜ 或者组织过团队的代码评审。
+  在AI Coding领域有技术内容输出经历（如教程、测评文章、项目案例等）。  
+  具备产品思维，能够从用户视角出发，结合技术实现提出可行的产品优化方向。
+  
+  【特殊注明】
+  本工作不涉及开发，以评测为主。
+company: "智谱AI"
+location: "北京"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P2"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI院-AI Coding 评测工程师"]
+  description: ["2. 参与构建和完善AI编程工具的评测体系与标准，确保评测过程科学、可复现、可迭代。", "4. 设计并开发可复现、可扩展的自动化评测框架，支持多任务并行测试与结果对比分析。"]
+  requirements: ["有AI辅助开发的开源项目经验，或独立开发过具备实际用户群体的产品。", "1. 具备独立开发者背景，有从0到1构建并落地项目的经验，对技术产品的实现路径有深刻理解。"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-b33c3ef359c944c3"
+job_id: "4736527116"
+content_sha256: "b33c3ef359c944c3f16561b99e7a85a6201f3e74d26e12dd5b0ebe03e7c6671c"
+title: "大模型/Agent 评测工程师（AI 研发方向）"
+description: |-
+  1. 负责通用 Agent、Code Agent 及 AI 研发工具的评测体系设计与建设，支撑模型、Prompt、工具和 Agent 工作流的持续迭代。
+   2. 深入需求分析、技术方案设计、代码生成与修改、测试生成、代码评审、缺陷修复和故障诊断等研发场景，将真实研发流程抽象为可复现、可扩展的评测任务。
+   3. 建立覆盖任务完成度、需求符合度、代码正确性、工具调用、规划执行、稳定性、安全性、成本和时延等维度的评测指标体系。
+   4. 负责评测数据和样本建设，持续沉淀真实任务、典型失败案例、线上反馈及核心回归用例，保障评测数据的代表性、区分度和可维护性。
+   5. 设计和研发自动化评测框架及平台，支持任务批量执行、过程数据采集、自动评分、版本对比、回归分析、异常告警和结果可视化。
+   6. 分析 Agent 的执行轨迹，定位其在需求理解、任务规划、上下文使用、工具调用、代码修改、测试执行和错误恢复等环节的问题，判断问题来源并提出改进建议。
+   7. 建立线上反馈与离线评测之间的闭环，将用户反馈、任务失败、人工接管和异常行为转化为可复现的评测与回归用例。
+   8. 与产品、算法、研发、测试及平台团队协作，推动评测结果应用于模型选择、Agent 优化、版本验收和发布决策。
+  岗位亮点
+  1. 聚焦大模型与 Agent 前沿方向，参与通用 Agent、Code Agent 评测体系从设计到落地的完整建设；
+   2. 深入需求分析、技术设计、编码、测试和代码评审等真实研发流程，探索 AI 在复杂软件研发场景中的能力边界；
+   3. 参与评测框架、评测平台、指标体系及评测数据建设，形成从用例构建、自动执行到结果分析的完整实践；
+   4. 与模型、Agent、研发工具及业务团队紧密协作，通过评测发现问题并推动模型与智能体持续迭代；
+   5. 面向大规模、可复现的 Agent 评测挑战，积累 AI 评测、研发效能和平台工程等复合领域经验。
+requirements: |-
+  1. 计算机科学、软件工程、人工智能或相关专业本科及以上学历，具备 3 年及以上软件研发、测试开发、质量工程、研发效能或 AI 工程经验。
+   2. 熟练掌握 Python、Go、Java 或 TypeScript 中至少一种编程语言，具备良好的工程实现能力，能够独立完成评测工具、服务或平台模块的设计与开发。
+   3. 熟悉软件研发流程，了解 Git、CI/CD、自动化测试、容器化环境以及常见的软件构建、测试和发布方式。
+   4. 对大语言模型和 Agent 有较深入理解，熟悉 Prompt、上下文管理、任务规划、工具调用、多轮交互、代码执行及错误恢复等基本机制。
+   5. 具备评测方案设计能力，能够将模糊的质量问题转化为明确的评测任务、指标、评分规则和验收标准。
+   6. 具备良好的数据分析和实验能力，能够从评测数据和执行轨迹中发现规律、归纳失败类型并定位问题根因。
+   7. 具备较强的业务理解、逻辑分析和跨团队协作能力，能够推动评测方案在真实研发场景中落地。
+   8. 对 AI 编程和 Agent 技术保持高度关注，愿意持续探索新模型、新工具和新的评测方法。
+company: "美团"
+location: "上海 / 北京"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P2"
+expected_reason_codes: []
+
+evidence:
+  title: ["大模型/Agent 评测工程师（AI 研发方向）"]
+  description: ["1. 负责通用 Agent、Code Agent 及 AI 研发工具的评测体系设计与建设，支撑模型、Prompt、工具和 Agent 工作流的持续迭代。", "1. 聚焦大模型与 Agent 前沿方向，参与通用 Agent、Code Agent 评测体系从设计到落地的完整建设；"]
+  requirements: ["1. 计算机科学、软件工程、人工智能或相关专业本科及以上学历，具备 3 年及以上软件研发、测试开发、质量工程、研发效能或 AI 工程经验。", "2. 熟练掌握 Python、Go、Java 或 TypeScript 中至少一种编程语言，具备良好的工程实现能力，能够独立完成评测工具、服务或平台模块的设计与开发。"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-be6fc745d6cf357b"
+job_id: "31300"
+content_sha256: "be6fc745d6cf357b39ad57ce00838c4e96532e87310887ca50d4981c6375a3fd"
+title: "多模态大模型评测工程师-【可灵AI专项】"
+description: |-
+  岗位亮点：
+  1、面向多模态大模型核心能力建设评测体系，覆盖文生图、图像编辑、caption/PE评测等方向；
+  2、既需要工程能力，也需要数据分析和模型效果理解，如果你没有相关经验，也适合希望从测试开发、数据工程、平台工程转向大模型评测方向的同学；
+  3、参与评测 Agent、模型竞技场、偏好模型、自动化机评、应用数据飞轮等前沿工具链建设；
+  4、工作结果直接影响模型迭代、产品体验和算法优化方向。
+  
+  职位描述：
+  1、以算法视角，参与快手大模型文生图、图像编辑评测工作、算子评估和相关评测体系建设；
+  2、参与评测相关自动化评测工具开发及维护，最大化提高评测效率；
+  3、以算法手段，对基座大模型和AI Native应用进行分阶段、端到端评测；
+  4、参与构建评测Agent工具链、机评设计、对战平台、模型竞技场、模型效果判别模型、应用数据飞轮等工具链建设。
+requirements: |-
+  1、本科及以上学历，计算机、人工智能、软件工程、数据科学、自动化等相关专业优先；
+  2、具备扎实的软件工程能力，能够独立完成评测工具、自动化流程、数据处理 pipeline 或平台系统的设计与实现；
+  3、具备较好质量意识，且对大模型、多模态模型、图像生成或图像编辑有兴趣，能够主动理解模型能力、模型缺陷与数据分布之间的关系；
+  4、具备较强的数据分析和问题归因能力，能够从评测结果、线上数据和用户行为中定位问题，并推动后续优化；
+  5、具备良好的沟通能力，能够与算法、数据、产品、平台团队协作，推动评测标准和工程方案统一；
+  6、具备以下任一方向经验即可：
+  	○ 测试开发：有自动化测试、测试平台、质量体系、稳定性保障、效果评测相关经验；
+  	○ 数据分析：有数据清洗、分布分析、指标建设、A/B test、实验分析相关经验；
+  	○ 算法评测 / 模型评测：有 CV、多模态/LLM、AIGC、推荐、搜索、广告等模型评测经验。
+  加分项：
+  1、有 AIGC、多模态大模型、图像生成、图像编辑、VLM、Agent 等相关项目经验；
+  2、有评测平台、对战平台、模型竞技场、自动化评测系统、数据飞轮建设经验；
+  3、熟悉 diffusion、VLM、LLM、prompt engineering、偏好模型、reward model、VLM-as-Judge 等相关概念；
+  4、熟悉 SuperCLUE、LMArena、GenAI-Bench、HEIM、T2I-CompBench、DPG-Bench、EditBench 等评测基准或方法论；
+  5、有较好的图像审美能力，能够从构图、风格、真实感、文字准确性、主体一致性、指令遵循等角度判断生成效果；
+  6、有复杂项目推进经验，能够跨团队推动评测标准、工具链或数据流程落地。
+company: "快手"
+location: "北京"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P2"
+expected_reason_codes: []
+
+evidence:
+  title: ["多模态大模型评测工程师-【可灵AI专项】"]
+  description: ["4、参与构建评测Agent工具链、机评设计、对战平台、模型竞技场、模型效果判别模型、应用数据飞轮等工具链建设。", "3、参与评测 Agent、模型竞技场、偏好模型、自动化机评、应用数据飞轮等前沿工具链建设；"]
+  requirements: ["○ 测试开发：有自动化测试、测试平台、质量体系、稳定性保障、效果评测相关经验；", "1、有 AIGC、多模态大模型、图像生成、图像编辑、VLM、Agent 等相关项目经验；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-6ff4a06743ed2f1a"
+job_id: "29965"
+content_sha256: "6ff4a06743ed2f1afa747ff0026ac99b8ffe4673c08d55a799388b199f0bd15a"
+title: "音频大模型评测工程师-【可灵AI专项】"
+description: |-
+  音视频生成大模型评测体系建设与演进及业务保障，负责包括但不限于视频生成大模型中音频生成模块（Audio Gen）及音视频一体化的算法效果。不仅是评测的执行者，更是评测体系的架构师，通过深度的算法归因分析，驱动音频 VAE等核心组件的算法优化和迭代。
+  1、音视频一体化评测体系建设：
+  1）音频生成与音频理解相关算法、评测方法及评测指标体系具有深入理解，熟悉常见视频与音频质量评估方法，能够结合业务场景设计合理的评测方案；
+  2）建立从底层算子（VAE, Latent Space）到上层生成效果的全链路评测标准；
+  3）定义并量化音画同步性、语义关联度、音频美学表现力等关键维度；
+  2、Benchmark 与方法论沉淀：
+  1）构建具有行业领先水平的音频生成 Benchmark，涵盖音乐、环境音、音效（SFX）及人声等；
+  2）沉淀主客观结合的评测方法论，包括客观指标（FAD、KL Divergence、IS、CLAP Score）与专家级主观评价量表（MOS, MUSHRA）；
+  3、深度诊断与归因分析：输出专业评测报告，深度分析，定位模型缺陷，如针对音频 VAE 压缩失真、音频扩散模型频谱缺失、相位扭曲等问题进行深度诊断，并给出改进建议；
+  4、前瞻性调研与实验：持续跟踪 AIGC 领域（如 ElevenLabs、Suno、Stable Audio等）前沿技术动态，将行业最新的模型能力和技术路线转化为可落地的评测方案；
+  5、评测工具与平台化驱动：参与或主导自动化评测工具与平台的开发，利用技术手段提升大规模音视频数据的评测效率，探索基于大模型的自监督评测（LLM-as-a-judge）等创新手段。
+requirements: |-
+  1、专业功底：
+  1）本科及以上学历，有音频相关经验或学历：计算机、人工智能、数字媒体技术、录音工程、音乐制作、音响导演、音频编辑、音乐工程等专业优先。
+  2）具备同期录音、后期混音、配乐制作或SDK声学调校、音质评价等相关领域的学习背景或实践经验，对音频质量的主客观评价有一定的了解；
+  3）熟悉主观音质评价体系，对于各类音频的听评标准有敏感性，有金耳朵认证者优先；
+  4）音/视频生成领域评测方法与指标体系有系统研究或实践经验，有音频类算法评测经验优先（包括TTS、文生音频、V2A、音视频一体化模型等），对常见算法模型及生成模型原理有较好理解，熟悉机器学习模型评估方法与指标，对音视频生成算法原理（如 Diffusion、Transformer、GAN）有较好理解。
+  2、评测经验：
+  1）2年及以上算法评测或开发经验；
+  2）有音频生成（TTS/AI 音乐/音效生成）或多模态（Video-to-Audio）评测经验者优先；
+  3）具备良好的数据分析能力与数据化思维，能够通过实验结果进行系统分析并形成结论；
+  3、工具与技术储备：
+  1）熟练掌握 Python，熟悉 PyTorch/TensorFlow，能够编写脚本进行大规模数据处理及模型推理；
+  2）熟悉数字信号处理，能熟练使用音频分析工具；
+  4、加分项：
+  1）熟悉影视剧音视频制作标准、制作流程，对于不同风格化内容有赏析能力的从业者优先，熟悉乐理，包括但不限于曲风、配器、编曲结构等基础知识，能够从理论的角度对音频内容进行分析和评价者优先；
+  2）对大模型、多模态模型、AIGC技术保持持续关注和强烈兴趣，有实践经验者优先。
+company: "快手"
+location: "北京"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P2"
+expected_reason_codes: []
+
+evidence:
+  title: ["音频大模型评测工程师-【可灵AI专项】"]
+  description: ["5、评测工具与平台化驱动：参与或主导自动化评测工具与平台的开发，利用技术手段提升大规模音视频数据的评测效率，探索基于大模型的自监督评测（LLM-as-a-judge）等创新手段。", "音视频生成大模型评测体系建设与演进及业务保障，负责包括但不限于视频生成大模型中音频生成模块（Audio Gen）及音视频一体化的算法效果。"]
+  requirements: ["4）音/视频生成领域评测方法与指标体系有系统研究或实践经验，有音频类算法评测经验优先（包括TTS、文生音频、V2A、音视频一体化模型等），对常见算法模型及生成模型原理有较好理解，熟悉机器学习模型评估方法与指标，对音视频生成算法原理（如 Diffusion、Transformer、GAN）有较好理解。", "2）有音频生成（TTS/AI 音乐/音效生成）或多模态（Video-to-Audio）评测经验者优先；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-b9b4655eaf22da69"
+job_id: "30460"
+content_sha256: "b9b4655eaf22da697f24e142009bd94f6b56c9391193336aeeba215efa6b39f6"
+title: "大模型评测算法工程师"
+description: |-
+  1、负责LLM、VLM、搜索推荐等大模型日常评测工作和评测体系建设，包括但不限于设计制定和完善评测方案、评测指标、评测数据收集和更新、评测执行，并输出专业评测报告，深度参与算法效果分析、挖掘问题归因；
+  2、以算法手段，对基座大模型、应用大模型以及AI产品进行分阶段、端到端效果评测，持续跟踪行业前沿发展，并进行竞品对比；
+  3、从可解释性角度探索提出更多更深入的基于模型内在机理的评测基准以及评测框架，包括通用能力、智能应用，如Agent、OpenClaw、CoWork等；
+  4、探索智能、高效的模型自动化评估方案，参与自动化评测工具设计、开发及维护；
+  5、提出更好的Benchmark，定义模型能力，定义AGI，并在相关会议或期刊发表；
+  6、站在用户角度，对产品、算法提出建设性的意见，在评测参与的各个流程中以用户视角保证产品体验。
+requirements: |-
+  1、硕士及以上学历，计算机、通信、人工智能、大数据、统计等相关专业优先；
+  2、优秀的代码基础，至少掌握一门高级语言， 包括但不限于Python、C/C++、 Java；
+  3、具备良好的数据化思维，能够基于数据分析结果给出分析结论，熟悉ACC、AUC、F1、recall等基本的模型评估指标计算方式；
+  4、具备良好的沟通能力和团队协作精神，严谨的工作态度与高质量意识，逻辑清晰、善于分析与总结，对大模型技术有深厚的热情和探索精神；
+  5、具备良好的视野，善于学习新的知识、阅读论文、动手能力强、有进取心及抗压能力；
+  6、具有3-5年工作经验。
+  加分项：
+  1、有参与大模型相关的项目（如LLM、VLM、搜索推荐、agent等任一均可）研发、评测经验优先，同时有大模型应用和research经验优先；
+  2、有顶会论文、国家或国际奖项、专利获得者、算法竞赛获奖者优先考虑；
+  3、熟悉常见算法、大模型评测基准、评测方法优先，如LLM-as-a-Judge；对主流大模型评测体系有较好的理解优先，如Bigbench、Harness、OpenCompass等；
+  4、对大模型技术、大模型评测感兴趣，认可大模型评测工作价值，愿意深耕在大模型领域。
+company: "快手"
+location: "北京"
+
+expected_role_family: "algorithm_research"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P2"
+expected_reason_codes: ["role_algorithm_or_research"]
+
+evidence:
+  title: ["大模型评测算法工程师"]
+  description: ["1、负责LLM、VLM、搜索推荐等大模型日常评测工作和评测体系建设，包括但不限于设计制定和完善评测方案、评测指标、评测数据收集和更新、评测执行，并输出专业评测报告，深度参与算法效果分析、挖掘问题归因；", "4、探索智能、高效的模型自动化评估方案，参与自动化评测工具设计、开发及维护；"]
+  requirements: ["1、有参与大模型相关的项目（如LLM、VLM、搜索推荐、agent等任一均可）研发、评测经验优先，同时有大模型应用和research经验优先；", "3、熟悉常见算法、大模型评测基准、评测方法优先，如LLM-as-a-Judge；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-51ea6852e45d0e97"
+job_id: "29782"
+content_sha256: "51ea6852e45d0e97468933cb7acdae25cd83bea8539e9a5ef3aebe6d7366bf5e"
+title: "大模型评测工程师"
+description: |-
+  1、负责LLM、VLM、搜索推荐等大模型日常评测工作和评测体系建设，包括但不限于设计制定和完善评测方案、评测指标、评测数据收集和更新、评测执行，并输出专业评测报告，深度参与算法效果分析、挖掘问题归因；
+  2、以算法手段，对基座大模型、应用大模型以及AI产品进行分阶段、端到端效果评测，持续跟踪行业前沿发展，并进行竞品对比；
+  3、从可解释性角度探索提出更多更深入的基于模型内在机理的评测基准以及评测框架，包括通用能力、智能应用，如Agent、OpenClaw、CoWork等；
+  4、探索智能、高效的模型自动化评估方案，参与自动化评测工具设计、开发及维护；
+  5、提出更好的Benchmark，定义模型能力，定义AGI，并在相关会议或期刊发表；
+  6、站在用户角度，对产品、算法提出建设性的意见，在评测参与的各个流程中以用户视角保证产品体验。
+requirements: |-
+  1、本科及以上学历，计算机、通信、人工智能、大数据、统计等相关专业优先；
+  2、优秀的代码基础，至少掌握一门高级语言， 包括但不限于Python、C/C++、 Java；
+  3、具备良好的数据化思维，能够基于数据分析结果给出分析结论，熟悉ACC、AUC、F1、recall等基本的模型评估指标计算方式；
+  4、具备良好的沟通能力和团队协作精神，严谨的工作态度与高质量意识，逻辑清晰、善于分析与总结，对大模型技术有深厚的热情和探索精神；
+  5、具备良好的视野，善于学习新的知识、阅读论文、动手能力强、有进取心及抗压能力；
+  6、具有3-5年工作经验。
+  加分项：
+  1、有参与大模型相关的项目（如LLM、VLM、搜索推荐、agent等任一均可）研发、评测经验优先，同时有大模型应用和research经验优先；
+  2、有顶会论文、国家或国际奖项、专利获得者、算法竞赛获奖者优先考虑；
+  3、熟悉常见算法、大模型评测基准、评测方法优先，如LLM-as-a-Judge；对主流大模型评测体系有较好的理解优先，如Bigbench、Harness、OpenCompass等；
+  4、对大模型技术、大模型评测感兴趣，认可大模型评测工作价值，愿意深耕在大模型领域。
+company: "快手"
+location: "北京"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P2"
+expected_reason_codes: []
+
+evidence:
+  title: ["大模型评测工程师"]
+  description: ["1、负责LLM、VLM、搜索推荐等大模型日常评测工作和评测体系建设，包括但不限于设计制定和完善评测方案、评测指标、评测数据收集和更新、评测执行，并输出专业评测报告，深度参与算法效果分析、挖掘问题归因；", "4、探索智能、高效的模型自动化评估方案，参与自动化评测工具设计、开发及维护；"]
+  requirements: ["1、有参与大模型相关的项目（如LLM、VLM、搜索推荐、agent等任一均可）研发、评测经验优先，同时有大模型应用和research经验优先；", "3、熟悉常见算法、大模型评测基准、评测方法优先，如LLM-as-a-Judge；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-5e0b0058c0eac4aa"
+job_id: "2044704007120912384"
+content_sha256: "5e0b0058c0eac4aa614b9e55ecc6e966aa3c3e21bdd15f7a869a9927ce2728ea"
+title: "测试开发工程师-AI软件测试方向"
+description: |-
+  1.负责AI软件产品（组件级）的测试工作，包括测试计划设计、用例开发、测试执行、bug分析及跟踪；
+  2.开发与维护自动化测试框架及用例，提升测试效率和质量；
+  3.深入分析测试过程中的问题，定位根本原因，推动问题解决；
+  4.持续优化测试流程、方法和工具，提升团队测试效能；
+  5.参与技术攻关，解决复杂测试问题，并积极推动测试技术创新。
+requirements: |-
+  1.本科及以上学历，计算机相关专业；
+  2.3年以上测试开发相关工作经验；
+  3.熟练掌握Python，具有自动化测试框架设计经验；
+  4.熟悉Linux/Unix操作系统，熟练使用Shell及常用命令行工具；
+  5.熟悉软件测试流程，能独立完成测试计划、用例设计及测试执行；
+  6.优秀的问题分析和定位能力，以及良好的质量意识；
+  7.具备自驱力，对提升测试效率有持续思考和推动能力。
+company: "腾讯"
+location: "深圳"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试开发工程师-AI软件测试方向"]
+  description: ["1.负责AI软件产品（组件级）的测试工作，包括测试计划设计、用例开发、测试执行、bug分析及跟踪；", "2.开发与维护自动化测试框架及用例，提升测试效率和质量；"]
+  requirements: ["3.熟练掌握Python，具有自动化测试框架设计经验；", "2.3年以上测试开发相关工作经验；"]
+
+boundary_tags: []
+---
+case_id: "REG-540026a0ba86ff94"
+job_id: "7537576815893006630"
+content_sha256: "540026a0ba86ff9496c7ce829b2561e5b3babb094a11f3a3c13bab3c93e8e880"
+title: "AI院-GLM团队-AI Native 测试工程师"
+description: |-
+  1、保障AI应用服务端接口质量和稳定性，系统性地攻克质量风险，持续优化产品质量；
+  2、逐步构建全面的自动化测试体系；
+  3、优化产研流程、标准，持续推动过程质量改进，持续提高项目迭代效率；
+  4、 负责质量专项建设，设计并实现质量专项能力，在多业务线推广落地；
+requirements: |-
+  1、接触过大模型产品， 接触过大模型服务端接口， 了解SSE，Websocket、WebRTC协议；
+  2、本科及以上学历，计算机相关专业，3-5年左右互联网公司测试开发经验；
+  3、有一定服务端测试经验；
+  4、有丰富的专项测试和优化经验，有0-1测试工具平台搭建经验者优先；
+  5、具备较好的发现和解决问题的能力，及时发现问题并找出问题的原因，采取有效的措施推动问题的解决；
+  6、自驱能力强，有优秀的沟通技巧和组织协调能力，抗压能力强，责任心强；
+company: "智谱AI"
+location: "北京"
+
+expected_role_family: "qa_test"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["AI院-GLM团队-AI Native 测试工程师"]
+  description: ["4、 负责质量专项建设，设计并实现质量专项能力，在多业务线推广落地；", "2、逐步构建全面的自动化测试体系；"]
+  requirements: ["4、有丰富的专项测试和优化经验，有0-1测试工具平台搭建经验者优先；", "2、本科及以上学历，计算机相关专业，3-5年左右互联网公司测试开发经验；"]
+
+boundary_tags: []
+---
+case_id: "REG-312388f1d809c767"
+job_id: "7306893379655289097"
+content_sha256: "312388f1d809c767bf5022ffb50700f926a7431b97d7596bcc13af2f81e91980"
+title: "专项测试工程师-AI智能化方向"
+description: |-
+  1、负责字节跳动人工智能产品线质量保障专项能力建设，包括稳定性、兼容新、性能、多媒体、用户体验、准出质量标准等方向；深度参与业务，推动该产品线的产品品质、性能、用户体验不断提升；
+  2、负责相关工具、平台开发，保证技术项目或方案在该业务线的产品高质量落地；
+  3、深入业务主动挖掘产品品质、性能、用户体验问题，协同业务构建完备的防控体系。
+requirements: |-
+  1、本科及以上学历，三年及以上大前端（移动端、桌面端、Web 等）测试开发经验；
+  2、熟悉各类平台(iOS、PadOS、Android、Mac、Windows等)特性，具备移动端平台开发经验&能力；
+  3、熟悉至少一门编程语言，包括但不仅限于：Java、OC、C、C++、Python、Go、PHP；
+  4、了解质量保障基础知识并有相关经验，对数据敏感，具备卓越的数据分析能力以及解读技巧；
+  5、丰富的移动端专项测试经验优先，熟悉以下移动终端品质体验评价体系及工具：稳定性、兼容性、时延、卡顿/绘制、流畅度、CPU、内存、网络流量、音视频质量等；
+  6、熟悉音视频编解码以及测试标准，了解音频、视频通讯或语音识别等相关底层原理优先；
+  7、对业界最新技术领域和方向保持高度热情，深度理解DevOps及工程效能在整体研发中的定位和价值。
+company: "字节跳动"
+location: "深圳"
+
+expected_role_family: "qa_test"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["专项测试工程师-AI智能化方向"]
+  description: ["1、负责字节跳动人工智能产品线质量保障专项能力建设，包括稳定性、兼容新、性能、多媒体、用户体验、准出质量标准等方向；", "2、负责相关工具、平台开发，保证技术项目或方案在该业务线的产品高质量落地；"]
+  requirements: ["5、丰富的移动端专项测试经验优先，熟悉以下移动终端品质体验评价体系及工具：稳定性、兼容性、时延、卡顿/绘制、流畅度、CPU、内存、网络流量、音视频质量等；", "2、熟悉各类平台(iOS、PadOS、Android、Mac、Windows等)特性，具备移动端平台开发经验&能力；"]
+
+boundary_tags: []
+---
+case_id: "REG-99a75a944e328734"
+job_id: "7390366166076557606"
+content_sha256: "99a75a944e328734f35bdbc73b502a8edb88b5484f6b53da3d8397b196a6b9b3"
+title: "测试开发工程师-火山方舟大模型方向"
+description: |-
+  1、深度参与火山方舟大模型平台产品，协同产品和研发团队高质量交付产品；
+  2、通过测试技术，提升测试效率及测试覆盖度；
+  3、负责开发测试工具，推进系统的稳定性建设；
+  4、根据系统特性，探索测试手段，参与专项的质量建设。
+requirements: |-
+  1、本科及以上学历，计算机、统计学等相关专业，3年以上工作经验；
+  2、熟悉一款商业或开源测试工具原理，有设计、开发服务端或客户端测试工具的经验；
+  3、熟练使用C++/Java/Go/Python任一编程语言；
+  4、了解大模型，有过模型训练、推理知识的加分；
+  5、具备良好的团队沟通和协作能力、自我驱动和创新能力；
+  6、了解机器学习平台、有大模型平台算法开发和测试经验者优先。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "regular"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试开发工程师-火山方舟大模型方向"]
+  description: ["3、负责开发测试工具，推进系统的稳定性建设；", "4、根据系统特性，探索测试手段，参与专项的质量建设。"]
+  requirements: ["6、了解机器学习平台、有大模型平台算法开发和测试经验者优先。", "2、熟悉一款商业或开源测试工具原理，有设计、开发服务端或客户端测试工具的经验；"]
+
+boundary_tags: []
+---
+case_id: "REG-90cd1e9a62a67aff"
+job_id: "JR2026070600A"
+content_sha256: "90cd1e9a62a67affbd9c9b1b7f74623627b09c2d110724459659fdca4fc57b34"
+title: "测试开发工程师-AI质量引入方向"
+description: |-
+  1.负责自动驾驶业务测试，保障业务质量&效果；
+  2.根据产品需求和设计文档，制定测试计划和方案，把控风险达成质量目标；
+  3.集合业务特点，构建针对的测试基建 & 工具平台；
+  4.结合AI，提升测试效率，探索新的质量方法；
+  5.需要互联网大厂经验；
+  6.需要AI技术及相关经验；
+requirements: |-
+  1.本科及以上学历，计算机、软件、AI等相关专业。6年及以上互联网大厂工作经验（互联网第一梯队公司）；
+  2.大型移动互联网服务端测试、开发经验者优先；
+  3.AI，引擎测试经验者优先；
+  4.熟悉大模型API调用原理，具备RAG检索增强、Agent智能体、Function Calling的实际落地经验；
+  5.精通Python/Go/Java 等常用语言， 有良好的算法功底；
+  6.具备良好的沟通能力和团队协作精神，能够与开发、产品等团队紧密合作。
+  7.学习能力强，能快速跟进大模型领域技术迭代，具备优秀的线上问题定位与排查能力。
+  8.熟悉敏捷开发流程和DevOps文化，有持续集成和持续交付经验者优先考虑。
+  
+  加分项
+  1. 有自动化测试平台、研发效能工具的开发与AI化改造经验
+  2. 熟悉LangChain、Coze、Dify等至少一种AI应用开发框架
+  3. 有私有化大模型部署、微调、推理加速相关实践经验
+  4. 有多模态大模型应用、复杂智能体编排的实际落地经验
+company: "滴滴"
+location: "北京"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "senior"
+expected_career_pool: "P1"
+expected_reason_codes: []
+
+evidence:
+  title: ["测试开发工程师-AI质量引入方向"]
+  description: ["1.负责自动驾驶业务测试，保障业务质量&效果；", "2.根据产品需求和设计文档，制定测试计划和方案，把控风险达成质量目标；"]
+  requirements: ["4.熟悉大模型API调用原理，具备RAG检索增强、Agent智能体、Function Calling的实际落地经验；", "3.AI，引擎测试经验者优先；"]
+
+boundary_tags: []
+---
+case_id: "REG-6771939fe6b9555a"
+job_id: "2059891450371555328"
+content_sha256: "6771939fe6b9555a21deecfbd9c435c55f947726c577dd2f05f7e9096c5c3b77"
+title: "具身大模型评测与数据工程师"
+description: |-
+  1.评测体系搭建：构建覆盖感知、推理、操作、长时程任务的多层级仿真与真机评测体系，制定评测指标体系，主导自动评分与人评流水线的设计与落地，持续推动仿真-真机一致性验证；
+  2.跨本体泛化评测：推动跨本体（单臂/双臂、移动操作、灵巧手等）泛化能力评测方案的设计与实施，建立可复用的评测基准与对标机制；
+  3.数据采集策略：制定具身大模型预训练、后训练、RL 及评测全链路的数据采集方案，覆盖 ego-centric、UMI、遥操作等多模态数据源，确保数据的规模、质量与多样性；
+  4.数据标注与治理：建立数据标注与清洗流程，涵盖任务与场景多样性标注、任务语义标注、位姿定位标注等，构建全生命周期的数据质量管控机制。
+requirements: |-
+  1.计算机、电子工程、自动化、机器人等相关专业硕士及以上学历；
+  2.熟悉评测方法学，了解评测指标设计、统计显著性分析、评分一致性校验等方法；具备数据生命周期管理经验，掌握数据采集、标注、清洗、质量评估的全流程方法论；
+  3.熟练使用 Python / PyTorch，具备扎实的工程实现能力。
+company: "腾讯"
+location: "深圳"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P2"
+expected_reason_codes: []
+
+evidence:
+  title: ["具身大模型评测与数据工程师"]
+  description: ["1.评测体系搭建：构建覆盖感知、推理、操作、长时程任务的多层级仿真与真机评测体系，制定评测指标体系，主导自动评分与人评流水线的设计与落地，持续推动仿真-真机一致性验证；", "3.数据采集策略：制定具身大模型预训练、后训练、RL 及评测全链路的数据采集方案，覆盖 ego-centric、UMI、遥操作等多模态数据源，确保数据的规模、质量与多样性；"]
+  requirements: ["具备数据生命周期管理经验，掌握数据采集、标注、清洗、质量评估的全流程方法论；", "2.熟悉评测方法学，了解评测指标设计、统计显著性分析、评分一致性校验等方法；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-151fef86ea3ad9c5"
+job_id: "1915233782491881472"
+content_sha256: "151fef86ea3ad9c5b818a394d057a94ac89513a8a4eec200d91ef1d1b8220809"
+title: "混元大模型评测算法研究员（北京）"
+description: |-
+  1.负责通用AI大模型相关的评测与应用的规划、落地以及平台化能力建设，包括但不限于：；
+  2.通用AI大模型评测基准的构建：建立覆盖文生文、多模态理解、多模态（音视频/3D/图/视频生成）生成等模态的评测基准，设计全面、准确的多维度指标，构建自动化评测工具链，并随着模型能力的演进持续探索全模态的评测基准；
+  3.评测数据的自动化生产能力构建：基于数据泛化等能力，构建领域增强型评测数据集生产链路，支持多模态场景的自动化数据扩增与效果验证；
+  4.自动化评测与归因分析：探索并实现各个模态大模型的自动化评测与模型缺陷归因机制。
+requirements: |-
+  1.计算机或者相关专业硕士或者以上学历，2年以上CV/NLP/RL相关工作经验，有大模型调优化应用、评测经历者优先；
+  2.扎实的机器学习基础，能够熟练应用常用的机器学习模型解决实际的业务问题，有主流深度学习模型的项目(CV/NLP/推荐/广告/RL等均可）实践落地经验优先；
+  3.良好的逻辑思维能力, 数据分析能力，善于分析和解决问题；
+  4.在NearlPS，ICML、KDD、AAAI，IJCAI等机器学习领域会议或者期刊有第一作者发表过文章的优先。
+company: "腾讯"
+location: "深圳"
+
+expected_role_family: "algorithm_research"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["role_algorithm_or_research"]
+
+evidence:
+  title: ["混元大模型评测算法研究员（北京）"]
+  description: ["1.负责通用AI大模型相关的评测与应用的规划、落地以及平台化能力建设，包括但不限于：；", "2.通用AI大模型评测基准的构建：建立覆盖文生文、多模态理解、多模态（音视频/3D/图/视频生成）生成等模态的评测基准，设计全面、准确的多维度指标，构建自动化评测工具链，并随着模型能力的演进持续探索全模态的评测基准；"]
+  requirements: ["1.计算机或者相关专业硕士或者以上学历，2年以上CV/NLP/RL相关工作经验，有大模型调优化应用、评测经历者优先；", "2.扎实的机器学习基础，能够熟练应用常用的机器学习模型解决实际的业务问题，有主流深度学习模型的项目(CV/NLP/推荐/广告/RL等均可）实践落地经验优先；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-4314378fef19e87e"
+job_id: "2072917646713729024"
+content_sha256: "4314378fef19e87ed68b384f7fd0ec7bac07ed011c6b6da7e0d19689d846beb1"
+title: "混元VLM测评算法工程师（深圳/北京）"
+description: |-
+  1.参与构建多模态大模型评测体系，覆盖万物识别、智能体（Agent）、图形用户界面（GUI）、STEM、代码、视频等多个方向，建立完整、科学的评测框架与全面的评测集，真实反映模型性能，推动形成行业评测标准；
+  2.搭建高效、稳定的自动化评测流程与鲁棒的评测方法，确保评测结果准确可靠，并能够快速生成专业评测报告；
+  3.深入分析模型能力表现，提炼出具体、可执行的优化方向，推动模型持续高效迭代；
+  4.持续追踪业界最新评测动态与方法，不断拓展与完善评测矩阵。
+requirements: |-
+  1.本科及以上学历，计算机、数学、人工智能等相关专业优先；
+  2.在语音、多模态、机器学习等至少一个领域有扎实的研究或项目经验；
+  3.有评测BMK相关论文经验或者参与过BMK建设者优先；
+  4.熟练掌握 C/C++、Python 等编程语言，具备较强的工程实现能力；
+  5.具备优秀的问题分析与解决能力，能主动探索并推动技术方案落地；
+  6.对模型评测工作有浓厚兴趣，具有良好的团队协作与沟通能力，工作积极主动。
+company: "腾讯"
+location: "北京"
+
+expected_role_family: "algorithm_research"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["role_algorithm_or_research"]
+
+evidence:
+  title: ["混元VLM测评算法工程师（深圳/北京）"]
+  description: ["1.参与构建多模态大模型评测体系，覆盖万物识别、智能体（Agent）、图形用户界面（GUI）、STEM、代码、视频等多个方向，建立完整、科学的评测框架与全面的评测集，真实反映模型性能，推动形成行业评测标准；", "2.搭建高效、稳定的自动化评测流程与鲁棒的评测方法，确保评测结果准确可靠，并能够快速生成专业评测报告；"]
+  requirements: ["3.有评测BMK相关论文经验或者参与过BMK建设者优先；", "4.熟练掌握 C/C++、Python 等编程语言，具备较强的工程实现能力；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-ccc7b8bbcbaf5a96"
+job_id: "7433371348644940086"
+content_sha256: "ccc7b8bbcbaf5a96e152eaecf11a0f811996845339140f525dc94026a737cc2f"
+title: "AI院--算法工程师-基模Agentic评测"
+description: |-
+  【岗位职责】
+  1.跟进 LLM Agent前沿技术，持续探索和实现 General Agent / Coding Agent / Long-running Agent等各类复杂Agentic场景的基模设计评测和优化方案，最终提高基模在各类Agentic场景上的的性能；
+   2.分析真实业务需求，针对性构建基座模型在各类复杂Agentic任务上的评测和优化方法；
+  3.持续优化内部评测平台对各类复杂Agentic任务评测的支持能力。
+  
+  【职位要求】
+  1. 本科及以上学历，计算机、软件工程、人工智能、数学等相关专业；
+  2.具有一定数据构建和大模型评测和优化经验；
+  3.具备优秀的代码能力和基础算法功底，有丰富的工程经验；
+  4.具有优秀的逻辑思维能力，关注Agentic任务前沿进展，对提升模型Agentic能力充满热情；
+  5.具有良好的团队合作精神，善于分析和解决问题，有较强的沟通能力和学习能力；
+  6.熟练使用Claude Code、CodeX等Coding Agents。
+  
+  【加分项】
+  1. 有 Coding Agent / General Agent / Long-running Agent 高影响力项目经验者优先；
+  2. 在大模型 / Agent 领域有高水平研究论文者优先；
+  3.熟悉大模型预训练 / SFT / RL / 评测者优先。
+requirements: ""
+company: "智谱AI"
+location: "北京"
+
+expected_role_family: "algorithm_research"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["role_algorithm_or_research"]
+
+evidence:
+  title: ["AI院--算法工程师-基模Agentic评测"]
+  description: ["1.跟进 LLM Agent前沿技术，持续探索和实现 General Agent / Coding Agent / Long-running Agent等各类复杂Agentic场景的基模设计评测和优化方案，最终提高基模在各类Agentic场景上的的性能；", "2.分析真实业务需求，针对性构建基座模型在各类复杂Agentic任务上的评测和优化方法；"]
+  requirements: []
+
+boundary_tags: ["missing_requirements", "career_pool_boundary"]
+---
+case_id: "REG-65d3f723d1298cbd"
+job_id: "7413309285114120485"
+content_sha256: "65d3f723d1298cbdc5fd5d64525a6e853eddb3e50d8e3fefbd5aaeee7cbf49c9"
+title: "大模型算法评测工程师-抖音研发（北京/杭州/深圳/上海）"
+description: |-
+  1、设计与研发LLM、VLM及音视频的大模型评测体系，支持大量的模型迭代与研发；
+  2、构建业务域场景的评测体系，支持各业务域的评测能力；
+  3、负责设计整体的评测体系、框架、以及大规模快速的分布式评测；
+  4、研发大模型评测框架与平台，能够可视化支持各种类型的评测。
+requirements: |-
+  1、计算机等相关专业的本科及以上学历；
+  2、对主流大模型的原理以及相关评测平台相关工作有较深入的理解；
+  3、对于主流的大模型评测体系有较好的理解，比如Bigbench、Harness、OpenCompass等；
+  4、具备良好的业务理解能力、协作和沟通能力，逻辑思维和学习能力强。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "algorithm_research"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P2"
+expected_reason_codes: ["role_algorithm_or_research"]
+
+evidence:
+  title: ["大模型算法评测工程师-抖音研发（北京/杭州/深圳/上海）"]
+  description: ["3、负责设计整体的评测体系、框架、以及大规模快速的分布式评测；", "1、设计与研发LLM、VLM及音视频的大模型评测体系，支持大量的模型迭代与研发；"]
+  requirements: ["2、对主流大模型的原理以及相关评测平台相关工作有较深入的理解；", "3、对于主流的大模型评测体系有较好的理解，比如Bigbench、Harness、OpenCompass等；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-321b9c43b68fbc0b"
+job_id: "7670787052867324213"
+content_sha256: "321b9c43b68fbc0b8b3bc5d4dc5fc3e5569c8a563b745fcb9f3645c8c9aeed32"
+title: "豆包大模型场景评测算法工程师（Agent/Coding） - 火山方舟"
+description: |-
+  团队介绍：火山方舟是火山引擎推出的一站式大模型服务平台，是中国大模型市场产品和份额领跑者。平台提供模型推理、评测、精调等全流程服务。方舟搭载了豆包及业界主流大模型，提供丰富的插件生态和AI应用开发服务，并通过稳定可靠的安全互信方案、专业的算法技术服务，全方位保障企业级AI应用落地。
+  
+  1、深入理解企业客户的大模型应用场景，将客户问题与反馈抽象为可复现、可量化的评测任务，建立从业务目标到评测指标的映射；
+  2、围绕Agent工具调用、RAG检索、多轮对话、Coding等复杂链路，设计并建设端到端评测Pipeline，覆盖任务构造、自动执行、结果判定与版本对比，基于真实Workflow构建高质量评测集与案例体系，持续治理样本覆盖度、难度分层、数据质量和评测稳定性；
+  3、设计结果与过程指标，包括任务完成率、工具调用准确率、检索质量、代码通过率、多步规划成功率等，定位模型在链路中的具体失败环节；
+  4、分析评测结果与失败案例，形成可解释的根因判断，并与模型、产品、解决方案和客户团队协作，推动模型及产品能力迭代；
+  5、建设评测自动化与效率工具，探索LLM-as-a-Judge、规则/执行器判定、人机协同评测等方法，提高复杂场景评测的规模、效率与可信度。
+requirements: |-
+  1、本科及以上学历，计算机、软件工程、人工智能或相关专业；
+  2、具备扎实的Python编程和工程实现能力，能够独立完成数据处理、接口调用、自动化测试或评测Pipeline建设；
+  3、深入使用过主流大模型及Agent/Coding类产品，理解上下文、工具调用、RAG、规划、代码生成等能力边界与常见失败模式；
+  4、具备数据分析与实验意识，能够进行指标设计、样本分层、误差分析和根因定位，并以数据支持判断；
+  5、具备良好的业务理解和跨团队协作能力，能够把模糊客户需求转化为清晰、可执行的技术任务；
+  6、自驱、务实，能够在快速变化的模型和工具环境中持续学习并推动方案落地。
+  
+  加分项
+  1、有大模型评测、Agent/RAG应用、AI Coding、测试平台或模型质量体系的实际建设经验；
+  2、熟悉OpenAI Evals、LangSmith、Langfuse、RAGAS、DeepEval、SWE-bench、HumanEval等评测框架或基准中的一项或多项，并理解其适用边界；
+  3、有To B客户项目、解决方案、开发者平台或企业AI应用落地经验；
+  4、有LLM-as-a-Judge、一致性校准、自动判分器、合成数据或评测集治理经验。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "algorithm_research"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P2"
+expected_reason_codes: ["role_algorithm_or_research"]
+
+evidence:
+  title: ["豆包大模型场景评测算法工程师（Agent/Coding） - 火山方舟"]
+  description: ["2、围绕Agent工具调用、RAG检索、多轮对话、Coding等复杂链路，设计并建设端到端评测Pipeline，覆盖任务构造、自动执行、结果判定与版本对比，基于真实Workflow构建高质量评测集与案例体系，持续治理样本覆盖度、难度分层、数据质量和评测稳定性；", "方舟搭载了豆包及业界主流大模型，提供丰富的插件生态和AI应用开发服务，并通过稳定可靠的安全互信方案、专业的算法技术服务，全方位保障企业级AI应用落地。"]
+  requirements: ["1、有大模型评测、Agent/RAG应用、AI Coding、测试平台或模型质量体系的实际建设经验；", "2、具备扎实的Python编程和工程实现能力，能够独立完成数据处理、接口调用、自动化测试或评测Pipeline建设；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-e3fd418880be2888"
+job_id: "7594713568454838581"
+content_sha256: "e3fd418880be2888b02421cbbe92d73767dc39d1d48b71cda05d2a9995547bc9"
+title: "大模型与Agent评测基础设施算法工程师-Commercial AI"
+description: |-
+  1、参与建设面向大模型与Agent的评测基础设施，将评估设计转化为稳定、可扩展、可观测、可复用的执行系统；
+  2、建设可复用的评测流水线与任务编排能力，持续完善Judge、Sandbox、风险检测等关键执行组件；
+  3、提升实验执行的稳定性、可观测性与结果追溯能力，参与将复杂任务流程和Agent交互过程抽象为可执行评估环境；
+  4、设计并实现大模型/Agent自动评测Pipeline，工程化落地Judge system、sandbox、风险检测等关键组件；
+  5、支撑多模型、多策略、多环境配置下的大规模实验执行，定位失败任务、排查模型调用链路、修复评分流程和提升实验可复现性；
+  6、与研究员协作将评估想法拆分为任务定义、输入输出协议、执行逻辑和监控指标，平衡研究需求和系统稳定性。
+requirements: |-
+  1、计算机相关专业，具备扎实软件系统与工程实现基础；
+  2、熟练使用Python，有服务/平台开发、数据处理或Pipeline建设经验；
+  3、有大模型、Agent、评测平台、仿真环境或复杂后端系统开发经验；
+  4、重视代码质量、系统设计、稳定性、可维护性与线上可观测；
+  5、能将研究方案工程化落地，擅长跨团队协作推进复杂项目；
+  6、愿意长期建设评估基础设施，相关领域经验与开源成果优先。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "algorithm_research"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P2"
+expected_reason_codes: ["role_algorithm_or_research"]
+
+evidence:
+  title: ["大模型与Agent评测基础设施算法工程师-Commercial AI"]
+  description: ["1、参与建设面向大模型与Agent的评测基础设施，将评估设计转化为稳定、可扩展、可观测、可复用的执行系统；", "4、设计并实现大模型/Agent自动评测Pipeline，工程化落地Judge system、sandbox、风险检测等关键组件；"]
+  requirements: ["3、有大模型、Agent、评测平台、仿真环境或复杂后端系统开发经验；", "6、愿意长期建设评估基础设施，相关领域经验与开源成果优先。"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-474a6f3214201acc"
+job_id: "7592586260689455365"
+content_sha256: "474a6f3214201accbec1e4674a2b0bda3c53544818111abe9386db0e9fd9ee37"
+title: "大模型评测研发工程师-AI数据与安全"
+description: |-
+  1、评测体系建设：参与大模型评测的工程基础设施的开发工作，包括评测集的接入、生产、管理，评测对象的链路采样，人评/机评能力建设，评估结果的分析等评测核心能力的开发工作；
+  2、评测Agent搭建：探索自动评测、高质量评测集构建等前沿评测方法，在评测场景搭建AI Agent，为评测业务提供端到端的高效、自动化的交付能力。
+requirements: |-
+  1、计算机或相关专业本科及以上学历，具备扎实的编程能力、数据结构与算法基础；
+  2、具备全栈（前后端、Agent）开发能力，能独立设计开发高性能、高可用的分布式系统，掌握常用的存储与中间件技术，了解前端开发框架，对常用的前后端开发语言有技术鉴赏和判断力；
+  3、熟悉大模型的原理及应用，具备Agent框架开发经验，能够设计并实现复杂的Agent系统用于解决具体的业务问题；
+  4、掌握大模型评测相关的关键技术，能够与算法、产品、运营、研发团队高效协作，有技术判断力，具备优秀的系统设计能力和问题解决能力，能够独立分析和解决复杂的工程问题；
+  5、有良好的业务及产品意识，能够将业务问题转化为定义明确的技术问题，并通过技术手段有效解决；
+  6、坦诚清晰、积极乐观，责任心强有负责人意识，工作认真细致严谨，具有优秀的团队沟通与协作能力，热爱技术，有较强的学习能力，有强烈的求知欲、好奇心和进取心，能及时关注和学习业界最新技术，对解决挑战性问题充满激情。
+  
+  加分项：
+  1、对大模型技术及其应用有浓厚兴趣，有Agent及大模型评测体系建设经验、熟悉大模型训练、或熟悉LLM-as-a-Judge相关经验者优先；
+  2、有Agent在复杂业务场景的落地经验或多Agent系统设计经验的优先；
+  3、积极参与开源社区，有相关贡献者优先。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "P2"
+expected_reason_codes: []
+
+evidence:
+  title: ["大模型评测研发工程师-AI数据与安全"]
+  description: ["1、评测体系建设：参与大模型评测的工程基础设施的开发工作，包括评测集的接入、生产、管理，评测对象的链路采样，人评/机评能力建设，评估结果的分析等评测核心能力的开发工作；", "2、评测Agent搭建：探索自动评测、高质量评测集构建等前沿评测方法，在评测场景搭建AI Agent，为评测业务提供端到端的高效、自动化的交付能力。"]
+  requirements: ["1、对大模型技术及其应用有浓厚兴趣，有Agent及大模型评测体系建设经验、熟悉大模型训练、或熟悉LLM-as-a-Judge相关经验者优先；", "3、熟悉大模型的原理及应用，具备Agent框架开发经验，能够设计并实现复杂的Agent系统用于解决具体的业务问题；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-96e4eadf42b46cf4"
+job_id: "3057805095"
+content_sha256: "96e4eadf42b46cf4db33e13a33a5b80abb5b50c115ee003d3746ad10d3744350"
+title: "LongCat - 基座大模型评测分析算法研究员"
+description: |-
+  负责围绕AI大模型的模型评测与模型研究工作，具体工作内容包括但不限于：
+  1. 深入理解大规模语言模型的模型结构、训练过程以及评测方式，根据模型的训练过程以及评测结果，对大语言模型存在的问题进行研究。
+  2. 深入分析模型效果不符合认知的异常，根据具体的异常制定完善的研究策略，通过对比、归纳等方法，产出研究分析结论，探索突破性的优化方案，带来模型效果的迭代和突破。
+  3. 构建Data-Centric的数据-训练-评测闭环，探索研究包括但不限于下列方向：大模型数据、模型的Scaling Law，研究数据配比、加入方式与时机等对模型效果的影响。
+  4. 追踪大模型方向的前沿进展，积极主动地学习和探索新数据分析、模型训练以及模型评测方法。 
+  5. 与各相关部门保持良好沟通，深度参与大模型预训练、SFT、RLHF和评测等阶段，共同推动大模型持续优化。
+  岗位亮点
+  1. 紧跟人工智能行业进展，接触到前沿技术和行业趋势，磨练出对人工智能的独到见解；
+  2. 参与AI大模型的训练与评测的全流程，了解从理论到工程实践的全面技能；
+  3. 与一流的人工智能团队合作，快速成长，提升自身能力；
+  4. 有机会参与公司的创新项目，跨足不同领域，拓宽人工智能技术的应用范围；
+requirements: |-
+  1. 硕士及以上学历，计算机、数学、统计学或相关专业； 
+  2. 熟悉Java/Python/C++等编程语言，良好的编码习惯和一定的工程能力，对每一行代码负责，具备工匠精神；
+  3. 具有较强的算法研究经验与能力，熟练掌握自然语言处理、多模态或大模型相关算法和模型； 
+  4. 具备良好的综合素质，包括沟通能力、团队合作精神以及较强的应对复杂问题的解决能力。
+company: "美团"
+location: "上海 / 北京"
+
+expected_role_family: "algorithm_research"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["role_algorithm_or_research"]
+
+evidence:
+  title: ["LongCat - 基座大模型评测分析算法研究员"]
+  description: ["负责围绕AI大模型的模型评测与模型研究工作，具体工作内容包括但不限于：", "2. 参与AI大模型的训练与评测的全流程，了解从理论到工程实践的全面技能；"]
+  requirements: ["2. 熟悉Java/Python/C++等编程语言，良好的编码习惯和一定的工程能力，对每一行代码负责，具备工匠精神；", "3. 具有较强的算法研究经验与能力，熟练掌握自然语言处理、多模态或大模型相关算法和模型；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-a033b369443fd201"
+job_id: "4381199673"
+content_sha256: "a033b369443fd201f697a6df8e88e61b621c76b8d6ec307d47702eba10574f7b"
+title: "LongCat - 基座agent评测分析算法研究员（生产力方向）"
+description: |-
+  负责围绕AI大模型算法的认知分析的研究工作，具体工作内容包括但不限于：
+  1. 深入理解大规模语言模型的模型结构、训练过程以及评测方式，根据模型的训练过程以及评测结果，对大语言模型存在的问题进行研究。
+  2. 深度参与通用生产力在claude code/OpenClaw等场景下的基座模型能力优化迭代，设计具有长路径、多步骤交互特征的评测任务集，实现从“单次问答”到“闭环任务”的评测转型。
+  3. 探索长周期下Agent在复杂任务的能力边界，涵盖工具调用、决策规划和记忆管理等方向，对前沿评测范式如基于沙盒环境的动态评测和多agent协同效率等进行深入研究.
+  岗位亮点
+  1. 在计算机领域顶会(如ACL、EMNLP、NeurIPS、AAAI等）上以一作发表过论文者优先；
+  2. 具备从事相关行业人工智能开发、算法研究等相关工作经验者优先；
+  3. 对ClaudeCode和OpenClaw等agent框架有深入了解或丰富使用经验者优先；
+requirements: |-
+  1. 硕士及以上学历，计算机、数学或相关专业。熟悉Java/Python/C++等编程语言，良好的编码习惯和一定的工程能力 ；
+  2. 具有机器学习或深度学习算法的基础知识，熟练掌握自然语言处理、多模态或大模型相关算法和模型；
+  3. 具备工匠精神，对每一行代码负责，对业务方负责。有良好的沟通合作意识和较强的问题解决能力。
+company: "美团"
+location: "北京 / 上海"
+
+expected_role_family: "algorithm_research"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["role_algorithm_or_research"]
+
+evidence:
+  title: ["LongCat - 基座agent评测分析算法研究员（生产力方向）"]
+  description: ["2. 深度参与通用生产力在claude code/OpenClaw等场景下的基座模型能力优化迭代，设计具有长路径、多步骤交互特征的评测任务集，实现从“单次问答”到“闭环任务”的评测转型。", "负责围绕AI大模型算法的认知分析的研究工作，具体工作内容包括但不限于："]
+  requirements: ["熟悉Java/Python/C++等编程语言，良好的编码习惯和一定的工程能力 ；", "3. 具备工匠精神，对每一行代码负责，对业务方负责。"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-5749dc0a17657f81"
+job_id: "2087100620363448320"
+content_sha256: "5749dc0a17657f81fb16bbaf2386a8efbe361ac4d03bcc6e02cdc1ead9ac754c"
+title: "金融科技-AI测试开发专家架构师 - 智能研发方向(深圳)"
+description: |-
+  1.主导部门软件工程智能化技术方向规划，制定智能测试、缺陷检测、精准回归等方向的技术路线图并推动落地；
+  2.设计并推动金融研发质效智能体落地，搭建AI驱动的质量保障体系，建立可度量的效能提升闭环；
+  3.攻克大模型在金融测试场景的核心技术难题（如幻觉治理、领域适配、长链路推理）；
+  4.参与团队技术人才培养，跨团队协同推动智能研发能力在多业务线的落地。
+requirements: |-
+  1.计算机、软件工程、人工智能等相关专业硕士及以上学历，具有扎实的理论基础和独立定义研究方向的能力；
+  2.深入掌握 Agent 核心架构（Planning / Tool Calling / Memory / Reflection），有 Agent 系统设计与落地经验；
+  3.熟悉 Test Harness 工程体系，具备构建自动化评测框架与质量度量方案的能力；
+  4.精通 Python，熟悉 Go 或 Java 优先；具备分布式系统设计能力，能驱动测试基础设施的AI化变革；
+  5.对金融业务有一定理解，能把控AI落地中；
+  6.的合规性与资金安全约束；
+  7.优秀的技术视野与判断力，能快速评估新技术的落地价值，开放心态，抗压能力强。
+company: "腾讯"
+location: "深圳"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "expert_lead"
+expected_career_pool: "REF"
+expected_reason_codes: ["level_expert_lead"]
+
+evidence:
+  title: ["金融科技-AI测试开发专家架构师 - 智能研发方向(深圳)"]
+  description: ["2.设计并推动金融研发质效智能体落地，搭建AI驱动的质量保障体系，建立可度量的效能提升闭环；", "1.主导部门软件工程智能化技术方向规划，制定智能测试、缺陷检测、精准回归等方向的技术路线图并推动落地；"]
+  requirements: ["4.精通 Python，熟悉 Go 或 Java 优先；", "3.熟悉 Test Harness 工程体系，具备构建自动化评测框架与质量度量方案的能力；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-f480bd0ce0ba0b7d"
+job_id: "2076558136331907072"
+content_sha256: "f480bd0ce0ba0b7dea3366efaece72e8cd43a0437760116824cb36284aafab9d"
+title: "AI测试架构师"
+description: |-
+  1.负责AI金融测试工具及平台的整体架构设计与迭代优化，打造高可用、可扩展的AI赋能测试基础设施；
+  2.推动大模型、Agent及RAG技术在金融AI集成测试、高频接口测试、测试用例智能生成等核心场景的深度落地；
+  3.建立模型效果评测与优化飞轮，参与模型上下文设计、Prompt工程及推理加速，推动大模型在测试场景下的效果持续迭代；
+  4.关注AI领域前沿技术，开展AI测试知识图谱建设、缺陷根因分析、AI智能压测等前瞻性场景的技术攻坚与应用探索。
+requirements: |-
+  1.计算机相关专业本科及以上学历，6 年以上软件工程或测试开发经验，其中至少 2 年 AI/LLM 相关项目实践经验；
+  2.深刻理解 LLM 原理与局限（Transformer / MoE / GQA），有确定性与幻觉治理工程实践，能针对复杂金融场景构建低幻觉、高准确率的智能化质量保障方案；
+  3.具备 Test Harness Engineering 或 Agent 评测体系设计经验，熟悉 Agent 核心架构（Planning / Tool Calling / Memory / Reflection），有大型项目中的实际落地经历；
+  4.精通 Python，熟练 Go 或 Java；熟悉分布式高并发架构，具备中间件或分布式系统的实际排障经验；对自动化测试体系有深刻理解，能驱动测试流程的 AI 化变革；
+  5.具备强烈自驱力与跨团队技术影响力，能捕捉前沿技术并转化为生产力，推动部门级 AI 测试能力升级，能主导从 0 到 1 的 AI 测试体系搭建。
+company: "腾讯"
+location: "深圳"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "expert_lead"
+expected_career_pool: "REF"
+expected_reason_codes: ["level_expert_lead"]
+
+evidence:
+  title: ["AI测试架构师"]
+  description: ["3.建立模型效果评测与优化飞轮，参与模型上下文设计、Prompt工程及推理加速，推动大模型在测试场景下的效果持续迭代；", "1.负责AI金融测试工具及平台的整体架构设计与迭代优化，打造高可用、可扩展的AI赋能测试基础设施；"]
+  requirements: ["3.具备 Test Harness Engineering 或 Agent 评测体系设计经验，熟悉 Agent 核心架构（Planning / Tool Calling / Memory / Reflection），有大型项目中的实际落地经历；", "熟悉分布式高并发架构，具备中间件或分布式系统的实际排障经验；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-3d97eed03cd59e03"
+job_id: "32325"
+content_sha256: "3d97eed03cd59e03ce14a35d272ed6d2398009a2f377d724b4efda87fe4ef226"
+title: "训练数据质量评测专家 -【可灵AI】"
+description: |-
+  1、负责训练数据交付验收体系：为模型训练数据与算子训练数据设计抽样方案、验收阈值与驳回规则，覆盖预训练、继续训练、SFT、RLHF 各阶段，行使批次放行与驳回的最终判定权；
+  2、负责数据策略上线与变更的验证体系：用高效、科学的验证方法保证每次策略变更的效果可信——要对数据链路整体、视频质量、音频质量、Caption、类目树等维度有综合理解；
+  3、建设数据链路端到端测试机制：周期性链路测试报告、分数据源阈值设计、结构性问题与 Bias 的定向排查；
+  4、组织并管理数十人规模的外包验收团队：执行并反馈质量标准（与数据策略共同打磨数据标准）、算子三审、标注答疑、培训体系与考核汰换；
+  5、推进验收自动化：用 Agent 与大模型替代人工走查，把"每批抽样几百条"的人力模式升级为可 Scale 的工业级质检体系，并沉淀标准执行方案与文档。
+requirements: |-
+  1、有质量体系的完整实战案例，来自以下任一领域：数据标注质检与验收、制造业供应商质量管理（SQE）、测试与 QA 自动化、内容审核质检、数据质量治理——我们看重可迁移的验收方法论，不限行业出身；
+  2、统计基础：抽样设计、置信度、精确率／召回率、一致性检验用于真实验收决策而非纸面概念；
+  3、有管理外包或供应商团队的体系化经验：培训、标准对齐、一致性治理、考核汰换，不只是"管过人"；
+  4、能用 Coding Agent（Cursor、Claude Code 等）独立搭建质检与报告自动化工具，有用工具替代人工环节的真实交付；
+  5、对视觉／听觉内容敏感，愿意深入理解视频、音频、Caption、类目等多维质量语义。
+  
+  加分项：大模型训练数据或标注行业经验；抽样验收标准实践；质检模型的校准经验；从零搭建质量体系并跑通的经历。
+company: "快手"
+location: "北京"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "expert_lead"
+expected_career_pool: "REF"
+expected_reason_codes: ["level_expert_lead"]
+
+evidence:
+  title: ["训练数据质量评测专家 -【可灵AI】"]
+  description: ["3、建设数据链路端到端测试机制：周期性链路测试报告、分数据源阈值设计、结构性问题与 Bias 的定向排查；", "1、负责训练数据交付验收体系：为模型训练数据与算子训练数据设计抽样方案、验收阈值与驳回规则，覆盖预训练、继续训练、SFT、RLHF 各阶段，行使批次放行与驳回的最终判定权；"]
+  requirements: ["加分项：大模型训练数据或标注行业经验；", "1、有质量体系的完整实战案例，来自以下任一领域：数据标注质检与验收、制造业供应商质量管理（SQE）、测试与 QA 自动化、内容审核质检、数据质量治理——我们看重可迁移的验收方法论，不限行业出身；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-398871cf9df072ae"
+job_id: "7658971083101718837"
+content_sha256: "398871cf9df072aed9ca2e0bd0a9896d58e4c54d20119a658dccef92084d3ad2"
+title: "AI Agent评测资深工程师/架构师-计算"
+description: |-
+  1、负责AI Agent评测体系的整体架构设计与建设，结合真实业务场景，构建覆盖任务成功率、工具调用准确性、多轮对话、推理链路、安全合规等维度的评测框架，持续提升Agent质量与迭代效率；
+  2、负责评测集、评测用例与数据的体系化建设，设计评测集的分层结构与覆盖策略（核心场景、长尾案例、对抗样本、边界条件等），建立用例的采集、标注、清洗、版本管理与质量校验机制，保障评测数据的代表性、准确性与可持续更新；
+  3、设计和建设面向企业级Agent应用的自动化评测平台与工具链，包含但不限于评测集管理、用例编排、自动化打分、人工标注、A/B对比、回归测试、线上负面案例回流与数据闭环等能力，推动评测能力与Agent研发流程深度融合；
+  4、定义Agent效果评估的量化指标与评测方法论，识别高价值评测场景，推进评测能力从方案设计、试点验证到规模化落地，形成可复用的评测集标准、标注规范与最佳实践；
+  5、持续跟踪大模型、Agent评测（Evaluation）、LLM-as-a-Judge、Benchmark构建、合成数据等前沿技术趋势，结合团队实际业务场景引入合适的新方法与新方案，持续优化评测的准确性、效率与成本。
+requirements: |-
+  1、本科及以上学历，计算机相关专业优先，3年及以上AI/ML、模型评测、质量工程、测试平台或后端研发相关工作经验；
+  2、熟悉大模型与Agent技术原理，对Prompt工程、工具调用（Function Calling）、RAG、多轮对话、推理规划等环节有较好理解；
+  3、了解主流评测方法与体系，如自动化指标、人工标注、LLM-as-a-Judge、Benchmark构建等，有Agent或模型效果评测的实践经验者优先；
+  4、具备良好的工程实现能力，熟练掌握一门及以上开发语言（如Golang/Python/Java），能够独立推进评测系统或工具建设；
+  5、具备较好的沟通协作和问题推动能力，能够与算法、研发、产品、标注等角色协同推进评测项目落地。
+  
+  具备以下条件者优先：
+  1、有企业内部Agent评测平台、模型评估平台或质量工程平台建设经验者优先；
+  2、有评测集/Benchmark从0到1构建、标注体系搭建、合成数据或数据闭环体系建设经验者优先；
+  3、有LLM-as-a-Judge、自动化评测、线上负面案例回流与数据挖掘等相关实践经验者优先；
+  4、熟悉大模型训练/推理、RAG、Agent框架或AI Infra相关技术者优先。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "expert_lead"
+expected_career_pool: "REF"
+expected_reason_codes: ["level_expert_lead"]
+
+evidence:
+  title: ["AI Agent评测资深工程师/架构师-计算"]
+  description: ["1、负责AI Agent评测体系的整体架构设计与建设，结合真实业务场景，构建覆盖任务成功率、工具调用准确性、多轮对话、推理链路、安全合规等维度的评测框架，持续提升Agent质量与迭代效率；", "2、负责评测集、评测用例与数据的体系化建设，设计评测集的分层结构与覆盖策略（核心场景、长尾案例、对抗样本、边界条件等），建立用例的采集、标注、清洗、版本管理与质量校验机制，保障评测数据的代表性、准确性与可持续更新；"]
+  requirements: ["1、本科及以上学历，计算机相关专业优先，3年及以上AI/ML、模型评测、质量工程、测试平台或后端研发相关工作经验；", "4、熟悉大模型训练/推理、RAG、Agent框架或AI Infra相关技术者优先。"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-906f9c3194740ed8"
+job_id: "7636675531433560373"
+content_sha256: "906f9c3194740ed8db4dc11c15e40e906bde6bc31fdad7f5f80700106748bf66"
+title: "Agent数据与评测Leader（Coze方向）-Dev Infra"
+description: |-
+  1、负责各场景的评测体系建设与团队管理，覆盖编程、Claw、垂类Agent等方向，支撑效果评估、问题定位和迭代闭环；
+  2、主导评测基建的0-1搭建和长期建设，包括评测产线、数据分析链路、自动化评测能力等；
+  3、负责Benchmark和高质量评测数据建设，包括数据设计、采集、合成、治理与持续迭代；
+  4、协同业务、策略、产品、研发等团队，共同对的效果迭代负责。
+requirements: |-
+  1、本科及以上学历，计算机科学、人工智能、数学等相关专业，具有5年以上大模型相关工作经验；
+  2、有团队管理经验或团队负责人潜力，具备良好的业务沟通能力和跨团队协同能力，能够推动复杂项目落地；
+  3、具备扎实的工程能力和数据分析能力，熟练掌握Python、Go、C++中至少一种；
+  4、有Agent开发或复杂场景评测经验者优先，在相关会议发表过论文者优先。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "expert_lead"
+expected_career_pool: "REF"
+expected_reason_codes: ["level_expert_lead"]
+
+evidence:
+  title: ["Agent数据与评测Leader（Coze方向）-Dev Infra"]
+  description: ["1、负责各场景的评测体系建设与团队管理，覆盖编程、Claw、垂类Agent等方向，支撑效果评估、问题定位和迭代闭环；", "3、负责Benchmark和高质量评测数据建设，包括数据设计、采集、合成、治理与持续迭代；"]
+  requirements: ["2、有团队管理经验或团队负责人潜力，具备良好的业务沟通能力和跨团队协同能力，能够推动复杂项目落地；", "4、有Agent开发或复杂场景评测经验者优先，在相关会议发表过论文者优先。"]
+
+boundary_tags: ["management_requirement", "career_pool_boundary"]
+---
+case_id: "REG-b0cc854b5dfbfaa3"
+job_id: "7662316424701987077"
+content_sha256: "b0cc854b5dfbfaa312fa44ff177f511a3419afa4a64814ff9c966314d5551966"
+title: "AI质量效能负责人 - 飞书"
+description: |-
+  团队介绍：飞书是字节跳动旗下 AI 工作平台，面向人与agent协作，提供一站式协同办公、组织管理、业务提效工具和深入企业场景的 AI 能力，让 AI 真能用真落地。
+  从互联网、高科技、消费零售到制造、金融、医疗健康，各行各业先进企业都在飞书落地AI，与飞书共创行业最佳实践。先进团队，AI用飞书。
+  
+  1、负责AI相关业务的质量与效能体系建设，覆盖需求、研发、测试、发布及线上运营全流程，制定质效目标、度量指标和持续改进机制；
+  2、建设Agent和AI应用等评测体系，覆盖模型效果、业务正确性、稳定性、安全性、性能、成本及用户体验，推动评测标准化、自动化和持续化；
+  3、推进AI原生研发测试范式落地，建设需求理解、用例生成、代码检查、自动化测试、缺陷定位和回归验证等智能化能力；
+  4、负责E2E测试能力建设，提升生成用例采纳率、执行成功率、结果稳定性和问题发现效率，形成“生成—执行—诊断—修复—重跑”闭环；
+  5、沉淀AI质效建设方法论、最佳实践和标准规范，提升团队整体AI工程化和质量保障能力。
+requirements: |-
+  1、具备质量工程、测试开发、研发效能或AI应用工程相关经验，有团队管理或复杂项目牵引经验；
+  2、熟悉大模型、Agent、RAG、工具调用及模型评测的基本原理和应用方式；
+  3、熟悉客户端、服务端或Web E2E自动化测试体系，具备测试平台或工程化能力建设经验；
+  4、具备较强的业务理解力、数据分析和问题抽象能力，能够将业务质量目标转化为技术方案、度量目标；
+  5、有AI测试、模型评测、智能体评测、研发效能平台或自动化测试体系建设经验者优先。
+company: "字节跳动"
+location: "<missing>"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "expert_lead"
+expected_career_pool: "REF"
+expected_reason_codes: ["level_expert_lead"]
+
+evidence:
+  title: ["AI质量效能负责人 - 飞书"]
+  description: ["1、负责AI相关业务的质量与效能体系建设，覆盖需求、研发、测试、发布及线上运营全流程，制定质效目标、度量指标和持续改进机制；", "2、建设Agent和AI应用等评测体系，覆盖模型效果、业务正确性、稳定性、安全性、性能、成本及用户体验，推动评测标准化、自动化和持续化；"]
+  requirements: ["1、具备质量工程、测试开发、研发效能或AI应用工程相关经验，有团队管理或复杂项目牵引经验；", "5、有AI测试、模型评测、智能体评测、研发效能平台或自动化测试体系建设经验者优先。"]
+
+boundary_tags: ["management_requirement", "career_pool_boundary"]
+---
+case_id: "REG-f91d3eb9b6cb2128"
+job_id: "7356570428242348314"
+content_sha256: "f91d3eb9b6cb21284d691727a4920f8ca4d904464ce2e8e5ceb857a509eadba6"
+title: "AIGC质量架构师-飞书"
+description: |-
+  1、设计和构建基于AIGC技术的质量保证体系，整合自动化测试、人工智能辅助测试等创新方法，提高测试效率和全面性；
+  2、分析现有测试流程和架构，识别瓶颈和改进空间，利用AIGC技术优化测试过程,提升质量水平；
+  3、研究和评估最新的AIGC测试工具和框架，制定导入计划并指导实施，不断增强质量架构的先进性；
+  4、与研发、产品和其他相关团队密切协作，将AIGC测试实践贯穿整个软件开发生命周期，确保质量需求与业务目标保持一致；
+  5、建立质量度量和报告机制，持续监控和分析测试数据,为优化质量架构提供依据；
+  6、培养和发展AIGC质量专家团队，传播相关知识和最佳实践，推动组织测试文化的演进。
+requirements: |-
+  1、本科及以上学历，有质量架构，自动化测试、性能测试等多个领域经验优先；
+  2、对AIGC技术有深入的理解和实践经验，如机器学习、自然语言处理、计算机视觉等；
+  3、精通测试流程、方法和工具，熟悉质量管理体系和相关标准，具备系统化思维能力；
+  4、出色的分析和解决复杂问题的能力，能够快速应对变化和挑战；
+  5、良好的沟通协调和团队管理技巧，能够与跨部门团队有效协作；
+  6、具备持续学习和创新意识，勇于尝试新技术和新方法；
+  7、扎实的编程基础，熟悉Python、Java、Go等至少一种编程语言。
+company: "字节跳动"
+location: "深圳"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "expert_lead"
+expected_career_pool: "REF"
+expected_reason_codes: ["level_expert_lead"]
+
+evidence:
+  title: ["AIGC质量架构师-飞书"]
+  description: ["1、设计和构建基于AIGC技术的质量保证体系，整合自动化测试、人工智能辅助测试等创新方法，提高测试效率和全面性；", "4、与研发、产品和其他相关团队密切协作，将AIGC测试实践贯穿整个软件开发生命周期，确保质量需求与业务目标保持一致；"]
+  requirements: ["3、精通测试流程、方法和工具，熟悉质量管理体系和相关标准，具备系统化思维能力；", "1、本科及以上学历，有质量架构，自动化测试、性能测试等多个领域经验优先；"]
+
+boundary_tags: ["management_requirement", "career_pool_boundary"]
+---
+case_id: "REG-e3d9dfca088b72ce"
+job_id: "100010700004"
+content_sha256: "e3d9dfca088b72ced103908d84b63f48b8d25832e86f0aea0c245955250fbc64"
+title: "千问事业部-AI应用&Agent测试专家-杭州/上海/深圳"
+description: |-
+  1、负责千问AI硬件智能穿戴类产品上出行办公健康支付等AI应用的质量保障工作，构建和完善软硬件一体的AI应用的端到端质量保障体系；
+  2、覆盖AI多模态应用的端到端全链路（固件OS、APP、大模型）质量，参与用户体验评测体系建设，深入用户场景挖掘体验问题，推动问题闭环和体验优化，保障用户的端到端体验；
+  3、参与AI应用垂域场景的测试Agent开发，建设沉淀领域测试Skill和知识库，提升测试效能；
+  4、与大模型、软硬件产研团队紧密协作，建立质量度量、线上指标与用户体验监控机制，为产品体验优化和模型迭代提供数据支撑。
+requirements: |-
+  1、本科及以上学历，计算机相关专业；
+  2、有3年以上测试或质量保障经验，有AI/大模型/AI智能穿戴软硬件/互联网产品经验者优先；
+  3、熟悉至少一种自动化测试技术栈（如Python/Java），具备接口测试、功能测试实战经验；
+  4、能够从业务视角定义质量问题并推动解决，具备模型效果用户场景评测能力者优先；
+  5、了解大模型的基本原理和常见应用场景（Token、Memery、意图识别、RAG、Agent、Skill、MCP等），理解Agent/Workflow编排逻辑；
+  6、对AI技术有好奇心，关注AI发展趋势，热衷实践新方案，有AI眼镜/可穿戴设备/XR设备使用或测试经验者优先。
+company: "夸克"
+location: "深圳 / 上海"
+
+expected_role_family: "quality_engineering"
+expected_ai_relation: "ai_product_quality"
+expected_seniority_level: "expert_lead"
+expected_career_pool: "REF"
+expected_reason_codes: ["level_expert_lead"]
+
+evidence:
+  title: ["千问事业部-AI应用&Agent测试专家-杭州/上海/深圳"]
+  description: ["3、参与AI应用垂域场景的测试Agent开发，建设沉淀领域测试Skill和知识库，提升测试效能；", "2、覆盖AI多模态应用的端到端全链路（固件OS、APP、大模型）质量，参与用户体验评测体系建设，深入用户场景挖掘体验问题，推动问题闭环和体验优化，保障用户的端到端体验；"]
+  requirements: ["2、有3年以上测试或质量保障经验，有AI/大模型/AI智能穿戴软硬件/互联网产品经验者优先；", "3、熟悉至少一种自动化测试技术栈（如Python/Java），具备接口测试、功能测试实战经验；"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-3e52f97b89d0e489"
+job_id: "4735731096"
+content_sha256: "3e52f97b89d0e489dc8bd755ed7424916cb02e935e1f212e11a402c4dca47da5"
+title: "客服大模型评测负责人"
+description: |-
+  评测体系建设：面向用户交互场景，设计覆盖基座模型、端到端Agent、用户体验等场景的评测框架和标准，保障评测可解释可复现，并主导Benchmark数据集构建与持续迭代，防控数据污染与评测失效；
+  搭建自动化评测工程：通过judge model等自动评测流水线，设计多评委协作机制，控制评测偏见，持续提升自动评测与人工标注的一致性，推动评测提效
+  数据生产与质量管控：主导评测/训练数据合成方案设计，建立标注规范与质检体系，同时与数据团队协作，保障大规模数据生产的稳定性与准确性
+  模型迭代支撑：输出结构化评测报告，将评测结论转化为可落地的优化建议，与模型训练团队深度协作，建立"评测→优化→再评测"闭环
+  沉淀团队评测方法论，输出可复用框架与工具
+  岗位亮点
+  岗位亮点:
+  紧跟人工智能行业进展，接触到前沿技术和行业趋势，磨练出对人工智能的独到见解；
+  参与大模型评测的全流程体系，了解从理论到工程实践的全面技能；
+  与一流的人工智能团队合作，快速成长，提升自身能力；
+  有机会参与部门的重点项目，跨足不同领域，拓宽人工智能技术的应用范围；
+requirements: |-
+  计算机、人工智能、统计学、数学或相关专业,本科及以上学历，3年大模型评测工作经验以上优先
+  熟悉业界主流评测工具集和评测集，有独立设计评测框架和评测标准经验
+  了解Python语言，有实际开发、测试开发或评测工具开发经验优先
+  具备模型和AI产品分析能力，根据评测结论提出优化建议，驱动优化落地
+  关注业界前沿AI模型和产品发展，关注AI前沿评测方法发展，并转化为内部评测实践，并且能够熟练借助AI工具进行快速验证，具备Vibe coding或自动化流程搭建能力，支持方案快速验证与落地迭代
+  积极主动，对AI和大模型领域有激情，喜欢找办法解决问题，具备较强的团队协作能力、组织协调能力、复杂问题解决能力
+company: "美团"
+location: "北京 / 上海"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "expert_lead"
+expected_career_pool: "REF"
+expected_reason_codes: ["level_expert_lead"]
+
+evidence:
+  title: ["客服大模型评测负责人"]
+  description: ["评测体系建设：面向用户交互场景，设计覆盖基座模型、端到端Agent、用户体验等场景的评测框架和标准，保障评测可解释可复现，并主导Benchmark数据集构建与持续迭代，防控数据污染与评测失效；", "数据生产与质量管控：主导评测/训练数据合成方案设计，建立标注规范与质检体系，同时与数据团队协作，保障大规模数据生产的稳定性与准确性"]
+  requirements: ["了解Python语言，有实际开发、测试开发或评测工具开发经验优先", "计算机、人工智能、统计学、数学或相关专业,本科及以上学历，3年大模型评测工作经验以上优先"]
+
+boundary_tags: ["career_pool_boundary"]
+---
+case_id: "REG-97c3d163c41b1125"
+job_id: "2049714089445470208"
+content_sha256: "97c3d163c41b112512baaebf952b4908ed7b8e35da4db804c8eac91ca07308a1"
+title: "腾讯游戏品质管理部-AI测试平台产品负责人-高级技术产品经理"
+description: |-
+  1.平台产品与架构设计：负责AI测试平台整体产品规划与路线设计（Platform + Agent）；定义平台能力结构（测试流程、Agent体系、数据体系）；推动从工具化向平台化、从自动化向智能化演进；
+  2.AI/Agent产品设计：设计测试Agent能力体系（用例生成、执行、分析、决策）；定义AI在测试流程中的角色（辅助 / 主导 / 自动闭环）；推动AI能力在真实业务场景中的落地与优化；
+  3.跨团队协同与落地：协同技术团队（LLM/平台/工具链）推动能力实现；协同业务团队（游戏项目组）推动场景落地；建立标准化接入与规模化复制机制；
+  4.数据与质量体系建设：建立AI测试效果评估体系（覆盖率、缺陷质量、ROI等）；推动数据闭环（数据采集 → 模型优化 → 效果提升）；定义质量指标体系与平台化沉淀机制；
+  5.产品运营与生态建设：推动平台在多项目、多工作室的推广与应用；建立最佳实践与案例沉淀；持续优化产品体验与业务价值。
+requirements: |-
+  1.5年以上工作经验，本科及以上学历，计算机、软件工程、信息系统等相关专业优先，对具备优秀AI产品经验或平台产品经验者，学历及年限可适当放宽；
+  2.平台型产品经验：有复杂平台产品经验（研发平台 / 测试平台 / AI平台 / 中台）；有0→1或从1→规模化经验；
+  3.技术理解能力：理解软件研发流程（DevOps / 测试流程）；对AI/LLM/Agent有基本的应用理解；
+  4.强推动能力：能推动跨团队合作（技术 / 业务 / 平台）；能在不确定性中推进项目。
+company: "腾讯"
+location: "深圳"
+
+expected_role_family: "product"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "expert_lead"
+expected_career_pool: "X"
+expected_reason_codes: ["role_product"]
+
+evidence:
+  title: ["腾讯游戏品质管理部-AI测试平台产品负责人-高级技术产品经理"]
+  description: ["1.平台产品与架构设计：负责AI测试平台整体产品规划与路线设计（Platform + Agent）；", "2.AI/Agent产品设计：设计测试Agent能力体系（用例生成、执行、分析、决策）；"]
+  requirements: ["1.5年以上工作经验，本科及以上学历，计算机、软件工程、信息系统等相关专业优先，对具备优秀AI产品经验或平台产品经验者，学历及年限可适当放宽；", "2.平台型产品经验：有复杂平台产品经验（研发平台 / 测试平台 / AI平台 / 中台）；"]
+
+boundary_tags: []
+---
+case_id: "REG-e86dcffdff4723cf"
+job_id: "2059948192291799040"
+content_sha256: "e86dcffdff4723cfa9c9d0245d221c5f59ee1e3c5d49dfc4998ea06f6c0ef540"
+title: "微信基础-大模型评测产品经理"
+description: |-
+  1.评测体系设计：主导 AI 产品的评测体系搭建，定义评测维度、指标、标准和流程，确保评测的科学性和全面性；
+  2.评测方法论制定：设计适配不同场景（对话、工具调用、多轮交互、创意生成等）的评测方案，包括自动评测、人工评测、众包评测、竞品对比等；
+  3.评测平台产品设计：规划评测平台的产品架构和功能模块，输出 PRD，驱动研发团队落地；
+  4.评测洞察与决策支持：深度分析评测数据，发现产品体验问题和模型能力短板，输出有洞察力的评测报告，推动产品和算法团队优化；
+  5.竞品评测与行业跟踪：持续跟踪业界竞品的能力变化，建立常态化竞品评测机制；
+  6.标注体系管理：设计标注规范和质量控制流程，确保评测数据质量。
+requirements: |-
+  1.本科及以上学历，计算机、统计学、心理学、语言学或相关专业优先，3 年以上产品经理经验；
+  2.具备 AI/NLP/对话系统相关评测工作经验，有评测体系从 0 到 1 搭建经验者优先；
+  3.熟悉 AI 产品评测的科学方法，包括评测指标设计、统计显著性检验、评分者一致性（Kappa/ICC）、A/B 实验设计等；
+  4.具备评测平台或数据平台的产品设计经验，能独立输出完整的产品方案；
+  5.对 LLM / AI Agent 产品有深刻理解，熟悉主流 AI 产品的能力边界和用户场景，具备一定技术背景者优先；
+  6.优秀的数据分析能力，能从海量评测数据中提炼关键洞察；
+  7.熟悉多模态（图像、视频、语音）评测方法和指标体系者优先；
+  8.有标注团队管理或众包平台运营经验者优先；
+  9.出色的文档撰写和跨团队沟通能力，能有效推动多方协作。
+company: "腾讯"
+location: "广州"
+
+expected_role_family: "product"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["role_product"]
+
+evidence:
+  title: ["微信基础-大模型评测产品经理"]
+  description: ["1.评测体系设计：主导 AI 产品的评测体系搭建，定义评测维度、指标、标准和流程，确保评测的科学性和全面性；", "6.标注体系管理：设计标注规范和质量控制流程，确保评测数据质量。"]
+  requirements: ["2.具备 AI/NLP/对话系统相关评测工作经验，有评测体系从 0 到 1 搭建经验者优先；", "5.对 LLM / AI Agent 产品有深刻理解，熟悉主流 AI 产品的能力边界和用户场景，具备一定技术背景者优先；"]
+
+boundary_tags: ["management_requirement"]
+---
+case_id: "REG-2e4459c9d38a6701"
+job_id: "2059948190203035648"
+content_sha256: "2e4459c9d38a6701f0ae13398ede33b30adffba4b0e71f8e05e38799053255b1"
+title: "微信基础-后台开发-AI评测方向"
+description: |-
+  1.深度参与建设微信 Agent 业务，设计并开发微信 Agent 相关的评测工具和自动化评测流水线，支持对话质量、任务完成率、安全性等多维度评测；
+  2.参与构建基于 LLM 的自动评测模型，实现对 Agent 输出质量的自动化打分与分析；
+  3.参与评测平台的架构设计与开发，支持评测任务管理、数据管理、结果可视化等功能；
+  4.参与构建评测数据集，开发数据清洗、标注管理、统计分析等配套工具；
+  5.跟踪业界前沿评测方法，持续优化评测效率和准确性。
+requirements: |-
+  1.本科及以上学历，计算机科学、人工智能、软件工程等相关专业，3 年以上开发经验；
+  2.熟悉 Python/Nextjs，熟悉至少一门后端语言（Go/Java/C++），熟悉 Linux 环境及常用中间件（MySQL/Redis/消息队列等）；
+  3.热衷于 AI 技术，具备极强的 AI Coding 能力；
+  4.具备 AI Agent / LLM 应用的评测或开发经验，熟悉主流 LLM 的 API 调用与 Prompt Engineering；
+  5.了解常见评测方法论（自动评测、人工评测、A/B Test、LLM-as-a-Judge 等），有评测模型训练经验者优先；
+  6.具备良好的系统设计能力，有平台类产品或工具链开发经验；
+  7.有多模态模型或 ASR/TTS 系统评测经验者优先，熟悉 WER、MOS 等指标；
+  8.熟悉开源评测框架者优先；
+  9.良好的沟通协作能力，能与产品经理、算法工程师高效配合。
+company: "腾讯"
+location: "广州"
+
+expected_role_family: "development"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["role_general_rnd"]
+
+evidence:
+  title: ["微信基础-后台开发-AI评测方向"]
+  description: ["1.深度参与建设微信 Agent 业务，设计并开发微信 Agent 相关的评测工具和自动化评测流水线，支持对话质量、任务完成率、安全性等多维度评测；", "2.参与构建基于 LLM 的自动评测模型，实现对 Agent 输出质量的自动化打分与分析；"]
+  requirements: ["4.具备 AI Agent / LLM 应用的评测或开发经验，熟悉主流 LLM 的 API 调用与 Prompt Engineering；", "7.有多模态模型或 ASR/TTS 系统评测经验者优先，熟悉 WER、MOS 等指标；"]
+
+boundary_tags: []
+---
+case_id: "REG-813b287d4910d133"
+job_id: "2041409199149314048"
+content_sha256: "813b287d4910d13397dd71259334bc9932595d880fdd9fca55279adba073b4e8"
+title: "腾讯会议-评测产品经理"
+description: |-
+  1.评测体系规划与建设：负责 ASR与大模型产品的评测体系设计与搭建，覆盖通用能力及专项能力（如语音识别准确率、口语化理解、多轮对话、推理、写作、多模态等）；结合产品目标定义评测维度、指标体系与流程机制，推动评测能力标准化、产品化与可持续迭代；
+  2.Benchmark研究与业务化落地：跟踪国内外ASR、大模型相关评测方法、行业 Benchmark 与产品趋势，分析其适用场景与优缺点；结合业务需求和真实用户场景，设计或改造评测集与任务，推动通用 Benchmark 向业务评测方案落地，确保评测结果具备真实性、代表性与可复现性；
+  3.产品效果分析与优化策略制定：定期组织不同版本模型或策略方案的评测与横向对比，输出系统化分析报告，识别产品体验中的优势、短板与关键问题；围绕识别质量、响应质量、稳定性、时延、可控性、用户满意度等维度，设计专项分析框架，支持产品迭代决策与优先级判断；
+  4.用户反馈分析与体验闭环建设：持续监测用户真实使用数据、交互日志与反馈内容，挖掘 badcase、共性问题及高价值优化方向；联合算法、研发、运营等团队，将用户侧体验问题沉淀为可量化评测项、验收标准与优化方案，建立“用户反馈—评测验证—版本迭代”的闭环机制；
+  5.跨团队协同与产品推进：与算法、数据、工程、测试等团队紧密协作，推动评测需求定义、数据建设、工具搭建和结果应用；将评测能力嵌入模型研发与产品迭代流程，推动形成从需求定义、评测验证到效果复盘的完整产品机制，提升模型效果与用户体验的持续优化效率。
+requirements: |-
+  1.本科及以上学历，计算机、人工智能、语言学、数据分析、人机交互或相关专业优先；
+  2.具备AI 产品经理、策略产品经理或评测产品相关经验，有ASR、大模型、智能对话、AI搜索、语音助手等方向经验者优先；
+  3.理解ASR与大模型的基本原理、能力边界及主要评测维度，熟悉准确率、召回率、WER/CER、主客观评测、生成质量评估等常见方法；
+  4.具备较强的数据分析能力，能够基于用户行为数据、日志数据和评测结果发现问题、拆解原因并提出优化方案；
+  5.熟悉评测集设计、Benchmark构建、Badcase挖掘、指标定义等方法，有推动评测平台、评测工具或分析体系建设经验者优先；
+  6.具备较强的文档与报告输出能力，能够独立完成需求文档、评测方案、分析报告和产品复盘，并将评测结果转化为可执行的产品策略；
+  7.具备良好的跨团队沟通与项目推进能力，能够协调算法、研发、测试、运营等多方资源，共同推动复杂项目落地；
+  8.具备英文资料阅读能力，能够持续跟踪国内外前沿模型、语音技术及评测方法的发展动态。
+company: "腾讯"
+location: "深圳"
+
+expected_role_family: "product"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["role_product"]
+
+evidence:
+  title: ["腾讯会议-评测产品经理"]
+  description: ["1.评测体系规划与建设：负责 ASR与大模型产品的评测体系设计与搭建，覆盖通用能力及专项能力（如语音识别准确率、口语化理解、多轮对话、推理、写作、多模态等）；", "5.跨团队协同与产品推进：与算法、数据、工程、测试等团队紧密协作，推动评测需求定义、数据建设、工具搭建和结果应用；"]
+  requirements: ["2.具备AI 产品经理、策略产品经理或评测产品相关经验，有ASR、大模型、智能对话、AI搜索、语音助手等方向经验者优先；", "5.熟悉评测集设计、Benchmark构建、Badcase挖掘、指标定义等方法，有推动评测平台、评测工具或分析体系建设经验者优先；"]
+
+boundary_tags: []
+---
+case_id: "REG-7a0371345a3e7412"
+job_id: "2068946105739165696"
+content_sha256: "7a0371345a3e7412532dfd50ad72125511b519815a8035a770fa947e83839c1b"
+title: "安全评测工程师"
+description: |-
+  1.负责公司核心产品、业务系统及基础设施的安全评测工作，开展漏洞挖掘、渗透测试与安全评估，输出评测报告与修复建议；
+  2.跟踪主流漏洞的原理与利用方式，独立完成对 Web、二进制、云原生等场景的漏洞分析与验证（PoC/EXP 编写）；
+  3.针对 AI 系统开展安全评测，研究 AI 相关漏洞（如提示注入、模型越权、供应链投毒等）与 RASP 防护机制，参与攻防对抗与防护能力建设；
+  4.研究安全产品（RASP、EDR、沙箱等）的检测机制，探索通用绕过方法，持续提升评测深度与覆盖面；
+  5.建设与优化安全评测工具链，结合 AI 能力提升漏洞挖掘与评测的自动化水平和效率；
+  6.跟踪业界最新攻防技术、0day/Nday 动态及安全顶会研究成果，沉淀为团队方法论与能力。
+requirements: |-
+  1.对攻防技术兴趣浓厚，具备一线红队经验，熟悉常见的漏洞原理和利用思路，能对目标系统做漏洞分析与渗透测试；
+  2.计算机，信息安全相关专业，本科以上学历，3年以上EDR产品/WAF，NDR类安全产品，安全能力研究相关的工作；
+  3.熟悉主流云平台的安全架构和服务，熟悉常见安全技术和工具，对网络安全、系统安全有深入理解；
+  4.能够熟练使用 Go/Python/PHP/JAVA/.NET 等任意语言完成漏洞利用工具开发；
+  5.具备良好的系统思维能力，对于复杂问题能够快速分解找到问题本质，并提出有效的解决方案；
+  6.具备创新精神，善于用新技术、新方法来解决问题，提升工作效率；
+  7.掌握常见 AI 漏洞原理与 RASP 原理，具备相关挖掘经验。
+company: "腾讯"
+location: "深圳"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "none"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["domain_security"]
+
+evidence:
+  title: ["安全评测工程师"]
+  description: ["3.针对 AI 系统开展安全评测，研究 AI 相关漏洞（如提示注入、模型越权、供应链投毒等）与 RASP 防护机制，参与攻防对抗与防护能力建设；", "1.负责公司核心产品、业务系统及基础设施的安全评测工作，开展漏洞挖掘、渗透测试与安全评估，输出评测报告与修复建议；"]
+  requirements: ["1.对攻防技术兴趣浓厚，具备一线红队经验，熟悉常见的漏洞原理和利用思路，能对目标系统做漏洞分析与渗透测试；", "7.掌握常见 AI 漏洞原理与 RASP 原理，具备相关挖掘经验。"]
+
+boundary_tags: ["hard_exclusion_in_title"]
+---
+case_id: "REG-4c832c63c9b37ab6"
+job_id: "2064235003574923264"
+content_sha256: "4c832c63c9b37ab6130b816ecb666cd87157c39f2370cd6a84534a0a1e889cea"
+title: "生态发展部-资深游戏测试工程师-Agent评测"
+description: |-
+  1.负责AI Agent全链路评测与质量保障工作，聚焦Agent能力基准测试、自动化评测基座建设及分级评测指标定义；
+  2.针对AI生成的非确定性与参数化特点，设计并量化评测标准，搭建科学的分级评测指标体系；
+  3.主导构建高质量的基准测试集（Benchmark），覆盖多轮交互、长短上下文等复杂场景，解决AI生成结果验证标准量化的核心难题；
+  4.参与设计和研发Agent自动化评测基座，通过构建自动化测试脚本和引入大模型交叉验证（LLM-as-a-Judge）机制，提升评测效率；
+  5.建立高效的缺陷定界机制，精准判断问题根因，输出多维度评测报告并协同开发团队推动问题解决。
+requirements: |-
+  1.本科及以上学历，计算机、软件工程、人工智能等相关专业，3年及以上测试开发/评测经验，具备大模型或AI Agent核心评测经验；
+  2.深入理解大模型及AI Agent核心运行逻辑，能快速拆解Agent驱动游戏生成的业务链路；
+  3.具备优秀的逻辑思维与缺陷定界能力，能基于生成日志、链路追踪工具快速定位复杂AI生成异常的根因；
+  4.具备优秀的跨团队沟通协作能力和执行力，能高效对接算法、研发、产品团队，推动测试工作落地和问题闭环；
+  5.精通至少一门编程语言，具备扎实的编码基础。
+company: "腾讯"
+location: "深圳"
+
+expected_role_family: "qa_test"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "senior"
+expected_career_pool: "X"
+expected_reason_codes: ["domain_game"]
+
+evidence:
+  title: ["生态发展部-资深游戏测试工程师-Agent评测"]
+  description: ["4.参与设计和研发Agent自动化评测基座，通过构建自动化测试脚本和引入大模型交叉验证（LLM-as-a-Judge）机制，提升评测效率；", "1.负责AI Agent全链路评测与质量保障工作，聚焦Agent能力基准测试、自动化评测基座建设及分级评测指标定义；"]
+  requirements: ["1.本科及以上学历，计算机、软件工程、人工智能等相关专业，3年及以上测试开发/评测经验，具备大模型或AI Agent核心评测经验；", "2.深入理解大模型及AI Agent核心运行逻辑，能快速拆解Agent驱动游戏生成的业务链路；"]
+
+boundary_tags: ["hard_exclusion_in_title"]
+---
+case_id: "REG-8565831ca2f7102e"
+job_id: "7662334534477695285"
+content_sha256: "8565831ca2f7102e330728bcea1c26ea5590c67353b7a90967ff4992560279f6"
+title: "SSD固件白盒测试工程师 - AI算力基础设施"
+description: |-
+  团队介绍：字节跳动基础设施部门，负责字节跳动的全栈算力基础设施，从芯片服务器产研、到超大规模数据中心，到传统云平台和如今的AI Native Cloud，全方位为抖音、豆包、今日头条、飞书、火山引擎等各类产品提供领先、稳定的百万量级大规模算力基础设施服务。我们的领域涵盖数据中心建设、内核操作系统开发、服务器集群管理、高速网络通信、EB级数据存储体系、搜索型数据库探索、基于LLM的AI基础设施的研发调度与治理等，致力于打造业界领先的、面向LLM的AI云原生基础设施架构与产品矩阵。
+  
+  1、负责企业级PCIe/NVMe SSD固件白盒测试工作，基于需求、设计和固件实现逻辑制定测试计划、测试方案和测试用例；
+  2、围绕SSD前端、FTL或后端模块开展测试设计与验证，覆盖协议一致性、数据路径、异常处理、可靠性、稳定性和性能等关键场景；
+  3、独立搭建和维护自动化测试环境，开发测试脚本和辅助工具，提升测试执行效率、回归覆盖率和问题发现能力；
+  4、根据项目排期完成测试资源规划、用例执行、缺陷提交、回归验证和测试结果汇总，持续跟踪版本质量风险；对测试中发现的问题进行复现、分析和初步定位，结合日志、协议信息、测试路径和固件行为推动问题闭环；与固件开发、系统测试、项目管理及供应商团队协作，推动关键问题解决，保障项目质量目标和交付节奏。
+requirements: |-
+  1、具备3-5年SSD、存储或相关固件测试经验，有企业级PCIe/NVMe SSD测试经验者优先；
+  2、熟悉PCIe、NVMe协议和SSD基本工作机制，对SSD前端、FTL或后端至少一个方向有较深入理解；
+  3、具备较强的白盒测试设计能力，能够根据需求和固件机制拆解测试场景、覆盖路径、边界条件和异常场景；
+  4、具备自动化测试开发能力，熟悉Python、Shell或其他常用脚本语言，能够独立完成测试脚本、工具和回归流程建设；
+  5、熟悉质量衡量方法和量化标准，能够通过用例覆盖率、自动化覆盖率、缺陷趋势、回归通过率、问题逃逸率等指标评估版本质量；
+  6、具备责任心和良好的协作意识，能够主动推进问题闭环，并与内部团队及供应商共同达成质量和排期要求。
+company: "字节跳动"
+location: "上海"
+
+expected_role_family: "qa_test"
+expected_ai_relation: "ai_context_only"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["domain_hardware"]
+
+evidence:
+  title: ["SSD固件白盒测试工程师 - AI算力基础设施"]
+  description: ["我们的领域涵盖数据中心建设、内核操作系统开发、服务器集群管理、高速网络通信、EB级数据存储体系、搜索型数据库探索、基于LLM的AI基础设施的研发调度与治理等，致力于打造业界领先的、面向LLM的AI云原生基础设施架构与产品矩阵。", "1、负责企业级PCIe/NVMe SSD固件白盒测试工作，基于需求、设计和固件实现逻辑制定测试计划、测试方案和测试用例；"]
+  requirements: ["1、具备3-5年SSD、存储或相关固件测试经验，有企业级PCIe/NVMe SSD测试经验者优先；", "4、具备自动化测试开发能力，熟悉Python、Shell或其他常用脚本语言，能够独立完成测试脚本、工具和回归流程建设；"]
+
+boundary_tags: ["hard_exclusion_in_title", "ai_context_not_primary"]
+---
+case_id: "REG-fcf6ddfa3a939940"
+job_id: "7628074743687383301"
+content_sha256: "fcf6ddfa3a9399403d82fd745317800dce7fdbb324e34445f89d1f315377d052"
+title: "AI服务器系统集成测试研发工程师-服务器"
+description: |-
+  1、GPU机型端到端交付测试：负责GPU卡及GPU服务器整机在选型验证、研发验证、SIT、产测导入与交付验收等全流程测试，输出测试基线、验收标准与交付报告，保障项目按期交付与质量达标；
+  2、GPU SIT能力建设：构建并持续维护GPU SIT基线体系，覆盖功能、性能、稳定性、可靠性与可观测性（监控/告警/日志）等维度，沉淀可复用用例与门禁标准，支撑GPU产品规模化交付；
+  3、GPU卡评测与选型：跟踪业界新GPU卡与关键技术演进，设计并执行功能/性能/稳定性等评测与对标，输出评测结论（优势/短板/风险项），为业务产品选型与引入决策提供依据；
+  4、GPU业务场景测试与优化：深入理解业务使用场景与关键指标，持续优化SIT测试标准与基线用例，支撑线上问题复现定位与改进闭环，提升业务使用体验与稳定性；
+  5、GPU测试自动化开发：设计并实现自动化测试框架与流水线能力，包括用例编排与并发执行、结果判定、报告生成/看板与基线对比等，持续提升测试覆盖率与交付效率。
+requirements: |-
+  1、本科及以上学历，计算机、电子、通信、自动化等相关专业；具备服务器硬件测试、系统测试或生产测试/交付测试相关经验；
+  2、扎实的GPU与服务器硬件基础，深入理解AI/GPU硬件原理与系统架构，包括GPU计算与显存体系、PCIe/NUMA、CPU-IO拓扑等；能够将硬件特性与潜在风险转化为可执行的测试策略与验收标准；
+  3、熟练掌握GPU常用性能Benchmark与评测方法，覆盖计算、显存、PCIe、互联、通信等维度；
+  4、精通自动化开发，以Python为主，能够独立完成用例开发、并发执行、结果判定、日志解析、报表可视化等；熟悉Shell脚本，具备工程化交付意识与可维护性设计能力；
+  5、良好的沟通与项目推进能力，能够有效推动跨团队协作与问题闭环，保障交付节奏与质量目标达成。
+  
+  加分项
+  1、GPU Benchmark测试与算子优化：精通GPU Benchmark测试设计与执行，熟悉算子级性能分析与调优，包括CUDA Kernel优化、算子融合、内存访问模式优化等；
+  2、具备GPU芯片硅后验证（Post-Silicon Validation）经验，熟悉GPU卡功能验证、性能验证与问题定位流程；
+  3、深入理解AI大模型训练/推理流程、计算图优化、显存管理及并行策略（数据并行/模型并行/流水线并行），能够将业务需求转化为测试场景与验收标准；
+  4、熟悉AI集群网络架构（IB/RoCE/以太网）、拓扑设计、通信优化与故障定位；
+  5、有自动化测试平台或CI/CD流水线建设经验，熟悉任务编排、资源管理、结果判定与数据看板开发等。
+company: "字节跳动"
+location: "深圳"
+
+expected_role_family: "qa_test"
+expected_ai_relation: "ai_context_only"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["domain_hardware"]
+
+evidence:
+  title: ["AI服务器系统集成测试研发工程师-服务器"]
+  description: ["5、GPU测试自动化开发：设计并实现自动化测试框架与流水线能力，包括用例编排与并发执行、结果判定、报告生成/看板与基线对比等，持续提升测试覆盖率与交付效率。", "1、GPU机型端到端交付测试：负责GPU卡及GPU服务器整机在选型验证、研发验证、SIT、产测导入与交付验收等全流程测试，输出测试基线、验收标准与交付报告，保障项目按期交付与质量达标；"]
+  requirements: ["2、具备GPU芯片硅后验证（Post-Silicon Validation）经验，熟悉GPU卡功能验证、性能验证与问题定位流程；", "具备服务器硬件测试、系统测试或生产测试/交付测试相关经验；"]
+
+boundary_tags: ["hard_exclusion_in_title", "ai_context_not_primary"]
+---
+case_id: "REG-beb15eb4b6926801"
+job_id: "7637367445338310965"
+content_sha256: "beb15eb4b6926801e905d670edd9fcc2ed2cd3e92d7be4adbbd37ce8ce61bb75"
+title: "质量Agent开发工程师（TRAE） - 质量团队"
+description: |-
+  团队介绍：字节跳动质量团队作为公司质量保障体系的核心力量，覆盖Trae、Coze、开发者服务、语音等多个业务关键领域，通过建设和提供更高效的质量保障方案、技术、工具以及业务自动化保障服务，为公司业务稳健发展提供坚实保障。
+  当前，我们聚焦用 AI 重构测试流程、提升研发效能，探索从 “自动化” 到 “智能化” 的质量保障新路径。我们坚信，AI 将彻底改变测试行业的底层逻辑，欢迎加入，与我们一同突破技术边界，定义下一代质量保障模式，推动行业变革！
+  
+  1、参与构建Vibe coding趋势下的AI测试新范式方案，通过应用AI技术实现需求测试验证AI承接率极致提升、测新与回归Bug AI自主拦截率极致提升，提供以AI Agent能力为主力的测试Agent服务；
+  2、以高效交付业务需求为终极目标，持续迭代AI测试新方式方案，驱动效果持续提升，驱动需求交付效率持续提升，降低研发、测试同学手动测试人力投入；
+  3、快速学习类似Spec Coding、Harness Engineering等AI新技术，在工作中进行快速验证，持续探索构建高效的质效工具智能体服务；
+  4、探索在泛质效领域中，持续借助AI Agent为业务贡献广泛质效价值。
+requirements: |-
+  1、具备快速学习能力，对探索与应用新技术有热情，有热情参与到AI产品的测试技术的创新与探索；
+  2、对AI技术有热情，并保持快速学习；对质量效能领域技术感兴趣；
+  3、具备深度思考问题的能力，能透过现象挖掘出本质问题；
+  4、具备一定的工程编码能力，对LLM/Agent有相关经验者优先；
+  5、本科及以上学历，计算机相关专业优先；
+  6、熟悉Python/Java/Go等面向对象语言中的一种或者多种。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "development"
+expected_ai_relation: "ai_for_testing"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["role_agent_development"]
+
+evidence:
+  title: ["质量Agent开发工程师（TRAE） - 质量团队"]
+  description: ["1、参与构建Vibe coding趋势下的AI测试新范式方案，通过应用AI技术实现需求测试验证AI承接率极致提升、测新与回归Bug AI自主拦截率极致提升，提供以AI Agent能力为主力的测试Agent服务；", "团队介绍：字节跳动质量团队作为公司质量保障体系的核心力量，覆盖Trae、Coze、开发者服务、语音等多个业务关键领域，通过建设和提供更高效的质量保障方案、技术、工具以及业务自动化保障服务，为公司业务稳健发展提供坚实保障。"]
+  requirements: ["4、具备一定的工程编码能力，对LLM/Agent有相关经验者优先；", "1、具备快速学习能力，对探索与应用新技术有热情，有热情参与到AI产品的测试技术的创新与探索；"]
+
+boundary_tags: []
+---
+case_id: "REG-3c44b969f0ca5da2"
+job_id: "7631192515370928389"
+content_sha256: "3c44b969f0ca5da2534038ed8822a5fe43b1b60ce858d1ffd7b512b50a27d211"
+title: "医疗评估运营（自动评估应用方向） - AI数据与安全"
+description: |-
+  团队介绍：AI 数据与安全团队为 Seed 基座模型及 AI 原生应用提供跨模态数据服务，覆盖数据生产全流程，包含模型评估标准的制定、数据规模化生产、数据飞轮搭建，不断提升数据质量，支持模型快速迭代。
+  团队由产品经理、数据工程、数据运营等跨职能人才组成，并通过与 Seed 研究员、行业专家、全球顶尖数据供应商紧密合作，从真实场景中收集反馈并分析模型表现数据，解决 AI 前沿突破过程中的复杂数据问题，推动模型性能与用户体验的双重提升。我们既是帮助模型技术迭代的一线贡献者，也是模型和 AI 产品的一手用户。
+  
+  1、负责模型医疗应用场景自动评测集建设，参与题集生产、数据规范验收、集成上线和相关指标监测全流程，确保评测集自动评估链路切实可用；
+  2、深入理解医疗智能体的核心特性，结合临床任务规划与推理、医疗工具调用与执行、场景感知与交互、记忆与上下文保持、多智能体协作及医疗安全伦理等核心能力维度，设计贴合真实医疗场景的评测任务与Prompt模板，优化评测集结构与内容；
+  3、协同医学人员完成评测集专业性评估，保障数据合规与知识准确，规避医疗安全风险；
+  4、配合算法团队完成评测集落地应用，收集评测反馈，分析评测结果，输出评测报告，为模型优化提供数据支撑，同时负责维护评测集版本，建立评测用例库，保障评测工作的连续性与规范性。
+requirements: |-
+  1、本科及以上学历，医学信息工程、医学智能影像或数据科学与大数据技术等相关专业，具有大模型疑难评测集建设或医疗AI相关工作经验，有医疗模型Agentic评测实战经验者优先，了解医疗智能体“规划、行动、反思、记忆”的核心架构，掌握Agentic能力的关键评估维度（任务完成率、工具调用准确率、记忆管理能力等）；
+  2、了解医疗行业基础知识，熟悉常见医疗场景（临床诊断、病历处理、医疗咨询等），能准确把握医疗数据的专业性与合规性要求，需具备扎实的医疗数据处理经验；
+  3、具备良好的逻辑思维、主动问题分析与解决能力，严谨细致，善于沟通协作，能高效配合医学、产品研发团队完成跨部门协作任务；
+  4、加分项：具备扎实的数据处理能力，熟练使用Python等编程语言，掌握大量级数据筛选、清洗、校验的常用方法与前沿工具，能独立完成评测集的构建与优化工作。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "operations"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["role_operations"]
+
+evidence:
+  title: ["医疗评估运营（自动评估应用方向） - AI数据与安全"]
+  description: ["1、负责模型医疗应用场景自动评测集建设，参与题集生产、数据规范验收、集成上线和相关指标监测全流程，确保评测集自动评估链路切实可用；", "2、深入理解医疗智能体的核心特性，结合临床任务规划与推理、医疗工具调用与执行、场景感知与交互、记忆与上下文保持、多智能体协作及医疗安全伦理等核心能力维度，设计贴合真实医疗场景的评测任务与Prompt模板，优化评测集结构与内容；"]
+  requirements: ["1、本科及以上学历，医学信息工程、医学智能影像或数据科学与大数据技术等相关专业，具有大模型疑难评测集建设或医疗AI相关工作经验，有医疗模型Agentic评测实战经验者优先，了解医疗智能体“规划、行动、反思、记忆”的核心架构，掌握Agentic能力的关键评估维度（任务完成率、工具调用准确率、记忆管理能力等）；", "2、了解医疗行业基础知识，熟悉常见医疗场景（临床诊断、病历处理、医疗咨询等），能准确把握医疗数据的专业性与合规性要求，需具备扎实的医疗数据处理经验；"]
+
+boundary_tags: []
+---
+case_id: "REG-2ce7a39a4d82c3ec"
+job_id: "7540974402005371154"
+content_sha256: "2ce7a39a4d82c3ec6d965e9b911b7722eac72437ec59c3f38ad888fe45fe1967"
+title: "搜索产品经理（AI评测）-TikTok"
+description: |-
+  1、负责TikTok AI搜场景评测体系的搭建，结合用户研发和数据分析等手段深入洞察用户需求，参与定义体验目标与问题量化；
+  2、作为项目负责人推动上下游业务部门协作，和算法、业务产品、评估运营一起协作，保障评估结论能够客观真实地反映问题、为业务指明方向；
+  3、协助沉淀AI搜评估知识库，参与优化评估工具与流程，积极探索LLM在评估提效上的应用，提升团队执行效率。
+requirements: |-
+  1、本科及以上学历，对AI大模型技术与搜索产品有强烈兴趣，有相关经验者优先；
+  2、具备基础项目管理能力，沟通清晰高效，能严格跟进流程并达成目标；
+  3、抗压能力强，适应快节奏工作，具备高度责任感和自驱力；
+  4、渴望在AI产品领域快速成长，能主动学习并承担挑战性任务。
+company: "字节跳动"
+location: "北京"
+
+expected_role_family: "product"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["role_product"]
+
+evidence:
+  title: ["搜索产品经理（AI评测）-TikTok"]
+  description: ["1、负责TikTok AI搜场景评测体系的搭建，结合用户研发和数据分析等手段深入洞察用户需求，参与定义体验目标与问题量化；", "3、协助沉淀AI搜评估知识库，参与优化评估工具与流程，积极探索LLM在评估提效上的应用，提升团队执行效率。"]
+  requirements: ["1、本科及以上学历，对AI大模型技术与搜索产品有强烈兴趣，有相关经验者优先；", "2、具备基础项目管理能力，沟通清晰高效，能严格跟进流程并达成目标；"]
+
+boundary_tags: []
+---
+case_id: "REG-3eb5a0169fa455f5"
+job_id: "3506281745"
+content_sha256: "3eb5a0169fa455f51b36ac8f3a6f3b6fb4fd2e957abb9d9548ca5dcc46095f99"
+title: "LongCat - Agent评测产品经理"
+description: |-
+  1. Agent能力评测体系设计：围绕 OpenClaw、Claude Code 等主流 Agent 框架，设计并落地适配长程任务场景的评测体系，确保 Agent 在真实约束下的交付稳定性与可度量性。
+  2. 评测流程与资源建设：设计 Coding、数据分析等核心生产力场景的端到端评测流程，搭建自动化评测数据生产与自动化 Rubrics 生成的标准化 pipeline；同时建设具备强技术背景的专家标注资源池，确保 Case 评审、效果判定等关键环节的专业度与一致性。
+  3.数据闭环与模型策略驱动：将评测数据转化为模型迭代的策略输入，建立"评测→归因→策略建议→效果验证"的数据驱动闭环，推动 Agent 能力持续提升形成飞轮。
+  4.前沿框架跟踪与评测策略适配：持续跟踪 OpenClaw、Claude Code 及行业前沿 Agent 框架的能力演进与架构变化，及时调整评测策略与度量标准，确保评测体系与 Agent 技术范式同步迭代。
+  岗位亮点
+  1. 定义行业评测标准：主导构建覆盖"认知-决策-执行"全链路的Agent评测体系，推动 Agent 从 Demo 走向生产。
+  2. 前沿方向：AI Agent 正从"能对话"走向"能交付"，处于范式变革的关键节点。
+  3. 转型友好：明确欢迎算法/工程背景转型，从"实现能力"走向"定义效果"，从"写代码/训模型"走向"搭体系/做闭环"。
+requirements: |-
+  1. 本科及以上学历，1年以上大模型评测或智能体应用落地相关经验。
+  2. 追求评测方案的科学性与细节完备性，并对新范式保持高敏感，关注 Claude Code / OpenClaw 等 Agent 工具链演进，并能转化为相应评测策略。
+  3. 对评测、观测、数据闭环有直觉，具备基于数据的归因分析能力。
+  4. 具有良好的沟通能力、评测资源搭建与管理能力、跨团队合作精神以及较强的问题解决能力。
+company: "美团"
+location: "北京 / 上海"
+
+expected_role_family: "product"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["role_product"]
+
+evidence:
+  title: ["LongCat - Agent评测产品经理"]
+  description: ["1. 定义行业评测标准：主导构建覆盖\"认知-决策-执行\"全链路的Agent评测体系，推动 Agent 从 Demo 走向生产。", "2. 评测流程与资源建设：设计 Coding、数据分析等核心生产力场景的端到端评测流程，搭建自动化评测数据生产与自动化 Rubrics 生成的标准化 pipeline；"]
+  requirements: ["1. 本科及以上学历，1年以上大模型评测或智能体应用落地相关经验。", "3. 对评测、观测、数据闭环有直觉，具备基于数据的归因分析能力。"]
+
+boundary_tags: []
+---
+case_id: "REG-b26fbb37e2061b25"
+job_id: "3246787138"
+content_sha256: "b26fbb37e2061b2550597702b078e11dacc4ea209f01a0cdc614997afd0aa331"
+title: "技术社区运营（大模型评测方向）"
+description: |-
+  1. 围绕评测社区开展相关社群活动，负责活跃社群用户增加社群的粘性，同时对大模型有相关了解，可通过课程及文档撰写提升用户数据产出质量
+  2. 参与全平台自媒体运营，做用户稿件的筛选和优化，增加平台的媒体声量创造更大的流量池
+  3. 负责和知名教授，机构，企业沟通，邀请评测方案贡献和参与模型评测，负责相关的线下高校宣传，并挖掘更多高校合作和宣传资源，促成资源合作完成用户转化
+  4. 总结和分析平台的粉丝锚点数据，分析用户流量来源并完成方法论及迭代策略
+  5. 可根据要求独立完成稿件文案及图片创作，并且可以创作高质量视频内容
+  岗位亮点
+  1. 紧跟人工智能行业的前沿进展，接触到新的技术和行业趋势，磨练出对人工智能的独到见解
+  2. 参与AI模型评测流程，了解从理论到工程实践的全面技能
+  3. 与一流的人工智能团队合作，快速成长，提升自身能力
+  4. 有机会参与公司的创新项目，跨足不同领域，拓宽人工智能技术的应用范围
+requirements: |-
+  1.本科及以上学历，3年以上产品运营/用户运营相关经验
+  2. 有社群运营经验，通过不同媒体渠道能实现用户转化，基于用户兴趣和各类创新玩法，带动用户留存和活跃
+  3. 对内容社区有热情，内容灵敏度高善于挖掘高热度内容，文案能力强，可创造破圈内容和玩法
+  4. 熟练掌握图像、视频编辑软件，可通过AI产品提升内容创作效率
+company: "美团"
+location: "北京 / 上海"
+
+expected_role_family: "operations"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["role_operations"]
+
+evidence:
+  title: ["技术社区运营（大模型评测方向）"]
+  description: ["1. 围绕评测社区开展相关社群活动，负责活跃社群用户增加社群的粘性，同时对大模型有相关了解，可通过课程及文档撰写提升用户数据产出质量", "3. 负责和知名教授，机构，企业沟通，邀请评测方案贡献和参与模型评测，负责相关的线下高校宣传，并挖掘更多高校合作和宣传资源，促成资源合作完成用户转化"]
+  requirements: ["1.本科及以上学历，3年以上产品运营/用户运营相关经验", "2. 有社群运营经验，通过不同媒体渠道能实现用户转化，基于用户兴趣和各类创新玩法，带动用户留存和活跃"]
+
+boundary_tags: []
+---
+case_id: "REG-3a6523eb7dccea92"
+job_id: "7615192348661811475"
+content_sha256: "3a6523eb7dccea9208cac31934f735c9869d6d9f789082f6a46bc95b98ca5f82"
+title: "数据实习生（数据标注 & 算法评测方向）"
+description: |-
+  岗位职责
+  数据标注核心工作：按照项目规范完成文本、图像、视频等多类型数据的标注、分类、校对工作，确保标注数据的准确性、完整性和一致性，严格遵守标注标准与质量要求；
+  标注规则优化：参与标注规则的学习与落地，在实操中反馈规则模糊点、数据异常情况，协助优化标注流程与标准文档；
+  模型 & 算法评测执行：协助工程师搭建简易评测环境，按照评测方案执行模型效果测试，包括数据输入、结果记录、指标计算；
+  评测数据处理：整理评测过程中的原始数据、中间结果及最终报告，对评测中出现的异常案例进行分类统计，为算法迭代提供数据支持；
+  跨部门协作：与算法工程师、产品经理沟通对接，同步标注进度、评测结果及问题反馈，配合完成项目迭代需求；
+  文档沉淀：记录标注与评测过程中的关键信息，协助撰写实习期间的工作周报、项目总结报告。
+requirements: |-
+  任职要求
+  在读本科生或研究生，计算机相关专业（计算机科学与技术、数据科学、人工智能、统计学等）优先，其他专业具备相关技能者也可投递；
+  了解数据标注基本流程，有文本分类、目标检测等任一类型数据标注实习 / 项目经验者优先；
+  具备基础的模型与算法认知，了解常见机器学习 / 深度学习模型（如分类、检测、NLP 生成模型等）的基本原理；
+  掌握基础的数据处理工具，如 Excel/Sheets，具备 Python 编写代码基础；
+  工作细致严谨，有较强的责任心和质量意识，能承受一定的重复性工作压力； 
+  具备良好的沟通能力和团队协作精神，能快速理解项目需求并落地执行；
+company: "智谱AI"
+location: "北京"
+
+expected_role_family: "evaluation_engineering"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "intern"
+expected_career_pool: "X"
+expected_reason_codes: ["level_intern"]
+
+evidence:
+  title: ["数据实习生（数据标注 & 算法评测方向）"]
+  description: ["模型 & 算法评测执行：协助工程师搭建简易评测环境，按照评测方案执行模型效果测试，包括数据输入、结果记录、指标计算；", "标注规则优化：参与标注规则的学习与落地，在实操中反馈规则模糊点、数据异常情况，协助优化标注流程与标准文档；"]
+  requirements: ["在读本科生或研究生，计算机相关专业（计算机科学与技术、数据科学、人工智能、统计学等）优先，其他专业具备相关技能者也可投递；", "了解数据标注基本流程，有文本分类、目标检测等任一类型数据标注实习 / 项目经验者优先；"]
+
+boundary_tags: []
+---
+case_id: "REG-7e73130ae9d36d07"
+job_id: "7659710499500951814"
+content_sha256: "7e73130ae9d36d07359a2acb8e2962a6ff14155d1bc65e0e22d3cead551be3b4"
+title: "兼职医学影像科医生（医疗 AI 影像评测 / 标注方向）"
+description: |-
+  稳定兼职岗位 · 远程协作 · 时间灵活 · 长期合作
+  【项目背景】 
+  参与前沿医疗 AI 大模型的影像判读能力评测。你将作为影像诊断专家，为模型输出的影像所见与诊断结论提供专业评判与标注，直接影响模型的医学质量。
+  【岗位职责】
+  1. 参与 X 线 / CT / MR 等医学影像内容的判读、评测、审核与标注。
+  2. 基于影像图像、检查所见与诊断结论，对影像描述、诊断准确性、逻辑性及报告规范性进行评估打分。
+  3. 输出专业、可复核的影像判读反馈，指出漏诊、误诊及描述不规范之处。
+  4. 严格按项目评分标准执行，参与规则校准、疑难病例讨论与质量复核，保证标注一致性。
+requirements: |-
+  【任职要求】
+  1. 医学影像科 / 影像诊断专业背景（放射影像诊断方向）。主治医师及以上职称，公立三级医院工作经历，三甲医院优先。
+  2. 5 年以上医学影像诊断临床经验，可独立签发影像诊断报告经验丰富。
+  3. 熟练判读多部位（胸部、腹部、骨骼肌肉、头颅、脊柱等）X 线 / CT / MR 影像，影像诊断基础扎实、结论稳定。
+  4. 标注严谨、口径一致，能理解并稳定执行统一评分标准。有医学内容审核、医疗 AI 评测、影像带教或质控经验者优先。
+  
+  【工作要求】
+  1. 每天可灵活安排时间，保证按时保质完成任务。
+  2. 能够长期稳定参与项目。
+  3. 接受必要培训与规则校准，遵守项目规范。
+  4. 责任心强，标注细致，沟通顺畅，执行力好。
+  5. 熟练使用 Excel、共享文档等基础办公工具。
+company: "百川智能"
+location: "北京"
+
+expected_role_family: "domain_expert"
+expected_ai_relation: "core_ai_evaluation"
+expected_seniority_level: "regular"
+expected_career_pool: "X"
+expected_reason_codes: ["role_domain_expert"]
+
+evidence:
+  title: ["兼职医学影像科医生（医疗 AI 影像评测 / 标注方向）"]
+  description: ["参与前沿医疗 AI 大模型的影像判读能力评测。", "1. 参与 X 线 / CT / MR 等医学影像内容的判读、评测、审核与标注。"]
+  requirements: ["有医学内容审核、医疗 AI 评测、影像带教或质控经验者优先。", "主治医师及以上职称，公立三级医院工作经历，三甲医院优先。"]
+
+boundary_tags: []
