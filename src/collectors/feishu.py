@@ -30,6 +30,7 @@ class FeishuRawCollector(RawCollector):
                 browser = playwright.chromium.launch(headless=True)
                 try:
                     for company in cfg.get("companies", []):
+                        manifest.attempted_companies.append(str(company.get("name", "unknown")))
                         context = browser.new_context(
                             user_agent=(
                                 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -46,6 +47,7 @@ class FeishuRawCollector(RawCollector):
                                 manifest,
                             )
                         except Exception as exc:
+                            manifest.failed_companies.append(str(company.get("name", "unknown")))
                             company_errors.append(
                                 f"{company.get('name', 'unknown')}: {exc}"
                             )

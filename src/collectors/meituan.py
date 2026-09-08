@@ -123,6 +123,7 @@ class MeituanRawCollector(RawCollector):
                         manifest.details_fetched += 1
                     except Exception:
                         manifest.detail_failed += 1
+                        manifest.detail_failed_job_ids.append(job.job_id)
 
             manifest.jobs_in_scope = len(jobs_by_id)
             manifest.complete = manifest.complete and manifest.detail_failed == 0

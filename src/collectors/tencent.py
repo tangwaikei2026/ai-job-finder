@@ -125,6 +125,7 @@ class TencentRawCollector(RawCollector):
                             manifest.details_fetched += 1
                         except Exception:
                             manifest.detail_failed += 1
+                            manifest.detail_failed_job_ids.append(job.job_id)
                         detail_done += 1
                         if (
                             detail_done % 50 == 0

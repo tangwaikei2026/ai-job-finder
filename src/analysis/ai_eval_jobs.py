@@ -43,6 +43,7 @@ ROLE_FAMILIES = {
     "operations",
     "domain_expert",
 }
+NON_QA_ROLE_FAMILIES = frozenset({"product", "development", "operations", "domain_expert"})
 AI_RELATIONS = {
     "core_ai_evaluation",
     "ai_product_quality",
@@ -740,7 +741,7 @@ def _ai_relation_classification(
         )
         return "core_ai_evaluation", evidence, "evaluation_role_primary"
 
-    if role_family in {"product", "operations", "domain_expert", "development"}:
+    if role_family in NON_QA_ROLE_FAMILIES:
         if role_family == "development" and AGENT_DEVELOPMENT_ROLE_PATTERN.search(title):
             evidence = _relation_evidence(
                 AI_FOR_TESTING_DUTY_PATTERN, "description", description
@@ -828,29 +829,13 @@ def _ordered_reason_codes(reason_codes: Iterable[str]) -> list[str]:
     return [code for code in EXCLUSION_REASON_PRIORITY if code in unique]
 
 
-def classify_body_primary_ai_evaluation(
-    job: Mapping[str, Any],
-) -> dict[str, Any]:
-    """Classify one job through the production AI/Agent career-pool rules."""
-    job = classification_input(job)
+def _personal_fit_decision(
+    job: Mapping[str, Any], *, role_family: str, ai_relation: str,
+    seniority_level: str, role_reason: str | None,
+    effective_hard_domain_reason: str | None,
+) -> tuple[str, list[str]]:
+    """Single owner of the frozen personal career-pool decision tree."""
     title = _text(job.get("title"))
-    role_family, role_reason, role_terms = _role_classification(title)
-    if role_family == "qa_test" and MANAGEMENT_DUTY_PATTERN.search(
-        _text(job.get("description"))
-    ):
-        role_family = "quality_engineering"
-    seniority_level, seniority_terms = _seniority_classification(job)
-    hard_domain_reason, hard_domain_terms = _hard_domain_classification(job)
-    non_target_roles = {"product", "development", "operations", "domain_expert"}
-    effective_hard_domain_reason = (
-        None if role_family in non_target_roles else hard_domain_reason
-    )
-    ai_relation, ai_evidence, relation_rule = _ai_relation_classification(
-        job,
-        role_family=role_family,
-        hard_domain_reason=effective_hard_domain_reason,
-    )
-
     algorithm_research_hard = bool(
         role_family == "algorithm_research"
         and ALGORITHM_RESEARCH_HARD_PATTERN.search(
@@ -866,7 +851,7 @@ def classify_body_primary_ai_evaluation(
     if effective_hard_domain_reason:
         career_pool = "X"
         reason_codes = [effective_hard_domain_reason]
-    elif role_family in non_target_roles:
+    elif role_family in NON_QA_ROLE_FAMILIES:
         career_pool = "X"
         reason_codes = [role_reason or "role_general_rnd"]
     elif seniority_level == "intern":
@@ -896,6 +881,36 @@ def classify_body_primary_ai_evaluation(
         )
 
     reason_codes = _ordered_reason_codes(reason_codes)
+    return career_pool, reason_codes
+
+
+def classify_body_primary_ai_evaluation(
+    job: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Classify one job through the production AI/Agent career-pool rules."""
+    job = classification_input(job)
+    title = _text(job.get("title"))
+    role_family, role_reason, role_terms = _role_classification(title)
+    if role_family == "qa_test" and MANAGEMENT_DUTY_PATTERN.search(
+        _text(job.get("description"))
+    ):
+        role_family = "quality_engineering"
+    seniority_level, seniority_terms = _seniority_classification(job)
+    hard_domain_reason, hard_domain_terms = _hard_domain_classification(job)
+    effective_hard_domain_reason = (
+        None if role_family in NON_QA_ROLE_FAMILIES else hard_domain_reason
+    )
+    ai_relation, ai_evidence, relation_rule = _ai_relation_classification(
+        job,
+        role_family=role_family,
+        hard_domain_reason=effective_hard_domain_reason,
+    )
+
+    career_pool, reason_codes = _personal_fit_decision(
+        job, role_family=role_family, ai_relation=ai_relation,
+        seniority_level=seniority_level, role_reason=role_reason,
+        effective_hard_domain_reason=effective_hard_domain_reason,
+    )
     rule_id = f"{role_family}_{ai_relation}_{career_pool.lower()}"
     hard_exclusion_evidence: dict[str, list[str]] = {}
     if role_reason and role_terms:
@@ -932,6 +947,70 @@ def classify_body_primary_ai_evaluation(
         "reason": reason,
         "evidence": evidence,
     }
+
+
+MARKET_TEST_FUNCTION_PATTERN = re.compile(r"(?i)(?:测试|test\s*(?:agent|harness|automation)|质量Agent)")
+
+
+def classify_market(job: Mapping[str, Any]) -> dict[str, Any]:
+    """Market facts only; no career-pool/domain preference decisions."""
+    job = classification_input(job)
+    role, _, terms = _role_classification(job["title"])
+    if role == "qa_test" and MANAGEMENT_DUTY_PATTERN.search(job["description"]):
+        role = "quality_engineering"
+    seniority, _ = _seniority_classification(job)
+    relation, relation_evidence, rule = _ai_relation_classification(
+        job, role_family=role, hard_domain_reason=None,
+    )
+    # Generic evaluation/product titles alone do not establish an AI market.
+    has_ai = bool(AI_CONTEXT_ONLY_PATTERN.search("\n".join(job.values())))
+    in_scope = has_ai and relation not in {"none", "ai_context_only"}
+    if in_scope and relation == "ai_for_testing" and role in NON_QA_ROLE_FAMILIES:
+        # The legacy relation matcher includes generic "quality/diagnosis" and
+        # Agent development. These alone are not evidence of a testing market.
+        test_duty = any(
+            MARKET_TEST_FUNCTION_PATTERN.search(segment)
+            and AI_FOR_TESTING_DUTY_PATTERN.search(segment)
+            for segment in _responsibility_segments(job)
+        )
+        in_scope = bool(test_duty or (
+            AI_CONTEXT_ONLY_PATTERN.search(job["title"])
+            and MARKET_TEST_FUNCTION_PATTERN.search(job["title"])
+        ))
+    evidence = {field: [] for field in CLASSIFICATION_INPUT_FIELDS}
+    evidence["title"] = terms
+    if relation_evidence:
+        evidence[relation_evidence["field"]].extend(relation_evidence["terms"])
+    return {
+        "in_scope": in_scope, "role_family": role, "ai_relation": relation,
+        "seniority_level": seniority,
+        "reason_codes": [rule] if in_scope else ["AI_EVALUATION_NOT_ESTABLISHED"],
+        "evidence": evidence,
+    }
+
+
+def classify_personal_fit(
+    job: Mapping[str, Any], market: Mapping[str, Any],
+) -> dict[str, Any]:
+    """X means market-related but excluded from the personal candidate pool."""
+    if not market["in_scope"]:
+        raise ValueError("Personal Fit requires market.in_scope=true")
+    job = classification_input(job)
+    _, role_reason, _ = _role_classification(job["title"])
+    domain_reason, _ = _hard_domain_classification(job)
+    if market["role_family"] in NON_QA_ROLE_FAMILIES:
+        domain_reason = None
+    pool, reasons = _personal_fit_decision(
+        job, role_family=market["role_family"], ai_relation=market["ai_relation"],
+        seniority_level=market["seniority_level"], role_reason=role_reason,
+        effective_hard_domain_reason=domain_reason,
+    )
+    return {"career_pool": pool, "fit_reason_codes": reasons}
+
+
+def classify_skills(job: Mapping[str, Any]) -> list[str]:
+    """Controlled synonym-to-canonical ontology, shared with legacy reports."""
+    return _matches("\n".join(classification_input(job).values()), SKILL_PATTERNS)
 
 
 def explain_job_selection(job: Mapping[str, Any]) -> dict[str, Any] | None:

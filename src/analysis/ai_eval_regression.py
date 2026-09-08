@@ -322,12 +322,58 @@ def run_frozen_regression(path: Path) -> dict[str, Any]:
     }
 
 
+def run_split_regression(path: Path, expectations_path: Path) -> dict[str, Any]:
+    """Two evaluators over the untouched frozen JD cases and explicit market overlay."""
+    from src.analysis.ai_eval_jobs import classify_market, classify_personal_fit
+
+    cases = load_frozen_regression_cases(path)
+    expectations = yaml.safe_load(expectations_path.read_text(encoding="utf-8"))
+    reason_by_case = {}
+    for code, ids in expectations["market_reason_cases"].items():
+        for case_id in ids:
+            if case_id in reason_by_case:
+                raise RegressionDataIntegrityError(f"duplicate market expectation: {case_id}")
+            reason_by_case[case_id] = [code]
+    if set(reason_by_case) != {case["case_id"] for case in cases}:
+        raise RegressionDataIntegrityError("market expectations must cover exactly the frozen cases")
+    reports = {name: {"total": 0, "passed": 0, "failed": 0, "failures": []} for name in ("market", "fit")}
+    for case in cases:
+        case_id = case["case_id"]
+        market = classify_market(case)
+        expected = {
+            "in_scope": case_id not in expectations["out_of_scope"],
+            "role_family": case["expected_role_family"],
+            "ai_relation": expectations["ai_relation_overrides"].get(case_id, case["expected_ai_relation"]),
+            "seniority_level": case["expected_seniority_level"],
+            "reason_codes": reason_by_case[case_id],
+        }
+        evaluations = [("market", expected, market)]
+        if market["in_scope"]:
+            fit = classify_personal_fit(case, market)
+            evaluations.append(("fit", {"career_pool": case["expected_career_pool"],
+                                        "fit_reason_codes": case["expected_reason_codes"]}, fit))
+        for name, wanted, actual in evaluations:
+            differences = {key: {"expected": value, "actual": actual[key]}
+                           for key, value in wanted.items() if actual[key] != value}
+            reports[name]["total"] += 1
+            reports[name]["passed"] += int(not differences)
+            reports[name]["failed"] += int(bool(differences))
+            if differences:
+                reports[name]["failures"].append({"case_id": case_id, "differences": differences})
+    return reports
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Run the frozen AI/Agent classification regression set"
     )
     parser.add_argument("regression_file", type=Path)
+    parser.add_argument("--market-expectations", type=Path)
     args = parser.parse_args(argv)
+    if args.market_expectations:
+        report = run_split_regression(args.regression_file, args.market_expectations)
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        return int(any(result["failed"] for result in report.values()))
     report = run_frozen_regression(args.regression_file)
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0 if report["failed"] == 0 else 1

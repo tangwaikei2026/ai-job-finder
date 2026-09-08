@@ -1,0 +1,139 @@
+source: ai_eval_regression_set_v1_117_frozen.yaml
+notes: Market expectations are separate from personal exclusions. Security case explicitly
+  evaluates AI prompt injection/model access; market core evaluation, personal X.
+  Original 117 cases and hashes remain frozen.
+out_of_scope:
+- REG-1581858f99691f05
+- REG-8565831ca2f7102e
+- REG-fcf6ddfa3a939940
+ai_relation_overrides:
+  REG-7a0371345a3e7412: core_ai_evaluation
+market_reason_cases:
+  title_primary_ai_product_quality:
+  - REG-40892b50071c08fb
+  - REG-f3057f252ed0715c
+  - REG-cc144c42e6a8605c
+  - REG-04cd1e8d4ef73a1c
+  - REG-71c0bcea80eb4d85
+  - REG-69d82b54204f1423
+  - REG-90675d11eef4387f
+  - REG-d503e33631165f37
+  - REG-5e0b0058c0eac4aa
+  - REG-312388f1d809c767
+  - REG-99a75a944e328734
+  - REG-f480bd0ce0ba0b7d
+  ai_product_quality_primary:
+  - REG-3116367f1c04c226
+  - REG-628da65d560b9344
+  - REG-42fdded4a6b959db
+  - REG-1ce265ed3df4e724
+  - REG-a152f2c1e04dc964
+  - REG-56f22d5516305366
+  - REG-d3d43edc0e20aff9
+  - REG-1f86b54eba378c29
+  - REG-73c6cc7430903ebc
+  - REG-5344ede037e905f4
+  - REG-db163839aaf1f98d
+  - REG-bf9898199c6cf1b2
+  - REG-2ac177d9017ce658
+  - REG-90e75fbe442354d8
+  - REG-851c3acc587a91f0
+  - REG-6785387b3f3d93b9
+  - REG-0ceee9eef3da2966
+  - REG-9cecf5189be70e23
+  - REG-f32bbc4f6a0e9d82
+  - REG-76ec525b283a6b6e
+  - REG-155cbec923bbabfe
+  - REG-09eb88d540e53e7b
+  - REG-540026a0ba86ff94
+  - REG-f91d3eb9b6cb2128
+  - REG-e3d9dfca088b72ce
+  ai_testing_capability_primary:
+  - REG-fced04cbcd0cb744
+  - REG-efa6e9f03b359e49
+  - REG-f1621a75a256feda
+  - REG-3b9eddd5adc0d865
+  - REG-317cc50aa5f5d24c
+  - REG-9cb13053fcb589eb
+  - REG-4e5fa338f077f470
+  - REG-e9a3abce8780a2cb
+  - REG-946b664960aac86f
+  - REG-5fba03dda6f8845e
+  - REG-672ddae0e63a8398
+  - REG-1a112f424158e230
+  - REG-f2226d8dc80dbc74
+  - REG-1eeb66bb9a96a04a
+  - REG-b520c6646281cebc
+  - REG-7ccb18e07b6ed366
+  - REG-13d62d5c8f0e4c16
+  - REG-abe88fde7b3a0eb5
+  - REG-fadab392ccbe3cfa
+  - REG-3e91936cbe3e23e5
+  - REG-5f78c2a098f7b62e
+  - REG-badbaa9c1263f550
+  - REG-e4ce134ee54565d8
+  - REG-5749dc0a17657f81
+  model_evaluation_primary:
+  - REG-a987e1d7374c1777
+  - REG-8769f301e316d5c8
+  - REG-ff80751bff11f875
+  - REG-bf2af879f03e27f1
+  - REG-cdd79180a707f459
+  - REG-4c832c63c9b37ab6
+  title_supported_ai_for_testing:
+  - REG-05eb7cab6434f365
+  - REG-a7a1d3f57e8f7616
+  - REG-80a32c22d0290054
+  - REG-90cd1e9a62a67aff
+  - REG-b0cc854b5dfbfaa3
+  title_supported_ai_product_quality:
+  - REG-26bad50d160e3ddb
+  - REG-caa4c5d94c1faa91
+  AI_EVALUATION_NOT_ESTABLISHED:
+  - REG-1581858f99691f05
+  - REG-8565831ca2f7102e
+  - REG-fcf6ddfa3a939940
+  evaluation_role_primary:
+  - REG-0a6a0a68d97b8a7b
+  - REG-b771cd45e9ff82d9
+  - REG-16172e48aaccfde0
+  - REG-ab191fbcd470ef65
+  - REG-8f457909a623aa59
+  - REG-431d078360bea5f2
+  - REG-c6b39385c741b32d
+  - REG-47c1a5ad5bb67e27
+  - REG-62818e05888c2954
+  - REG-b33c3ef359c944c3
+  - REG-be6fc745d6cf357b
+  - REG-6ff4a06743ed2f1a
+  - REG-b9b4655eaf22da69
+  - REG-51ea6852e45d0e97
+  - REG-6771939fe6b9555a
+  - REG-151fef86ea3ad9c5
+  - REG-4314378fef19e87e
+  - REG-ccc7b8bbcbaf5a96
+  - REG-65d3f723d1298cbd
+  - REG-321b9c43b68fbc0b
+  - REG-e3fd418880be2888
+  - REG-474a6f3214201acc
+  - REG-96e4eadf42b46cf4
+  - REG-a033b369443fd201
+  - REG-3d97eed03cd59e03
+  - REG-398871cf9df072ae
+  - REG-906f9c3194740ed8
+  - REG-3e52f97b89d0e489
+  - REG-7a0371345a3e7412
+  - REG-3a6523eb7dccea92
+  non_target_ai_for_testing:
+  - REG-97c3d163c41b1125
+  non_target_evaluation_role:
+  - REG-e86dcffdff4723cf
+  - REG-2e4459c9d38a6701
+  - REG-813b287d4910d133
+  - REG-3c44b969f0ca5da2
+  - REG-2ce7a39a4d82c3ec
+  - REG-3eb5a0169fa455f5
+  - REG-b26fbb37e2061b25
+  - REG-7e73130ae9d36d07
+  agent_development_for_testing:
+  - REG-beb15eb4b6926801

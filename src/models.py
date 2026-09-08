@@ -54,6 +54,9 @@ class CollectionManifest:
     missing_job_id: int = 0
     details_fetched: int = 0
     detail_failed: int = 0
+    failed_companies: list[str] = field(default_factory=list)
+    attempted_companies: list[str] = field(default_factory=list)
+    detail_failed_job_ids: list[str] = field(default_factory=list)
     stopped_by: str = ""
     error: str = ""
     started_at: str = field(default_factory=_now)

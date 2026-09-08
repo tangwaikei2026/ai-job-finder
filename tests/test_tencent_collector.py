@@ -156,6 +156,7 @@ def test_detail_failure_is_partial_and_keeps_list_job() -> None:
     assert result.manifest.complete is False
     assert result.manifest.details_fetched == 0
     assert result.manifest.detail_failed == 1
+    assert result.manifest.detail_failed_job_ids == ["t1"]
     assert result.manifest.stopped_by == "detail_errors"
 
 
@@ -415,6 +416,7 @@ def test_detail_max_retries_one_does_not_use_global_retry_limit() -> None:
     assert [job.job_id for job in result.jobs] == ["t1"]
     assert result.manifest.details_fetched == 0
     assert result.manifest.detail_failed == 1
+    assert result.manifest.detail_failed_job_ids == ["t1"]
 
 
 def test_missing_detail_data_is_counted_as_failure() -> None:
@@ -442,6 +444,7 @@ def test_missing_detail_data_is_counted_as_failure() -> None:
     assert result.manifest.status == "partial"
     assert result.manifest.details_fetched == 0
     assert result.manifest.detail_failed == 1
+    assert result.manifest.detail_failed_job_ids == ["t1"]
 
 
 def test_detail_requests_are_serial_and_delayed(
