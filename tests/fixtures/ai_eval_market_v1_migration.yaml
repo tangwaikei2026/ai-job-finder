@@ -1,0 +1,127 @@
+version: market_v1_regression_migration
+semantic_owner: market_oracle_v1.yaml
+legacy_overlay: ai_eval_market_expectations.yaml
+legacy_fixture_sha256: fde907e4d40eb3d2cb43c64054cc1346e73e10a8b72f16e94535bf38647b075d
+legacy_overlay_sha256: 72c83920390358877b90e76a6e74e8efa8b268060336cfa050993ba279d5ce18
+contract: docs/market_contract_v1.md
+contract_sha256: c25d58fa26c17d1e582d77a266e5f7b0ffc3770919eeec129adabdb66f80ab3f
+notes: Compatibility deltas only, not a second V1 Oracle. Unchanged legacy assertions
+  remain; migrated label reason IDs are retired. Full V1 semantics are owned by the
+  referenced Frozen 60.
+migrations:
+  REG-40892b50071c08fb:
+    classification: LEGACY_CONTRACT_OBSOLETE
+    content_sha256: 40892b50071c08fba3b522cfd179a67f3d2f73bc7b7e05bc898a4bb27f3071a4
+    proof: ai_for_testing：主要被测对象不是模型能力，AI作为测试质量工程技术手段。
+    replace:
+      ai_relation: ai_for_testing
+    evidence:
+      field: description
+      quote: 帮助业务测试团队提升测试效率
+  REG-f1621a75a256feda:
+    classification: LEGACY_CONTRACT_OBSOLETE
+    content_sha256: f1621a75a256feda0ccb065d3dfa35a78075c59babc89043cd3fe8f1fbb91e9f
+    proof: 同时测试AI产品和用AI测试工具，按主要被保障对象选relation
+    replace:
+      ai_relation: ai_product_quality
+    evidence:
+      field: description
+      quote: 负责数据领域 AI 产品的质量保障工作
+  REG-3b9eddd5adc0d865:
+    classification: LEGACY_CONTRACT_OBSOLETE
+    content_sha256: 3b9eddd5adc0d86573c8305e3de3a57c6f84dd0b140ba94dce29465d182fad66
+    proof: 同时测试AI产品和用AI测试工具，按主要被保障对象选relation
+    replace:
+      ai_relation: ai_product_quality
+    evidence:
+      field: description
+      quote: 负责上述领域 AI 产品的质量保障工作
+  REG-317cc50aa5f5d24c:
+    classification: LEGACY_CONTRACT_OBSOLETE
+    content_sha256: 317cc50aa5f5d24c9b0d4ee4b74e0004cd2e2ad60c15a14e9b125cf72759bc9e
+    proof: 同时测试AI产品和用AI测试工具，按主要被保障对象选relation
+    replace:
+      ai_relation: ai_product_quality
+    evidence:
+      field: description
+      quote: 建立 LLM 应用的测试方法论和评估体系
+  REG-73c6cc7430903ebc:
+    classification: LEGACY_CONTRACT_OBSOLETE
+    content_sha256: 73c6cc7430903ebceafb67eb889abf3163aa9256b95540228efc6b0aebb00424
+    proof: core_ai_evaluation：主要Evaluation work直接测量模型/Agent能力
+    replace:
+      ai_relation: core_ai_evaluation
+    evidence:
+      field: description
+      quote: 负责AIGC评测能力建设，联合产品、设计共建科学评测体系
+  REG-9cecf5189be70e23:
+    classification: LEGACY_CONTRACT_OBSOLETE
+    content_sha256: 9cecf5189be70e23b94afca2341b23e82805a17348496210cc995e376bb5d6db
+    proof: ai_for_testing：主要被测对象不是模型能力，AI作为测试质量工程技术手段。
+    replace:
+      ai_relation: ai_for_testing
+    evidence:
+      field: description
+      quote: 探索AI在风险识别、用例生成、问题分析、回归提效等场景中的落地
+  REG-d503e33631165f37:
+    classification: LEGACY_CONTRACT_OBSOLETE
+    content_sha256: d503e33631165f37bafa54499fe04c6fdb07209673be007291b89f23004dd3a8
+    proof: ai_for_testing：主要被测对象不是模型能力，AI作为测试质量工程技术手段。
+    replace:
+      ai_relation: ai_for_testing
+    evidence:
+      field: description
+      quote: 使用 AI 工具做服务端产品质量保证工作
+  REG-cdd79180a707f459:
+    classification: LEGACY_CONTRACT_OBSOLETE
+    content_sha256: cdd79180a707f45948d9e233b9b55bdbd85ac55d5b366cb9b9a1d8c8fc43a37a
+    proof: IDENTICAL_FULL_CONTENT_SHA256
+    oracle_case_id: P-01
+  REG-1581858f99691f05:
+    classification: LEGACY_CONTRACT_OBSOLETE
+    content_sha256: 1581858f99691f058f5da1b5ec876d69cf5d540e887f981b1ee08722f4666c1b
+    proof: FROZEN_CONTRACT_STOP_SEMANTICS
+  REG-e3fd418880be2888:
+    classification: LEGACY_CONTRACT_OBSOLETE
+    content_sha256: e3fd418880be2888b02421cbbe92d73767dc39d1d48b71cda05d2a9995547bc9
+    proof: primary按E1职业身份/title、E2最终负责交付、E3招聘能力要求判断
+    replace:
+      role_family: evaluation_engineering
+    evidence:
+      field: description
+      quote: 设计并实现大模型/Agent自动评测Pipeline，工程化落地Judge system、sandbox、风险检测等关键组件
+  REG-f480bd0ce0ba0b7d:
+    classification: LEGACY_CONTRACT_OBSOLETE
+    content_sha256: f480bd0ce0ba0b7dea3366efaece72e8cd43a0437760116824cb36284aafab9d
+    proof: ai_for_testing：主要被测对象不是模型能力，AI作为测试质量工程技术手段。
+    replace:
+      ai_relation: ai_for_testing
+    evidence:
+      field: description
+      quote: 负责AI金融测试工具及平台的整体架构设计与迭代优化
+  REG-b0cc854b5dfbfaa3:
+    classification: LEGACY_CONTRACT_OBSOLETE
+    content_sha256: b0cc854b5dfbfaa312fa44ff177f511a3419afa4a64814ff9c966314d5551966
+    proof: 同时测试AI产品和用AI测试工具，按主要被保障对象选relation
+    replace:
+      ai_relation: ai_product_quality
+    evidence:
+      field: description
+      quote: 负责AI相关业务的质量与效能体系建设
+  REG-f91d3eb9b6cb2128:
+    classification: LEGACY_CONTRACT_OBSOLETE
+    content_sha256: f91d3eb9b6cb21284d691727a4920f8ca4d904464ce2e8e5ceb857a509eadba6
+    proof: ai_for_testing：主要被测对象不是模型能力，AI作为测试质量工程技术手段。
+    replace:
+      ai_relation: ai_for_testing
+    evidence:
+      field: description
+      quote: 利用AIGC技术优化测试过程
+  REG-8565831ca2f7102e:
+    classification: LEGACY_CONTRACT_OBSOLETE
+    content_sha256: 8565831ca2f7102e330728bcea1c26ea5590c67353b7a90967ff4992560279f6
+    proof: FROZEN_CONTRACT_STOP_SEMANTICS
+  REG-fcf6ddfa3a939940:
+    classification: LEGACY_CONTRACT_OBSOLETE
+    content_sha256: fcf6ddfa3a9399403d82fd745317800dce7fdbb324e34445f89d1f315377d052
+    proof: FROZEN_CONTRACT_STOP_SEMANTICS

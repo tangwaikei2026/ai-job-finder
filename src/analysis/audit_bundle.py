@@ -51,7 +51,7 @@ def export_bundle(day, jobs, classifications, markets, health, events, trend, pr
                 selected[key] = {
                     **{field: job.get(field, '') for field in ('platform', 'job_id', 'company', 'title', 'description', 'requirements')},
                     'categories': [], 'current_classification': row,
-                    'reason_codes': row['reason_codes'] if row else {'market': market['reason_codes'], 'fit': []},
+                    'reason_codes': row['reason_codes'] if row else {'market': market['reason_codes']['market'], 'fit': []},
                     'evidence': row['evidence'] if row else market['evidence'],
                     'source_health_reason_codes': list(resolved.reason_codes),
                     'deterministic_delta': deltas[key],

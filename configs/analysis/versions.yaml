@@ -2,6 +2,7 @@ market_classifier_version: market_v1
 fit_classifier_version: fit_v1
 skill_ontology_version: skills_v1
 trend:
+  version: trend_v1
   removal_confirmation_runs: 2
   window_days: 7
 audit:

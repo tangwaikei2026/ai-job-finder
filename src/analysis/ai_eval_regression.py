@@ -322,12 +322,83 @@ def run_frozen_regression(path: Path) -> dict[str, Any]:
     }
 
 
-def run_split_regression(path: Path, expectations_path: Path) -> dict[str, Any]:
-    """Two evaluators over the untouched frozen JD cases and explicit market overlay."""
-    from src.analysis.ai_eval_jobs import classify_market, classify_personal_fit
+def load_market_migration(path: Path, cases: Sequence[Mapping[str, Any]]):
+    """Load versioned compatibility deltas; never learn expectations from output."""
+    import hashlib
+    from tools.market_oracle_baseline import read_yaml, validate_oracle
 
+    doc = read_yaml(path)
+    if doc.get("version") != "market_v1_regression_migration":
+        return doc, {}, None
+    overlay_path = path.parent / doc["legacy_overlay"]
+    overlay = read_yaml(overlay_path)
+    fixture_path = path.parent / overlay["source"]
+    contract_path = Path(doc["contract"])
+    for source, pin in ((overlay_path, "legacy_overlay_sha256"),
+                        (fixture_path, "legacy_fixture_sha256"),
+                        (contract_path, "contract_sha256")):
+        if hashlib.sha256(source.read_bytes()).hexdigest() != doc[pin]:
+            raise RegressionDataIntegrityError(f"migration source changed: {source}")
+    oracle = validate_oracle(read_yaml(path.parent / doc["semantic_owner"]))
+    oracle_by_id = {c["case_id"]: c for c in oracle}
+    by_id = {c["case_id"]: c for c in cases}
+    migrations = doc["migrations"]
+    contract = contract_path.read_text()
+    for cid, entry in migrations.items():
+        case = by_id.get(cid)
+        if case is None or job_content_sha256(case) != entry["content_sha256"]:
+            raise RegressionDataIntegrityError(f"migration content binding failed: {cid}")
+        if entry["classification"] != "LEGACY_CONTRACT_OBSOLETE":
+            raise RegressionDataIntegrityError(f"unsupported compatibility migration: {cid}")
+        proof = entry["proof"]
+        if proof == "IDENTICAL_FULL_CONTENT_SHA256":
+            source = oracle_by_id[entry["oracle_case_id"]]
+            if source["content_sha256"] != entry["content_sha256"] or entry.get("replace"):
+                raise RegressionDataIntegrityError(f"oracle binding failed: {cid}")
+            entry = {**entry, "oracle": source}
+        elif proof == "FROZEN_CONTRACT_STOP_SEMANTICS":
+            if cid not in overlay["out_of_scope"] or entry.get("replace"):
+                raise RegressionDataIntegrityError(f"STOP proof failed: {cid}")
+        else:
+            evidence = entry["evidence"]
+            if (proof not in contract or not evidence["quote"]
+                    or evidence["quote"] not in case[evidence["field"]]
+                    or not entry.get("replace")
+                    or not set(entry["replace"]) <= {"role_family", "ai_relation"}):
+                raise RegressionDataIntegrityError(f"contract evidence failed: {cid}")
+        migrations[cid] = entry
+    return overlay, migrations, oracle
+
+
+def migrate_market_expectation(expected, migration):
+    """Retire only proved conflicting labels and their legacy diagnostic IDs."""
+    from src.analysis.market_rules import MARKET_FIELDS
+
+    result = dict(expected)
+    if "oracle" in migration:
+        result.update({f: migration["oracle"]["expected_" + f] for f in MARKET_FIELDS})
+    elif migration["proof"] == "FROZEN_CONTRACT_STOP_SEMANTICS":
+        result.update(in_scope=False, role_family=None, ai_relation=None,
+                      market_relevance=None, secondary_role_families=[])
+    else:
+        result.update(migration["replace"])
+    if result == expected:
+        raise RegressionDataIntegrityError("migration has no contract change")
+    # V1 reasons are structured diagnostics, not frozen human semantic labels.
+    # Their shape is validated; unaffected cases retain old exact reason checks.
+    result.pop("reason_codes")
+    return result
+
+
+def run_split_regression(path: Path, expectations_path: Path, *, suite="both") -> dict[str, Any]:
+    """Legacy overlay stays diagnostic; the versioned descriptor enables V1 gates."""
+    from src.analysis.ai_eval_jobs import classify_market, classify_personal_fit
+    from src.analysis.market_rules import validate_market_output
+
+    if suite not in {"both", "market", "fit"}:
+        raise ValueError("unknown split suite")
     cases = load_frozen_regression_cases(path)
-    expectations = yaml.safe_load(expectations_path.read_text(encoding="utf-8"))
+    expectations, migrations, oracle = load_market_migration(expectations_path, cases)
     reason_by_case = {}
     for code, ids in expectations["market_reason_cases"].items():
         for case_id in ids:
@@ -336,7 +407,8 @@ def run_split_regression(path: Path, expectations_path: Path) -> dict[str, Any]:
             reason_by_case[case_id] = [code]
     if set(reason_by_case) != {case["case_id"] for case in cases}:
         raise RegressionDataIntegrityError("market expectations must cover exactly the frozen cases")
-    reports = {name: {"total": 0, "passed": 0, "failed": 0, "failures": []} for name in ("market", "fit")}
+    names = ("market", "fit") if suite == "both" else (suite,)
+    reports = {name: {"total": 0, "passed": 0, "failed": 0, "failures": []} for name in names}
     for case in cases:
         case_id = case["case_id"]
         market = classify_market(case)
@@ -347,8 +419,13 @@ def run_split_regression(path: Path, expectations_path: Path) -> dict[str, Any]:
             "seniority_level": case["expected_seniority_level"],
             "reason_codes": reason_by_case[case_id],
         }
-        evaluations = [("market", expected, market)]
-        if market["in_scope"]:
+        if oracle is not None:
+            validate_market_output(market)
+        if case_id in migrations:
+            expected = migrate_market_expectation(expected, migrations[case_id])
+        actual_market = {**market, "reason_codes": market["reason_codes"]["market"]}
+        evaluations = [("market", expected, actual_market)] if "market" in reports else []
+        if "fit" in reports and market["in_scope"]:
             fit = classify_personal_fit(case, market)
             evaluations.append(("fit", {"career_pool": case["expected_career_pool"],
                                         "fit_reason_codes": case["expected_reason_codes"]}, fit))
@@ -360,6 +437,13 @@ def run_split_regression(path: Path, expectations_path: Path) -> dict[str, Any]:
             reports[name]["failed"] += int(bool(differences))
             if differences:
                 reports[name]["failures"].append({"case_id": case_id, "differences": differences})
+    if oracle is not None and "market" in reports:
+        from tools.market_oracle_baseline import evaluate
+        semantic = evaluate(oracle)
+        correct = semantic["metrics"]["full_oracle_exact_match"]["correct"]
+        reports["market"].update(semantic_owner="tests/fixtures/market_oracle_v1.yaml",
+            semantic_oracle=semantic, migrated_cases=sorted(migrations),
+            gate_passed=reports["market"]["failed"] == 0 and correct == len(oracle))
     return reports
 
 
@@ -373,7 +457,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.market_expectations:
         report = run_split_regression(args.regression_file, args.market_expectations)
         print(json.dumps(report, ensure_ascii=False, indent=2))
-        return int(any(result["failed"] for result in report.values()))
+        return int(any(result["failed"] or not result.get("gate_passed", True) for result in report.values()))
     report = run_frozen_regression(args.regression_file)
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0 if report["failed"] == 0 else 1

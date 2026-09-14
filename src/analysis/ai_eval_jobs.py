@@ -953,40 +953,23 @@ MARKET_TEST_FUNCTION_PATTERN = re.compile(r"(?i)(?:测试|test\s*(?:agent|harnes
 
 
 def classify_market(job: Mapping[str, Any]) -> dict[str, Any]:
-    """Market facts only; no career-pool/domain preference decisions."""
-    job = classification_input(job)
-    role, _, terms = _role_classification(job["title"])
-    if role == "qa_test" and MANAGEMENT_DUTY_PATTERN.search(job["description"]):
-        role = "quality_engineering"
-    seniority, _ = _seniority_classification(job)
-    relation, relation_evidence, rule = _ai_relation_classification(
-        job, role_family=role, hard_domain_reason=None,
-    )
-    # Generic evaluation/product titles alone do not establish an AI market.
-    has_ai = bool(AI_CONTEXT_ONLY_PATTERN.search("\n".join(job.values())))
-    in_scope = has_ai and relation not in {"none", "ai_context_only"}
-    if in_scope and relation == "ai_for_testing" and role in NON_QA_ROLE_FAMILIES:
-        # The legacy relation matcher includes generic "quality/diagnosis" and
-        # Agent development. These alone are not evidence of a testing market.
-        test_duty = any(
-            MARKET_TEST_FUNCTION_PATTERN.search(segment)
-            and AI_FOR_TESTING_DUTY_PATTERN.search(segment)
-            for segment in _responsibility_segments(job)
-        )
-        in_scope = bool(test_duty or (
-            AI_CONTEXT_ONLY_PATTERN.search(job["title"])
-            and MARKET_TEST_FUNCTION_PATTERN.search(job["title"])
-        ))
-    evidence = {field: [] for field in CLASSIFICATION_INPUT_FIELDS}
-    evidence["title"] = terms
-    if relation_evidence:
-        evidence[relation_evidence["field"]].extend(relation_evidence["terms"])
-    return {
-        "in_scope": in_scope, "role_family": role, "ai_relation": relation,
-        "seniority_level": seniority,
-        "reason_codes": [rule] if in_scope else ["AI_EVALUATION_NOT_ESTABLISHED"],
-        "evidence": evidence,
-    }
+    """Canonical Market V1 candidate; legacy fit/body labels remain independent."""
+    from src.analysis.market_rules import classify
+
+    inputs = classification_input(job)
+    seniority, _ = _seniority_classification(inputs)
+    market = classify(inputs, seniority=seniority)
+    # Retain existing diagnostic reason IDs only when their legacy labels agree
+    # with the independently computed Market result. This does not select labels.
+    if market['in_scope']:
+        legacy_role, _, _ = _role_classification(inputs['title'])
+        if legacy_role == 'qa_test' and MANAGEMENT_DUTY_PATTERN.search(inputs['description']):
+            legacy_role = 'quality_engineering'
+        legacy_relation, _, legacy_reason = _ai_relation_classification(
+            inputs, role_family=legacy_role, hard_domain_reason=None)
+        if (legacy_role, legacy_relation) == (market['role_family'], market['ai_relation']):
+            market['reason_codes']['market'] = [legacy_reason]
+    return market
 
 
 def classify_personal_fit(
@@ -995,17 +978,11 @@ def classify_personal_fit(
     """X means market-related but excluded from the personal candidate pool."""
     if not market["in_scope"]:
         raise ValueError("Personal Fit requires market.in_scope=true")
-    job = classification_input(job)
-    _, role_reason, _ = _role_classification(job["title"])
-    domain_reason, _ = _hard_domain_classification(job)
-    if market["role_family"] in NON_QA_ROLE_FAMILIES:
-        domain_reason = None
-    pool, reasons = _personal_fit_decision(
-        job, role_family=market["role_family"], ai_relation=market["ai_relation"],
-        seniority_level=market["seniority_level"], role_reason=role_reason,
-        effective_hard_domain_reason=domain_reason,
-    )
-    return {"career_pool": pool, "fit_reason_codes": reasons}
+    # Fit V1 remains its own frozen policy. New occupational Market labels must
+    # not silently change the user's personal-pool criteria or fit version.
+    fit = classify_body_primary_ai_evaluation(classification_input(job))
+    return {"career_pool": fit['body_primary_ai_evaluation']['career_pool'],
+            "fit_reason_codes": fit['reason_codes']}
 
 
 def classify_skills(job: Mapping[str, Any]) -> list[str]:

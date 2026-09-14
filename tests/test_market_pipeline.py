@@ -54,8 +54,9 @@ def history_days():
 
 def test_split_frozen_evaluators():
     report = run_split_regression(Path('tests/fixtures/ai_eval_regression_set_v1_117_frozen.yaml'),
-                                  Path('tests/fixtures/ai_eval_market_expectations.yaml'))
+                                  Path('tests/fixtures/ai_eval_market_v1_migration.yaml'))
     assert report['market']['total'] == report['market']['passed'] == 117
+    assert report['market']['gate_passed']
     assert report['fit']['total'] == report['fit']['passed'] == 114
 
 
@@ -204,9 +205,12 @@ def test_review_required_no_safe_version_carry():
     good = job()
     previous = observation('2026-09-01', [good])['classifications'][0]
     previous['versions']['market'] = 'old'
-    result = classify_record('2026-09-02', row, health, VERSIONS, previous)[0]
-    assert result['classification_status'] == 'review_required'
-    assert result['career_pool'] is None
+    result, market = classify_record('2026-09-02', row, health, VERSIONS, previous)
+    # V1 requires substantive duties: an empty body cannot establish scope or
+    # inherit an incompatible version. SourceHealth retains the failure signal.
+    assert result is None
+    assert not market['in_scope']
+    assert not health.content_reliable
 
 
 def test_reappeared_is_never_new():
