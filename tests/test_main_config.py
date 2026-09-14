@@ -58,3 +58,23 @@ def test_load_config_rejects_missing_platforms(tmp_path: Path) -> None:
         match="config.yaml platforms must be a mapping",
     ):
         raw_main.load_config(config_path)
+
+
+def test_sensetime_uses_current_official_portal_urls() -> None:
+    config = raw_main.load_config(Path(__file__).parents[1] / "config.yaml")
+    companies = {
+        company["name"]: company
+        for company in config["platforms"]["feishu"]["companies"]
+    }
+
+    assert companies["商汤科技"] == {
+        "name": "商汤科技",
+        "list_url": "https://hr-jobs.sensetime.com/exp/position/list",
+        "detail_url": "https://hr-jobs.sensetime.com/exp/position/{job_id}/detail",
+    }
+    assert companies["MiniMax"]["list_url"] == "https://vrfi1sk8a0.jobs.feishu.cn/index/"
+    assert companies["智谱AI"]["list_url"] == "https://zhipu-ai.jobs.feishu.cn/index/"
+    assert companies["零一万物"]["list_url"] == "https://01ai.jobs.feishu.cn/index/position/list"
+    assert companies["百川智能"]["list_url"] == (
+        "https://cq6qe6bvfr6.jobs.feishu.cn/baichuanzhaopin/"
+    )

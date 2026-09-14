@@ -263,6 +263,37 @@ def test_feishu_maps_company_specific_detail_url():
     assert job.url.endswith("/position/7651/detail")
 
 
+def test_feishu_maps_current_sensetime_list_contract():
+    collector = FeishuRawCollector(
+        {"name": "飞书招聘"},
+        COLLECTION_CONFIG,
+        _client(lambda _: httpx.Response(500)),
+    )
+    job = collector._map_job(
+        {
+            "id": "7683422160660285737",
+            "title": "Sales Manager",
+            "city_list": [{"name": "香港"}],
+            "description": "职责原文",
+            "requirement": "要求原文",
+        },
+        {
+            "name": "商汤科技",
+            "detail_url": "https://hr-jobs.sensetime.com/exp/position/{job_id}/detail",
+        },
+    )
+
+    assert job.job_id == "7683422160660285737"
+    assert job.company == "商汤科技"
+    assert job.title == "Sales Manager"
+    assert job.location == "香港"
+    assert job.description == "职责原文"
+    assert job.requirements == "要求原文"
+    assert job.url == (
+        "https://hr-jobs.sensetime.com/exp/position/7683422160660285737/detail"
+    )
+
+
 def test_didi_collects_list_then_enriches_target_city_details():
     def handler(request: httpx.Request) -> httpx.Response:
         if request.url.path == "/social/list/1":

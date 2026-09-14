@@ -50,11 +50,39 @@ def bootstrap_portal(
     page.on("request", on_request)
     page.on("response", on_response)
     try:
-        for _ in range(attempts):
+        navigation_error: Exception | None = None
+        for attempt in range(attempts):
             try:
-                page.goto(list_url, wait_until="commit", timeout=30000)
-            except Exception:
-                pass
+                response = page.goto(
+                    list_url,
+                    wait_until="domcontentloaded",
+                    timeout=30000,
+                )
+            except Exception as exc:
+                navigation_error = exc
+                if attempt + 1 < attempts:
+                    page.wait_for_timeout(1000)
+                continue
+
+            if response is None:
+                navigation_error = RuntimeError("main document response was unavailable")
+                continue
+
+            status = int(response.status)
+            if status < 200 or status >= 300:
+                raise RuntimeError(
+                    "NAVIGATION_FAILURE: portal main document returned "
+                    f"HTTP {status} at {response.url} while loading {list_url}"
+                )
+            break
+        else:
+            detail = f": {navigation_error}" if navigation_error else ""
+            raise RuntimeError(
+                "NAVIGATION_FAILURE: portal navigation failed after "
+                f"{attempts} attempts while loading {list_url}{detail}"
+            )
+
+        for _ in range(attempts):
             waited_ms = 0
             while waited_ms < wait_ms:
                 if captured and (not filter_marker or filter_data):
@@ -68,7 +96,9 @@ def bootstrap_portal(
         page.remove_listener("response", on_response)
 
     if not captured:
-        raise RuntimeError(f"portal list API was not observed while loading {list_url}")
+        raise RuntimeError(
+            f"LIST_API_NOT_OBSERVED: portal list API was not observed while loading {list_url}"
+        )
     if filter_marker and not filter_data:
         raise RuntimeError(f"portal filters API was not observed while loading {list_url}")
     return PortalBootstrap(
