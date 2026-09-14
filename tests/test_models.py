@@ -53,6 +53,7 @@ def test_collection_manifest_to_dict() -> None:
         complete=True,
         source_total=2,
         jobs_in_scope=1,
+        metadata={"partition_dimension": "regions"},
         started_at="2026-07-03 12:00:00",
         finished_at="2026-07-03 12:00:01",
         duration_seconds=1.0,
@@ -65,6 +66,7 @@ def test_collection_manifest_to_dict() -> None:
     assert serialized["complete"] is True
     assert serialized["source_total"] == 2
     assert serialized["jobs_in_scope"] == 1
+    assert serialized["metadata"] == {"partition_dimension": "regions"}
     assert serialized["duration_seconds"] == 1.0
 
 

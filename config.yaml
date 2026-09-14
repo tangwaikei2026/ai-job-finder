@@ -52,6 +52,12 @@ platforms:
     list_api: "https://careers.aliyun.com/position/search"
     detail_url: "https://careers.aliyun.com/off-campus/position-detail?positionId={job_id}"
     page_size: 50
+    region_codes:
+      北京: "110100"
+      上海: "310100"
+      杭州: "330100"
+      深圳: "440300"
+      广州: "440100"
 
   tongyi:
     enabled: true

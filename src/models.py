@@ -57,6 +57,7 @@ class CollectionManifest:
     failed_companies: list[str] = field(default_factory=list)
     attempted_companies: list[str] = field(default_factory=list)
     detail_failed_job_ids: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
     stopped_by: str = ""
     error: str = ""
     started_at: str = field(default_factory=_now)
