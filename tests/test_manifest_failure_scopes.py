@@ -23,7 +23,18 @@ def test_detail_failure_id_is_preserved(collector_type, monkeypatch):
         else:
             payload = {'status': 1, 'data': {'page': {'totalCount': 1, 'totalPage': 1}, 'list': [{'jobUnionId': 'known-id'}]}}
             monkeypatch.setattr(collector, '_map_job', lambda item: row)
-        monkeypatch.setattr(collector, 'request_json', lambda *args, **kwargs: payload)
+        if collector_type is DidiRawCollector:
+            monkeypatch.setattr(
+                collector,
+                'request_json',
+                lambda *args, **kwargs: (
+                    {'meta': {'code': 0}, 'data': {'total': 1, 'items': []}}
+                    if kwargs.get('params', {}).get('page') == 2
+                    else payload
+                ),
+            )
+        else:
+            monkeypatch.setattr(collector, 'request_json', lambda *args, **kwargs: payload)
         def fail(item):
             raise RuntimeError('mock detail unavailable')
         monkeypatch.setattr(collector, '_fetch_detail', fail)

@@ -299,6 +299,14 @@ def test_didi_collects_list_then_enriches_target_city_details():
         if request.url.path == "/social/list/1":
             return httpx.Response(200, text="<html></html>")
         if request.url.path.endswith("/front/list"):
+            if request.url.params.get("page") == "2":
+                return httpx.Response(
+                    200,
+                    json={
+                        "meta": {"code": 0},
+                        "data": {"total": 2, "items": []},
+                    },
+                )
             return httpx.Response(
                 200,
                 json={
