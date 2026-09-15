@@ -15,7 +15,8 @@
 2. 不允许一次性完成后续批次。
 3. 当前批次完成后必须停止，等待用户确认。
 4. 不主动扩大修改范围。
-5. 不真实访问招聘网站。
+5. 默认不真实访问招聘网站；只有满足下文 `Explicit Production Execution Exception`
+   的明确 production execution 才可例外。
 6. 不修改业务过滤逻辑，除非当前批次明确要求。
 7. 不修改 README。
 8. 不修改数据库写入逻辑。
@@ -23,6 +24,30 @@
 10. 不修改通知逻辑。
 11. 不提交 commit，除非用户明确要求。
 12. 如果发现当前代码结构和任务假设不一致，先说明差异，再给出最小修改方案，不强行大改。
+
+## Explicit Production Execution Exception
+
+开发、调试、单元测试、回归测试、forensic audit 和探索性调查等场景，
+默认禁止真实访问招聘网站，并优先使用 mock、fixture、frozen artifacts 和
+offline evidence。
+
+真实招聘网站访问仅在以下条件全部满足时允许：
+
+1. 用户在当前任务中明确要求真实 production execution，例如 production
+   acceptance、real full E2E、launchd/scheduler production validation 或
+   scheduled production run。
+2. 必须通过仓库已有正式 production entrypoint 执行，例如
+   `tools/run_daily_with_health.py` 或正式 scheduler adapter。
+3. 禁止为调试临时编写或执行 ad-hoc curl、ad-hoc HTTP requests、ad-hoc
+   Playwright/browser probes 或 temporary scraper。
+4. 禁止为了让 Gate PASS 而放宽 validator、绕过 failed source、修改
+   completeness semantics，或修改 SourceHealth / Daily Health interpretation。
+5. 每个 production Gate 最多一次顶层 invocation；平台级 retry 只能由已有
+   Runner contract 自己执行。
+6. production execution 失败时，必须保留 artifact、log 和 error evidence，
+   随即停止，且不得人工重复 Crawl。
+7. production execution 必须继续遵守项目已有的 source scope、rate limiting、
+   collector contracts 和 completeness contracts。
 
 ## 仓库实现约束
 
