@@ -1,0 +1,17 @@
+version: 1
+
+limitations:
+  - id: didi_dynamic_offset_pagination_v1
+    platform: didi
+    category: SOURCE_DYNAMIC_PAGINATION_LIMITATION
+    status: active
+    allowed_reasons:
+      - dynamic_total
+      - dynamic_page1
+      - duplicate_pagination
+      - unique_deficit
+    review_cadence_days: 90
+    review_after: "2026-12-13"
+    reference:
+      type: git_commit
+      value: 964eeb8d3b482a3c9921c04ab77d75e3dc829943
