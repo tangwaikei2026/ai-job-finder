@@ -49,6 +49,21 @@ offline evidence。
 7. production execution 必须继续遵守项目已有的 source scope、rate limiting、
    collector contracts 和 completeness contracts。
 
+### Approved Unattended Production Scheduler
+
+用户明确授权启用特定的 permanent production scheduler 后，该 scheduler 可以：
+
+- 按已经批准的固定 schedule 运行；
+- 仅从正式 production root、使用正式 production Python，通过正式 production
+  entrypoint 执行正常 Crawl → Clean → Analysis → Health 链路。
+
+该授权只适用于用户已经批准的 scheduler。开发、测试、调试、审计和探索场景仍
+禁止真实访问招聘网站；也不得以此授权进行 ad-hoc curl / HTTP、临时 Playwright
+probe、临时 scraper、绕过正式 production wrapper、OLD_ROOT execution、自行增加
+scheduler frequency、自行创建额外 scheduler，或因单次 source partial 人工补跑完整
+production。scheduler failure 或 DEGRADED 不自动授权人工第二次 full crawl；需要
+recovery 时仍须遵守既有 recovery contract 和 policy。
+
 ## 仓库实现约束
 
 - 开工先检查当前分支、工作区状态及相对主分支的 diff。

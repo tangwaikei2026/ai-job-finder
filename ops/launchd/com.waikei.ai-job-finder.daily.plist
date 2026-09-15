@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.waikei.ai-job-finder.daily</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/waikei/Developer/ai-job-finder/venv/bin/python</string>
+        <string>/Users/waikei/Developer/ai-job-finder/tools/run_daily_with_health.py</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>/Users/waikei/Developer/ai-job-finder</string>
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict>
+            <key>Hour</key>
+            <integer>11</integer>
+            <key>Minute</key>
+            <integer>0</integer>
+        </dict>
+        <dict>
+            <key>Hour</key>
+            <integer>18</integer>
+            <key>Minute</key>
+            <integer>0</integer>
+        </dict>
+    </array>
+    <key>StandardOutPath</key>
+    <string>/Users/waikei/Developer/ai-job-finder/data/logs/launchd-daily.stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/waikei/Developer/ai-job-finder/data/logs/launchd-daily.stderr.log</string>
+</dict>
+</plist>
