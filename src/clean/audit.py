@@ -28,6 +28,7 @@ OPTIONAL_FIELDS = (
 SHORT_DESCRIPTION_MIN_LENGTH = 50
 MAX_SAMPLES = 20
 NORMAL_STOPPED_BY = {
+    "all_partitions_complete",
     "configured_max_pages",
     "empty_page",
     "repeated_page",

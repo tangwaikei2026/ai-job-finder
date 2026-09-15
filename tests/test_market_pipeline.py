@@ -14,7 +14,7 @@ from src.analysis.ai_eval_regression import run_split_regression
 from src.analysis.classification import classify_record
 from src.analysis.lifecycle import Lifecycle, identity, index_jobs
 from src.analysis.pipeline import load_settings, replay
-from src.analysis.source_health import SourceHealth
+from src.analysis.source_health import NORMAL_STOPPED_BY, SourceHealth
 from src.analysis.trends import aggregate_trends
 
 VERSIONS = load_settings()[1]
@@ -38,6 +38,67 @@ def manifest(jobs, **changes):
 def observe(life, day, jobs, **changes):
     health = SourceHealth(manifest(jobs, **changes), jobs)
     return life.observe(day, jobs, health)
+
+
+def test_all_partitions_complete_is_reliable_with_valid_evidence():
+    row = job(platform='aliyun')
+    resolved = SourceHealth(
+        manifest([row], platform='aliyun', stopped_by='all_partitions_complete'),
+        [row],
+    ).resolve('aliyun')
+
+    assert resolved.presence_reliable
+    assert resolved.content_reliable
+    assert resolved.reason_codes == ()
+
+
+@pytest.mark.parametrize(
+    ('changes', 'reason'),
+    [
+        ({'status': 'partial', 'complete': False}, 'SOURCE_INCOMPLETE'),
+        ({'status': 'error', 'complete': False, 'error': 'offline'}, 'SOURCE_ERROR'),
+        ({'source_total': -1}, 'MANIFEST_COUNTERS_INVALID'),
+        ({'missing_job_id': 1}, 'MISSING_JOB_IDS'),
+        ({'jobs_mapped': 0}, 'MAPPING_INCOMPLETE'),
+    ],
+)
+def test_all_partitions_complete_does_not_override_health_failures(changes, reason):
+    row = job(platform='aliyun')
+    resolved = SourceHealth(
+        manifest(
+            [row],
+            platform='aliyun',
+            stopped_by='all_partitions_complete',
+            **changes,
+        ),
+        [row],
+    ).resolve('aliyun')
+
+    assert not resolved.presence_reliable
+    assert reason in resolved.reason_codes
+
+
+def test_unknown_stop_reason_remains_unverified():
+    row = job(platform='aliyun')
+    resolved = SourceHealth(
+        manifest([row], platform='aliyun', stopped_by='some_future_unknown_reason'),
+        [row],
+    ).resolve('aliyun')
+
+    assert not resolved.presence_reliable
+    assert 'UNVERIFIED_STOP_REASON' in resolved.reason_codes
+
+
+@pytest.mark.parametrize(
+    'stopped_by',
+    sorted(NORMAL_STOPPED_BY - {'all_partitions_complete'}),
+)
+def test_existing_normal_completion_stop_reasons_remain_reliable(stopped_by):
+    row = job()
+    resolved = SourceHealth(manifest([row], stopped_by=stopped_by), [row]).resolve('test')
+
+    assert resolved.presence_reliable
+    assert 'UNVERIFIED_STOP_REASON' not in resolved.reason_codes
 
 
 def observation(day, jobs, *, versions=None, events=None, **changes):

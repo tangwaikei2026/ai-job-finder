@@ -7,6 +7,14 @@ from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
 
+NORMAL_STOPPED_BY = frozenset({
+    'source_total_reached',
+    'all_city_totals_reached',
+    'all_companies_complete',
+    'all_partitions_complete',
+})
+
+
 @dataclass(frozen=True)
 class Health:
     presence_reliable: bool
@@ -97,8 +105,7 @@ class SourceHealth:
                 reasons.append('SOURCE_INCOMPLETE')
             if row.get('error'):
                 reasons.append('SOURCE_ERROR')
-            if stopped not in {'source_total_reached', 'all_city_totals_reached',
-                               'all_companies_complete', 'detail_errors'}:
+            if stopped not in NORMAL_STOPPED_BY | {'detail_errors'}:
                 reasons.append('UNVERIFIED_STOP_REASON')
         presence = not reasons
         if legacy_reason:

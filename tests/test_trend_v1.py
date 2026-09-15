@@ -112,6 +112,19 @@ def test_common_platform_intersection_prevents_false_growth():
         assert result['by_skill_tag']['Python']['share'][side]['denominator'] == 2
 
 
+def test_partition_completion_keeps_aliyun_trend_reliable():
+    current = observation(
+        '2026-09-14',
+        [row(platform='aliyun')],
+        platforms=('aliyun',),
+        unhealthy={'aliyun': {'stopped_by': 'all_partitions_complete'}},
+    )
+
+    reliability = trend_snapshot([current])['platforms']['aliyun']['reliability']
+    assert all(family['reliable'] for family in reliability.values())
+    assert all(family['reason_codes'] == [] for family in reliability.values())
+
+
 @pytest.mark.parametrize('failure', ['presence', 'review', 'missing_platform', 'version', 'scope'])
 def test_no_comparable_set_never_emits_changes(failure):
     a, b = observation('2026-09-01', [row()]), observation('2026-09-02', [row('2')])

@@ -4,8 +4,10 @@ import json
 from collections import Counter
 from pathlib import Path
 
+from src.analysis.source_health import NORMAL_STOPPED_BY as SOURCE_HEALTH_NORMAL_STOPPED_BY
 from src.clean.audit import (
     MAX_SAMPLES,
+    NORMAL_STOPPED_BY as CLEAN_AUDIT_NORMAL_STOPPED_BY,
     SHORT_DESCRIPTION_MIN_LENGTH,
     audit_jobs,
     run_audit,
@@ -341,6 +343,37 @@ def test_audit_checks_collection_manifest() -> None:
             "detail_failed": 1,
         },
     ]
+
+
+def test_partition_completion_is_normal_in_source_health_and_clean_audit() -> None:
+    stopped_by = "all_partitions_complete"
+    jobs = [_job(platform="aliyun")]
+    collection_manifest = {
+        "job_count": 1,
+        "platforms": [
+            {
+                "platform": "aliyun",
+                "complete": True,
+                "status": "success",
+                "jobs_in_scope": 1,
+                "details_fetched": 0,
+                "detail_failed": 0,
+                "stopped_by": stopped_by,
+            }
+        ],
+    }
+
+    report = audit_jobs(
+        jobs,
+        input_file="data/raw/2026-07-06.json",
+        generated_at="2026-07-06T12:00:00+08:00",
+        collection_manifest=collection_manifest,
+    )
+
+    assert stopped_by in SOURCE_HEALTH_NORMAL_STOPPED_BY
+    assert stopped_by in CLEAN_AUDIT_NORMAL_STOPPED_BY
+    assert report["issues"]["manifest_incomplete_platforms"]["count"] == 0
+    assert report["issues"]["manifest_abnormal_stopped_by"]["count"] == 0
 
 
 def test_platform_counts_include_raw_platform_missing_from_manifest() -> None:
