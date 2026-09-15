@@ -30,6 +30,7 @@ data/analysis/
 *.DS_Store
 # Temp scripts (probe/debug/one-off)
 _*.py
+!src/collectors/__init__.py
 !src/legacy/**/__init__.py
 !tests/raw/__init__.py
 !tests/legacy/__init__.py
