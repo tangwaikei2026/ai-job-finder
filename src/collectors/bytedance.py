@@ -57,7 +57,6 @@ class ByteDanceRawCollector(RawCollector):
                     context.close()
                     browser.close()
 
-            manifest.jobs_in_scope = len(jobs_by_id)
             manifest.complete = (
                 manifest.pages_fetched >= manifest.expected_pages
                 and manifest.records_fetched >= manifest.source_total
@@ -72,6 +71,7 @@ class ByteDanceRawCollector(RawCollector):
             manifest.stopped_by = "error"
             manifest.error = str(exc)
         finally:
+            manifest.jobs_in_scope = len(jobs_by_id)
             self.finish_manifest(manifest, started)
 
         return CollectionResult(list(jobs_by_id.values()), manifest)

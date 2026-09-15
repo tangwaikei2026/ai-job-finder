@@ -1,13 +1,105 @@
 """Manifest enrichment uses existing failure boundaries, with all IO mocked."""
+from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import httpx
 import pytest
 
 from src.collectors.didi import DidiRawCollector
+from src.collectors.bytedance import ByteDanceRawCollector
 from src.collectors.feishu import FeishuRawCollector
 from src.collectors.meituan import MeituanRawCollector
 from src.models import RawJobPosting
+
+
+def _mock_bytedance_browser(monkeypatch):
+    import playwright.sync_api
+
+    browser = MagicMock()
+    context = browser.new_context.return_value
+    playwright_manager = MagicMock()
+    playwright_manager.__enter__.return_value.chromium.launch.return_value = browser
+    monkeypatch.setattr(playwright.sync_api, 'sync_playwright', lambda: playwright_manager)
+    return browser, context
+
+
+def test_bytedance_late_page_failure_finalizes_retained_job_count(monkeypatch):
+    import src.collectors.bytedance as bytedance_module
+
+    browser, context = _mock_bytedance_browser(monkeypatch)
+    monkeypatch.setattr(
+        bytedance_module,
+        'bootstrap_portal',
+        lambda *args, **kwargs: SimpleNamespace(
+            filter_data={'city_list': [{'name': '北京市', 'code': 'CT_11'}]},
+        ),
+    )
+    calls = 0
+
+    def fetch_page(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise RuntimeError('mock late page failure')
+        return {
+            'data': {
+                'count': 2,
+                'job_post_list': [{
+                    'id': 'known-id',
+                    'title': 'AI 测试工程师',
+                    'city_info': {'name': '北京'},
+                }],
+            },
+        }
+
+    monkeypatch.setattr(bytedance_module, 'fetch_portal_page', fetch_page)
+    with httpx.Client() as client:
+        collector = ByteDanceRawCollector(
+            {'name': '字节跳动', 'list_url': 'https://example.test', 'page_size': 1},
+            {'cities': ['北京'], 'include_unknown_location': False},
+            client,
+        )
+        result = collector.collect()
+
+    assert [job.job_id for job in result.jobs] == ['known-id']
+    assert result.manifest.status == 'error'
+    assert result.manifest.complete is False
+    assert result.manifest.stopped_by == 'error'
+    assert result.manifest.error == 'mock late page failure'
+    assert result.manifest.jobs_in_scope == len(result.jobs) == 1
+    assert result.manifest.records_fetched == (
+        result.manifest.jobs_mapped
+        + result.manifest.duplicate_records
+        + result.manifest.missing_job_id
+    )
+    assert result.manifest.jobs_mapped == (
+        result.manifest.jobs_in_scope + result.manifest.outside_city_scope
+    )
+    context.close.assert_called_once()
+    browser.close.assert_called_once()
+
+
+def test_bytedance_early_failure_keeps_empty_scope_counters(monkeypatch):
+    import src.collectors.bytedance as bytedance_module
+
+    _mock_bytedance_browser(monkeypatch)
+
+    def fail_bootstrap(*args, **kwargs):
+        raise RuntimeError('mock early failure')
+
+    monkeypatch.setattr(bytedance_module, 'bootstrap_portal', fail_bootstrap)
+    with httpx.Client() as client:
+        collector = ByteDanceRawCollector(
+            {'name': '字节跳动', 'list_url': 'https://example.test'},
+            {'cities': ['北京']},
+            client,
+        )
+        result = collector.collect()
+
+    assert result.jobs == []
+    assert result.manifest.jobs_in_scope == 0
+    assert result.manifest.status == 'error'
+    assert result.manifest.complete is False
 
 
 @pytest.mark.parametrize('collector_type', [DidiRawCollector, MeituanRawCollector])
