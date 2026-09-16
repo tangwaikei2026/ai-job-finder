@@ -169,9 +169,16 @@ def main() -> None:
     if args.merge_existing:
         if not args.platform:
             raise ValueError("--merge-existing requires --platform")
-        if not manifests or any(not item.complete for item in manifests):
+        incomplete_manifests = [item for item in manifests if not item.complete]
+        if not manifests or incomplete_manifests:
+            retry_errors = "; ".join(
+                f"{item.platform}: {item.error or item.stopped_by or item.status}"
+                for item in incomplete_manifests
+            )
+            detail = f": {retry_errors}" if retry_errors else ""
             raise RuntimeError(
                 "refusing to replace existing data with an incomplete platform run"
+                f"{detail}"
             )
         if not jobs_path.exists() or not manifest_path.exists():
             raise ValueError("--merge-existing requires existing dated output files")

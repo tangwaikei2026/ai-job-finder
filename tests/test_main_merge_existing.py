@@ -288,3 +288,57 @@ def test_merge_existing_rejects_incomplete_collection_without_overwrite(
 
     assert jobs_path.read_bytes() == jobs_before
     assert manifest_path.read_bytes() == manifest_before
+
+
+def test_zero_row_error_retry_preserves_multi_platform_artifacts_byte_for_byte(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    config_path = _write_config(tmp_path)
+    jobs_path, manifest_path = _output_paths(tmp_path)
+    kept_job = _job(OTHER_PLATFORM, "keep-1", "kept other job")
+    old_jobs = [
+        _job(TARGET_PLATFORM, "old-1", "old target job").to_dict(),
+        kept_job.to_dict(),
+    ]
+    kept_manifest = _manifest(OTHER_PLATFORM, source_total=1)
+    old_manifest = {
+        "generated_at": "2026-07-02 12:00:00",
+        "platforms": [
+            _manifest(TARGET_PLATFORM, source_total=1).to_dict(),
+            kept_manifest.to_dict(),
+        ],
+    }
+    _write_json(jobs_path, old_jobs)
+    _write_json(manifest_path, old_manifest)
+    jobs_before = jobs_path.read_bytes()
+    manifest_before = manifest_path.read_bytes()
+
+    failed_manifest = _manifest(
+        TARGET_PLATFORM,
+        complete=False,
+        source_total=0,
+    )
+    failed_manifest.status = "error"
+    failed_manifest.stopped_by = "error"
+    failed_manifest.error = "bootstrap failed before first page"
+    _install_fake_run(
+        monkeypatch,
+        config_path,
+        jobs=[],
+        manifests=[failed_manifest],
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match=(
+            "refusing to replace existing data with an incomplete platform run: "
+            "target: bootstrap failed before first page"
+        ),
+    ):
+        raw_main.main()
+
+    assert jobs_path.read_bytes() == jobs_before
+    assert manifest_path.read_bytes() == manifest_before
+    assert _read_json(jobs_path)[1] == kept_job.to_dict()
+    assert _read_json(manifest_path)["platforms"][1] == kept_manifest.to_dict()
