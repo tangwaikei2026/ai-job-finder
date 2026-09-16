@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from src.operations.daily_ops import DailyOperations, rebuild_daily_operations
+from src.operations.presentation import build_presentation, render_status
 
 
 DAY = '2026-09-16'
@@ -296,20 +297,25 @@ def test_sqlite_upserts_are_idempotent_and_schema_is_versioned(tmp_path):
         assert connection.execute('SELECT count(*) FROM sources').fetchone()[0] == 1
         assert connection.execute(
             "SELECT value FROM metadata WHERE key='schema_version'"
-        ).fetchone()[0] == '1'
+        ).fetchone()[0] == '2'
+        assert connection.execute(
+            "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='notifications'"
+        ).fetchone()[0] == 1
 
 
-def test_human_summary_is_high_level(tmp_path):
+def test_human_status_is_high_level_and_latest_markdown_is_not_required(tmp_path):
     operations = _ops(tmp_path)
-    operations.publish(DAY, run=_run(), health=_health())
-    summary = (operations.ops_dir / 'latest.md').read_text(encoding='utf-8')
+    artifact = operations.publish(DAY, run=_run(), health=_health())
+    summary = render_status(build_presentation(artifact))
 
-    assert '# AI Job Finder Daily Status' in summary
-    assert 'Overall:\nNORMAL' in summary
-    assert 'Crawl: SUCCESS' in summary
-    assert 'Action:\nNone.' in summary
+    assert f'AI Job Finder — {DAY}' in summary
+    assert 'Result:\nNORMAL' in summary
+    assert 'No action required.' in summary
+    assert 'crawl_status' not in summary
+    assert 'technical_run_health' not in summary
     assert 'matched_limitation_id' not in summary
     assert 'reason_codes' not in summary
+    assert not (operations.ops_dir / 'latest.md').exists()
 
 
 def test_latest_json_has_stable_v1_fields(tmp_path):
@@ -323,13 +329,14 @@ def test_latest_json_has_stable_v1_fields(tmp_path):
         'technical_run_health', 'overall_action', 'source_summary',
         'automatic_recovery', 'human_action_required', 'gpt_review_required',
         'incident_id', 'canonical_evidence_refs',
+        'human_outcome',
     }
     assert set(artifact['automatic_recovery']) == {
         'attempted', 'type', 'result', 'attempt_count',
     }
 
 
-def test_incident_handoff_is_bounded_and_contains_required_evidence(tmp_path):
+def test_incident_handoff_is_on_demand_bounded_and_contains_required_evidence(tmp_path):
     operations = _ops(tmp_path)
     log_path = tmp_path / 'data' / 'logs' / 'launchd-daily.stderr.log'
     log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -351,21 +358,22 @@ def test_incident_handoff_is_bounded_and_contains_required_evidence(tmp_path):
         run=_run(status='DEGRADED', crawl='DEGRADED'),
         health=health,
     )
-    handoff = (operations.ops_dir / 'latest_incident.md').read_text(encoding='utf-8')
+    handoff = operations.render_incident_gpt()
 
     for expected in (
-        f'Run date: {DAY}', 'Git HEAD:', 'Trigger: test', 'Platform: bytedance',
+        f'Date: {DAY}', 'Git HEAD:', 'Platform: bytedance',
         'Error type: SOURCE_REGRESSION', 'Retry attempts:', 'Validator results:',
         'Technical health: SUCCESS', 'Overall action: ACTION_REQUIRED',
-        'Data preserved:', 'Relevant artifact paths', '请判断该 incident 的根因',
-        'ERROR compact marker',
+        'Data preservation:', 'Canonical evidence refs:', '请判断根因',
     ):
-        assert expected in handoff
-    assert len(handoff) < 12_000
+        adjusted = expected.replace('Retry attempts:', 'Retry:').replace(
+            'Validator results:', 'Validators:'
+        )
+        assert adjusted in handoff
+    assert len(handoff) < 6_000
     assert handoff.count('irrelevant full log line') == 0
-    daily_summary = (operations.ops_dir / 'latest.md').read_text(encoding='utf-8')
-    assert 'Problem:\nbytedance — NEW_REGRESSION' in daily_summary
-    assert 'No automatic full Crawl was started.' in daily_summary
+    assert 'ERROR compact marker' not in handoff
+    assert not (operations.ops_dir / 'latest_incident.md').exists()
 
 
 def test_ops_database_can_be_rebuilt_from_canonical_artifacts_without_runner(tmp_path):

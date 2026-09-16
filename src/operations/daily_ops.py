@@ -20,9 +20,10 @@ from tools.run_daily import (
     _validate_clean_artifact,
     _validate_existing_observation,
 )
+from src.operations.presentation import human_outcome
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 OPS_STATUSES = frozenset({
     'HEALTHY',
     'DEGRADED_KNOWN',
@@ -30,8 +31,10 @@ OPS_STATUSES = frozenset({
     'TECHNICAL_FAILURE',
 })
 MAX_ERROR_SUMMARY = 1_000
-MAX_LOG_EXCERPT = 4_000
+MAX_HISTORICAL_RECOVERY_DATES = 2
+MAX_RECOVERY_ATTEMPTS = 1
 Runner = Callable[..., tuple[int, Path, dict[str, Any]]]
+HealthGenerator = Callable[..., tuple[Path, dict[str, Any]]]
 
 
 class DailyOperationsError(RuntimeError):
@@ -54,6 +57,22 @@ class RecoveryOutcome:
             'type': self.type,
             'result': self.result,
             'attempt_count': self.attempt_count,
+        }
+
+
+@dataclass(frozen=True)
+class RecoveryCandidate:
+    run_date: str
+    recovery_type: str | None
+    eligible: bool
+    reason: str
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            'date': self.run_date,
+            'recovery_type': self.recovery_type,
+            'eligible': self.eligible,
+            'reason': self.reason,
         }
 
 
@@ -144,7 +163,8 @@ class DailyOperations:
                 gpt_review_required INTEGER NOT NULL,
                 incident_id TEXT,
                 error_type TEXT,
-                error_summary TEXT
+                error_summary TEXT,
+                human_outcome TEXT
             );
             CREATE TABLE IF NOT EXISTS sources (
                 run_id TEXT NOT NULL,
@@ -178,10 +198,38 @@ class DailyOperations:
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
             );
+            CREATE TABLE IF NOT EXISTS notifications (
+                run_date TEXT NOT NULL,
+                notification_type TEXT NOT NULL,
+                delivery_status TEXT NOT NULL,
+                attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count <= 3),
+                last_attempt_at TEXT,
+                last_error TEXT,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                PRIMARY KEY (run_date, notification_type)
+            );
             CREATE TABLE IF NOT EXISTS metadata (
                 key TEXT PRIMARY KEY,
                 value TEXT NOT NULL
             );
+            """
+        )
+        run_columns = {
+            str(row['name'])
+            for row in connection.execute('PRAGMA table_info(runs)').fetchall()
+        }
+        if 'human_outcome' not in run_columns:
+            connection.execute('ALTER TABLE runs ADD COLUMN human_outcome TEXT')
+        connection.execute(
+            """
+            UPDATE runs SET human_outcome = CASE ops_status
+                WHEN 'HEALTHY' THEN 'NORMAL'
+                WHEN 'DEGRADED_KNOWN' THEN 'KNOWN_LIMITATION'
+                WHEN 'ACTION_REQUIRED' THEN 'ACTION_REQUIRED'
+                ELSE 'TECHNICAL_FAILURE'
+            END
+            WHERE human_outcome IS NULL
             """
         )
         connection.execute(
@@ -390,28 +438,12 @@ class DailyOperations:
         return {
             'run': self._ref(self.data_dir / 'analysis' / 'runs' / f'{run_date}.json'),
             'health': self._ref(self.data_dir / 'analysis' / 'health' / f'{run_date}.json'),
+            'analysis_events': self._ref(self.data_dir / 'analysis' / 'events' / f'{run_date}.jsonl'),
+            'analysis_audit': self._ref(self.data_dir / 'analysis' / 'audit' / f'{run_date}_bundle.json'),
             'manifest': self._ref(self.data_dir / 'raw' / f'{run_date}_manifest.json'),
             'raw': self._ref(self.data_dir / 'raw' / f'{run_date}.json'),
             'clean': self._ref(self.data_dir / 'clean' / f'{run_date}.json'),
-            'stdout': self._ref(self.data_dir / 'logs' / 'launchd-daily.stdout.log'),
-            'stderr': self._ref(self.data_dir / 'logs' / 'launchd-daily.stderr.log'),
         }
-
-    def _log_excerpt(self) -> str:
-        path = self.data_dir / 'logs' / 'launchd-daily.stderr.log'
-        try:
-            with path.open('rb') as handle:
-                handle.seek(0, os.SEEK_END)
-                size = handle.tell()
-                handle.seek(max(0, size - 16_384))
-                text = handle.read().decode('utf-8', errors='replace')
-        except OSError:
-            return ''
-        lines = text.splitlines()
-        markers = ('error', 'exception', 'traceback', 'failed', 'failure')
-        selected = [line for line in lines if any(word in line.lower() for word in markers)]
-        excerpt = '\n'.join((selected or lines[-20:])[-40:])
-        return excerpt[-MAX_LOG_EXCERPT:]
 
     @staticmethod
     def _source_summary(sources: Mapping[str, Any]) -> dict[str, Any]:
@@ -459,8 +491,9 @@ class DailyOperations:
         health: Mapping[str, Any] | None,
         recovery: RecoveryOutcome | None = None,
         orchestration_error: str | None = None,
+        write_latest: bool = True,
     ) -> dict[str, Any]:
-        """Write the current machine/human view and idempotently upsert SQLite."""
+        """Write the machine view and idempotently upsert the rebuildable index."""
         recovery = recovery or RecoveryOutcome()
         if run.get('date') != run_date:
             raise DailyOperationsError('run date does not match Operations date')
@@ -537,6 +570,7 @@ class DailyOperations:
             'incident_id': incident_id,
             'canonical_evidence_refs': evidence,
         }
+        artifact['human_outcome'] = human_outcome(artifact)
         git_head = self._git_head()
         with self._connect() as connection:
             if recovery.attempted and recovery.type in {'clean', 'analysis'}:
@@ -569,8 +603,8 @@ class DailyOperations:
                     ops_status, runner_status, crawl_status, clean_status,
                     analysis_status, technical_run_health, overall_action,
                     human_action_required, gpt_review_required, incident_id,
-                    error_type, error_summary
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    error_type, error_summary, human_outcome
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(run_id) DO UPDATE SET
                     updated_at=excluded.updated_at,
                     git_head=excluded.git_head,
@@ -586,14 +620,15 @@ class DailyOperations:
                     gpt_review_required=excluded.gpt_review_required,
                     incident_id=excluded.incident_id,
                     error_type=excluded.error_type,
-                    error_summary=excluded.error_summary
+                    error_summary=excluded.error_summary,
+                    human_outcome=excluded.human_outcome
                 """,
                 (
                     run_date, run_date, generated_at, generated_at, git_head,
                     self.trigger, ops_status, runner_status, crawl_status,
                     clean_status, analysis_status, technical, overall_action,
                     int(human_required), int(gpt_required), incident_id,
-                    error_type, error_summary or None,
+                    error_type, error_summary or None, artifact['human_outcome'],
                 ),
             )
             connection.execute('DELETE FROM sources WHERE run_id=?', (run_date,))
@@ -613,22 +648,48 @@ class DailyOperations:
                         value.get('matched_limitation_id'),
                     ),
                 )
-            if incident_id:
+            recovered_incident = (
+                artifact['human_outcome'] == 'AUTO_RECOVERED'
+                and connection.execute(
+                    'SELECT 1 FROM incidents WHERE run_id=?', (run_date,)
+                ).fetchone()
+            )
+            if recovered_incident:
+                incident_id = f'INC-{run_date}'
+                artifact['incident_id'] = incident_id
+                connection.execute(
+                    """
+                    UPDATE incidents
+                    SET status='AUTO_RECOVERED', updated_at=?
+                    WHERE run_id=?
+                    """,
+                    (generated_at, run_date),
+                )
+                connection.execute(
+                    'UPDATE runs SET incident_id=? WHERE run_id=?',
+                    (incident_id, run_date),
+                )
+            elif incident_id:
                 platforms = ', '.join(source_summary['action_required']) or None
+                incident_status = (
+                    'NEEDS_HUMAN'
+                    if ops_status == 'ACTION_REQUIRED' or failed_phase == 'crawl'
+                    else 'OPEN'
+                )
                 connection.execute(
                     """
                     INSERT INTO incidents(
                         incident_id, run_id, status, failed_phase, platform,
                         error_type, error_summary, created_at, updated_at
-                    ) VALUES (?, ?, 'OPEN', ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(run_id) DO UPDATE SET
-                        status='OPEN', failed_phase=excluded.failed_phase,
+                        status=excluded.status, failed_phase=excluded.failed_phase,
                         platform=excluded.platform, error_type=excluded.error_type,
                         error_summary=excluded.error_summary,
                         updated_at=excluded.updated_at
                     """,
                     (
-                        incident_id, run_date, failed_phase, platforms,
+                        incident_id, run_date, incident_status, failed_phase, platforms,
                         error_type or 'UNKNOWN', error_summary or None,
                         generated_at, generated_at,
                     ),
@@ -639,139 +700,299 @@ class DailyOperations:
                     (generated_at, run_date),
                 )
 
-        _write_json_atomic(self.ops_dir / 'latest.json', artifact)
-        _write_text_atomic(self.ops_dir / 'latest.md', self._render_summary(artifact))
-        incident_path = self.ops_dir / 'latest_incident.md'
-        if incident_id:
-            _write_text_atomic(
-                incident_path,
-                self._render_incident(
-                    artifact,
-                    run=run,
-                    git_head=git_head,
-                    failed_phase=failed_phase,
-                    error_type=error_type or 'UNKNOWN',
-                    error_summary=error_summary,
-                    recovery=recovery,
-                ),
-            )
-        else:
-            incident_path.unlink(missing_ok=True)
+        if write_latest:
+            _write_json_atomic(self.ops_dir / 'latest.json', artifact)
+        (self.ops_dir / 'latest.md').unlink(missing_ok=True)
+        (self.ops_dir / 'latest_incident.md').unlink(missing_ok=True)
         return artifact
 
-    @staticmethod
-    def _render_summary(artifact: Mapping[str, Any]) -> str:
-        sources = artifact['source_summary']
-        recovery = artifact['automatic_recovery']
-        overall = 'NORMAL' if artifact['ops_status'] in {'HEALTHY', 'DEGRADED_KNOWN'} else artifact['ops_status'].replace('_', ' ')
-        healthy = ', '.join(sources['healthy']) or 'None'
-        known = ', '.join(sources['known_limitations']) or 'None'
-        attention = ', '.join(sources['action_required']) or 'None'
-        action = 'None.' if not artifact['human_action_required'] else 'Review the current incident handoff.'
-        recovery_text = 'Not needed.'
-        if recovery['attempted']:
-            recovery_text = f"{recovery['type']} resume: {recovery['result']} (attempt {recovery['attempt_count']}/1)."
-        elif recovery['result'] != 'NOT_APPLICABLE':
-            recovery_text = f"Not attempted: {recovery['result']}."
-        incident_section = ''
-        if artifact['human_action_required']:
-            if sources['action_required']:
-                problem = ', '.join(
-                    f'{platform} — NEW_REGRESSION'
-                    for platform in sources['action_required']
-                )
+    def machine_status(self, run_date: str | None = None) -> dict[str, Any] | None:
+        """Return one historical machine view from SQLite without reading Markdown."""
+        with self._connect() as connection:
+            if run_date is None:
+                row = connection.execute(
+                    'SELECT * FROM runs ORDER BY run_date DESC LIMIT 1'
+                ).fetchone()
             else:
-                failed = [
-                    name
-                    for name, status in (
-                        ('Crawl', artifact['crawl_status']),
-                        ('Clean', artifact['clean_status']),
-                        ('Analysis', artifact['analysis_status']),
-                    )
-                    if status == 'FAILED'
-                ]
-                problem = f"{' / '.join(failed) or 'Operations'} technical failure"
-            incident_section = (
-                'Problem:\n'
-                f'{problem}\n\n'
-                'System response:\n'
-                '- No automatic full Crawl was started.\n'
-                f'- Downstream recovery: {recovery_text}\n\n'
-            )
-        return (
-            '# AI Job Finder Daily Status\n\n'
-            f"Date: {artifact['date']}\n\n"
-            'Overall:\n'
-            f'{overall}\n\n'
-            'Execution:\n'
-            f"Scheduled run {'completed' if artifact['technical_run_health'] == 'SUCCESS' else 'needs attention'}.\n\n"
-            'Pipeline:\n'
-            f"Crawl: {artifact['crawl_status']}\n"
-            f"Clean: {artifact['clean_status']}\n"
-            f"Analysis: {artifact['analysis_status']}\n"
-            f"Technical Health: {artifact['technical_run_health']}\n\n"
-            'Sources:\n'
-            f'Healthy: {healthy}\n'
-            f'Known limitations: {known}\n'
-            f'Needs review: {attention}\n\n'
-            f'{incident_section}'
-            'Automatic recovery:\n'
-            f'{recovery_text}\n\n'
-            'Action:\n'
-            f'{action}\n\n'
-            'GPT review:\n'
-            f"{'REQUIRED' if artifact['gpt_review_required'] else 'NOT REQUIRED'}\n\n"
-            'Next scheduled run:\n'
-            'Managed by the unchanged launchd schedule.\n'
+                row = connection.execute(
+                    'SELECT * FROM runs WHERE run_date=?', (run_date,)
+                ).fetchone()
+            if row is None:
+                return None
+            sources = connection.execute(
+                'SELECT * FROM sources WHERE run_id=? ORDER BY platform',
+                (row['run_id'],),
+            ).fetchall()
+            action = connection.execute(
+                'SELECT * FROM actions WHERE run_id=? ORDER BY action_id DESC LIMIT 1',
+                (row['run_id'],),
+            ).fetchone()
+        source_summary = self._source_summary({
+            source['platform']: {
+                'source_completeness': source['source_completeness'],
+                'limitation_state': source['limitation_state'],
+                'matched_limitation_id': source['matched_limitation_id'],
+            }
+            for source in sources
+        })
+        recovery = RecoveryOutcome().as_dict()
+        if action is not None:
+            recovery = {
+                'attempted': True,
+                'type': action['action_type'],
+                'result': action['result'],
+                'attempt_count': action['attempt_count'],
+            }
+        return {
+            'schema_version': SCHEMA_VERSION,
+            'date': row['run_date'],
+            'generated_at': row['updated_at'],
+            'ops_status': row['ops_status'],
+            'runner_status': row['runner_status'],
+            'crawl_status': row['crawl_status'],
+            'clean_status': row['clean_status'],
+            'analysis_status': row['analysis_status'],
+            'technical_run_health': row['technical_run_health'],
+            'overall_action': row['overall_action'],
+            'source_summary': source_summary,
+            'automatic_recovery': recovery,
+            'human_action_required': bool(row['human_action_required']),
+            'gpt_review_required': bool(row['gpt_review_required']),
+            'incident_id': row['incident_id'],
+            'canonical_evidence_refs': self._evidence_refs(row['run_date']),
+            'human_outcome': row['human_outcome'] or 'TECHNICAL_FAILURE',
+        }
+
+    def history(self, days: int) -> list[dict[str, Any]]:
+        if days < 1:
+            raise ValueError('days must be positive')
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT run_date, human_outcome, human_action_required
+                FROM runs ORDER BY run_date DESC LIMIT ?
+                """,
+                (days,),
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def incidents(self, *, open_only: bool = False) -> list[dict[str, Any]]:
+        query = 'SELECT * FROM incidents'
+        parameters: tuple[Any, ...] = ()
+        if open_only:
+            query += " WHERE status IN ('OPEN', 'NEEDS_HUMAN')"
+        query += ' ORDER BY run_id DESC'
+        with self._connect() as connection:
+            return [dict(row) for row in connection.execute(query, parameters)]
+
+    def _canonical_run(self, run_date: str) -> Mapping[str, Any]:
+        return _read_mapping(
+            self.data_dir / 'analysis' / 'runs' / f'{run_date}.json',
+            'canonical run artifact',
         )
 
-    def _render_incident(
+    def _inspect_recovery_candidate(
         self,
-        artifact: Mapping[str, Any],
+        run_date: str,
         *,
-        run: Mapping[str, Any],
-        git_head: str,
-        failed_phase: str | None,
-        error_type: str,
-        error_summary: str,
-        recovery: RecoveryOutcome,
-    ) -> str:
+        ops_status: str,
+    ) -> RecoveryCandidate:
+        if ops_status == 'ACTION_REQUIRED':
+            return RecoveryCandidate(run_date, None, False, 'SOURCE_REGRESSION')
+        try:
+            run = self._canonical_run(run_date)
+        except DailyOperationsError:
+            return RecoveryCandidate(run_date, None, False, 'CANONICAL_RUN_UNAVAILABLE')
+        recovery_type = self._recovery_type(run)
+        if recovery_type is None:
+            reason = (
+                'HISTORICAL_CRAWL_FORBIDDEN'
+                if _stage_status(run, 'crawl') == 'FAILED'
+                else 'NO_SAFE_DOWNSTREAM_RECOVERY'
+            )
+            return RecoveryCandidate(run_date, None, False, reason)
+        if run.get('resume_from') == recovery_type:
+            return RecoveryCandidate(run_date, recovery_type, False, 'ATTEMPT_LIMIT_REACHED')
+        with self._connect() as connection:
+            action = connection.execute(
+                'SELECT attempt_count FROM actions WHERE run_id=? AND action_type=?',
+                (run_date, recovery_type),
+            ).fetchone()
+        if action is not None and int(action['attempt_count']) >= MAX_RECOVERY_ATTEMPTS:
+            return RecoveryCandidate(run_date, recovery_type, False, 'ATTEMPT_LIMIT_REACHED')
+        valid, validators = self._validate_recovery_inputs(run_date, recovery_type)
+        if not valid:
+            reason = (
+                'CANONICAL_RAW_INVALID'
+                if validators.get('raw_manifest') != 'PASS'
+                else 'CANONICAL_CLEAN_INVALID'
+            )
+            return RecoveryCandidate(run_date, recovery_type, False, reason)
+        return RecoveryCandidate(run_date, recovery_type, True, 'ELIGIBLE')
+
+    def deferred_recovery_candidates(
+        self,
+        current_date: str,
+        *,
+        include_ineligible: bool = False,
+    ) -> list[RecoveryCandidate]:
+        """Use SQLite to find historical incidents, then re-check canonical evidence."""
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT r.run_date, r.ops_status
+                FROM runs r JOIN incidents i ON i.run_id=r.run_id
+                WHERE r.run_date < ? AND i.status IN ('OPEN', 'NEEDS_HUMAN')
+                ORDER BY r.run_date
+                """,
+                (current_date,),
+            ).fetchall()
+        candidates = [
+            self._inspect_recovery_candidate(row['run_date'], ops_status=row['ops_status'])
+            for row in rows
+        ]
+        if include_ineligible:
+            return candidates
+        return [candidate for candidate in candidates if candidate.eligible]
+
+    def process_deferred_recovery(
+        self,
+        current_date: str,
+        *,
+        runner: Runner,
+        health_generator: HealthGenerator,
+        limit: int = MAX_HISTORICAL_RECOVERY_DATES,
+    ) -> list[dict[str, Any]]:
+        """Bounded historical clean/analysis recovery; never executes Crawl."""
+        if limit < 0 or limit > MAX_HISTORICAL_RECOVERY_DATES:
+            raise ValueError(
+                f'limit must be between 0 and {MAX_HISTORICAL_RECOVERY_DATES}'
+            )
+        inspected = self.deferred_recovery_candidates(
+            current_date, include_ineligible=True
+        )
+        for candidate in inspected:
+            if candidate.eligible:
+                continue
+            with self._connect() as connection:
+                connection.execute(
+                    """
+                    UPDATE incidents SET status='NEEDS_HUMAN', updated_at=?
+                    WHERE run_id=? AND status IN ('OPEN', 'NEEDS_HUMAN')
+                    """,
+                    (self.generated_at(), candidate.run_date),
+                )
+        results: list[dict[str, Any]] = []
+        for candidate in [value for value in inspected if value.eligible][:limit]:
+            run = self._canonical_run(candidate.run_date)
+            outcome = self.attempt_recovery(candidate.run_date, run, runner=runner)
+            result: dict[str, Any] = candidate.as_dict()
+            result['result'] = outcome.result
+            if outcome.result == 'SUCCESS' and outcome.runner_result is not None:
+                recovered = outcome.runner_result[2]
+                health_path = (
+                    self.data_dir / 'analysis' / 'health' / f'{candidate.run_date}.json'
+                )
+                health_path.unlink(missing_ok=True)
+                try:
+                    generated_path, health = health_generator(
+                        candidate.run_date, data_dir=self.data_dir
+                    )
+                    if (
+                        Path(generated_path).resolve() != health_path.resolve()
+                        or not health_path.is_file()
+                        or not isinstance(health, Mapping)
+                    ):
+                        raise ValueError('Daily Health wrote an unexpected artifact')
+                    artifact = self.publish(
+                        candidate.run_date,
+                        run=recovered,
+                        health=health,
+                        recovery=outcome,
+                        write_latest=False,
+                    )
+                    result['human_outcome'] = artifact['human_outcome']
+                except Exception as exc:
+                    self.publish(
+                        candidate.run_date,
+                        run=recovered,
+                        health=None,
+                        recovery=outcome,
+                        orchestration_error=f'Deferred Daily Health failed: {exc}',
+                        write_latest=False,
+                    )
+                    result['result'] = 'HEALTH_FAILED'
+            else:
+                effective = (
+                    outcome.runner_result[2]
+                    if outcome.runner_result is not None
+                    else run
+                )
+                self.publish(
+                    candidate.run_date,
+                    run=effective,
+                    health=None,
+                    recovery=outcome,
+                    write_latest=False,
+                )
+                with self._connect() as connection:
+                    connection.execute(
+                        "UPDATE incidents SET status='NEEDS_HUMAN', updated_at=? WHERE run_id=?",
+                        (self.generated_at(), candidate.run_date),
+                    )
+            results.append(result)
+        return results
+
+    def render_incident_gpt(self, run_date: str | None = None) -> str:
+        """Generate a compact incident handoff on demand; never persist a copy."""
+        with self._connect() as connection:
+            if run_date is None:
+                incident = connection.execute(
+                    'SELECT * FROM incidents ORDER BY run_id DESC LIMIT 1'
+                ).fetchone()
+            else:
+                incident = connection.execute(
+                    'SELECT * FROM incidents WHERE run_id=?', (run_date,)
+                ).fetchone()
+            if incident is None:
+                raise DailyOperationsError('no incident is available')
+            run_row = connection.execute(
+                'SELECT * FROM runs WHERE run_id=?', (incident['run_id'],)
+            ).fetchone()
+            action = connection.execute(
+                'SELECT * FROM actions WHERE run_id=? ORDER BY action_id DESC LIMIT 1',
+                (incident['run_id'],),
+            ).fetchone()
+        try:
+            run = self._canonical_run(incident['run_id'])
+        except DailyOperationsError:
+            run = {}
         crawl = run.get('crawl') if isinstance(run.get('crawl'), Mapping) else {}
-        retry_attempts = crawl.get('retried_platforms', [])
-        validators = recovery.validator_results or {}
-        raw_preserved = (
-            (self.data_dir / 'raw' / f"{artifact['date']}.json").is_file()
-            and (self.data_dir / 'raw' / f"{artifact['date']}_manifest.json").is_file()
+        validators = json.loads(action['validator_results']) if action else {}
+        retry = crawl.get('retried_platforms', [])
+        preserved = (
+            (self.data_dir / 'raw' / f"{incident['run_id']}.json").is_file()
+            and (self.data_dir / 'raw' / f"{incident['run_id']}_manifest.json").is_file()
         )
-        evidence_lines = '\n'.join(
-            f'- {name}: `{path}`' for name, path in artifact['canonical_evidence_refs'].items()
-        )
-        excerpt = self._log_excerpt()
-        excerpt_block = f'\n## Compact error log excerpt\n\n```text\n{excerpt}\n```\n' if excerpt else ''
-        platform = ', '.join(artifact['source_summary']['action_required']) or 'N/A'
+        evidence = self._evidence_refs(incident['run_id'])
+        evidence_lines = '\n'.join(f'- {name}: {path}' for name, path in evidence.items())
         return (
-            '# AI Job Finder Incident Handoff\n\n'
-            f"Incident: {artifact['incident_id']}\n"
-            f"Run date: {artifact['date']}\n"
-            f'Git HEAD: {git_head}\n'
-            f'Trigger: {self.trigger}\n'
-            f"Failed phase: {failed_phase or 'N/A'}\n"
-            f'Platform: {platform}\n'
-            f"Runner status: {artifact['runner_status']}\n"
-            f'Error type: {error_type}\n'
-            f"Error message: {error_summary or 'See canonical artifacts.'}\n"
-            f'Retry attempts: {json.dumps(retry_attempts, ensure_ascii=False)}\n'
-            f'Validator results: {json.dumps(validators, ensure_ascii=False, sort_keys=True)}\n'
-            f"Technical health: {artifact['technical_run_health']}\n"
-            f"Overall action: {artifact['overall_action']}\n"
-            f"Data preserved: {'YES' if raw_preserved else 'UNKNOWN'}\n"
-            f"Automatic recovery: {recovery.result} ({recovery.attempt_count}/1)\n\n"
-            '## Relevant artifact paths\n\n'
-            f'{evidence_lines}\n'
-            f'{excerpt_block}\n'
-            '## Question for ChatGPT\n\n'
-            '请判断该 incident 的根因、是否需要修复、是否改变业务 contract，'
-            '并给出 Codex 下一步指令。\n'
+            'AI Job Finder incident handoff\n\n'
+            f"Date: {incident['run_id']}\n"
+            f"Git HEAD: {run_row['git_head'] or 'UNKNOWN'}\n"
+            f"Failed stage: {incident['failed_phase'] or 'N/A'}\n"
+            f"Platform: {incident['platform'] or 'N/A'}\n"
+            f"Error type: {incident['error_type']}\n"
+            f"Error message: {incident['error_summary'] or 'See canonical evidence.'}\n"
+            f"Retry: {json.dumps(retry, ensure_ascii=False)}\n"
+            f"Validators: {json.dumps(validators, ensure_ascii=False, sort_keys=True)}\n"
+            f"Data preservation: {'YES' if preserved else 'NO'}\n"
+            f"Technical health: {run_row['technical_run_health']}\n"
+            f"Overall action: {run_row['overall_action']}\n"
+            f"Incident status: {incident['status']}\n\n"
+            'Canonical evidence refs:\n'
+            f'{evidence_lines}\n\n'
+            '请判断根因、是否需要修复、是否会改变受保护的业务 contract，并给出下一步。\n'
         )
 
 
@@ -808,23 +1029,11 @@ def write_ops_failure_evidence(
         'incident_id': incident_id,
         'canonical_evidence_refs': {},
         'ops_error': _compact(error),
+        'human_outcome': 'TECHNICAL_FAILURE',
     }
     _write_json_atomic(ops_dir / 'latest.json', artifact)
-    _write_text_atomic(
-        ops_dir / 'latest.md',
-        '# AI Job Finder Daily Status\n\n'
-        f'Date: {run_date}\n\nOverall:\nTECHNICAL FAILURE\n\n'
-        'Action:\nDaily Operations summary generation needs review.\n',
-    )
-    _write_text_atomic(
-        ops_dir / 'latest_incident.md',
-        '# AI Job Finder Incident Handoff\n\n'
-        f'Incident: {incident_id}\nRun date: {run_date}\n'
-        'Error type: OPS_SUMMARY_FAILURE\n'
-        f'Error message: {_compact(error)}\n\n'
-        '请判断该 incident 的根因、是否需要修复、是否改变业务 contract，'
-        '并给出 Codex 下一步指令。\n',
-    )
+    (ops_dir / 'latest.md').unlink(missing_ok=True)
+    (ops_dir / 'latest_incident.md').unlink(missing_ok=True)
 
 
 def _read_mapping(path: Path, label: str) -> Mapping[str, Any]:
@@ -894,7 +1103,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     print(json.dumps({
         'ops_status': artifact['ops_status'],
         'latest_json': str(Path(data_dir) / 'ops' / 'latest.json'),
-        'latest_markdown': str(Path(data_dir) / 'ops' / 'latest.md'),
     }, ensure_ascii=False))
     return 0
 

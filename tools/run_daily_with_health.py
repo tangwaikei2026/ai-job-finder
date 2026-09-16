@@ -25,6 +25,7 @@ from src.operations.daily_ops import (  # noqa: E402
     RecoveryOutcome,
     write_ops_failure_evidence,
 )
+from src.operations.notifications import NotificationService  # noqa: E402
 from tools.run_daily import DEFAULT_CONFIG, run_daily  # noqa: E402
 
 
@@ -82,7 +83,7 @@ def _publish_ops(
     recovery: RecoveryOutcome,
     summary: dict[str, Any],
     orchestration_error: str | None = None,
-) -> None:
+) -> dict[str, Any] | None:
     """Publish Operations without changing the completed production result."""
     try:
         artifact = operations.publish(
@@ -95,9 +96,9 @@ def _publish_ops(
         summary.update(
             ops_status=artifact['ops_status'],
             ops_file=str(operations.ops_dir / 'latest.json'),
-            human_summary_file=str(operations.ops_dir / 'latest.md'),
             gpt_review_required=artifact['gpt_review_required'],
         )
+        return artifact
     except Exception as exc:
         summary['ops_error'] = str(exc)
         try:
@@ -109,6 +110,41 @@ def _publish_ops(
             )
         except Exception as evidence_error:
             summary['ops_failure_evidence_error'] = str(evidence_error)
+        return None
+
+
+def _after_ops(
+    operations: DailyOperations,
+    run_date: str,
+    *,
+    artifact: Mapping[str, Any] | None,
+    runner: Runner,
+    health_generator: HealthGenerator,
+    summary: dict[str, Any],
+) -> None:
+    """Run bounded backlog work, then bounded notification delivery."""
+    if artifact is None:
+        return
+    try:
+        recovered = operations.process_deferred_recovery(
+            run_date,
+            runner=runner,
+            health_generator=health_generator,
+        )
+        summary['deferred_recovery'] = recovered
+    except Exception as exc:
+        summary['deferred_recovery_error'] = str(exc)
+        recovered = []
+    try:
+        notifications = NotificationService(operations)
+        notifications.queue(run_date, 'DAILY_STATUS')
+        for result in recovered:
+            if result.get('result') == 'SUCCESS':
+                notifications.queue(str(result['date']), 'RECOVERY')
+        summary['email_configured'] = notifications.adapter.configured
+        summary['notifications'] = notifications.send_pending()
+    except Exception as exc:
+        summary['notification_error'] = str(exc)
 
 
 def _run_locked(
@@ -142,7 +178,7 @@ def _run_locked(
             config_path=config_path,
             trigger=os.environ.get('AI_JOB_FINDER_TRIGGER', 'daily_wrapper'),
         )
-        _publish_ops(
+        artifact = _publish_ops(
             operations,
             run_date,
             run=synthetic_run,
@@ -150,6 +186,10 @@ def _run_locked(
             recovery=RecoveryOutcome(),
             summary=summary,
             orchestration_error=f'runner raised an exception: {exc}',
+        )
+        _after_ops(
+            operations, run_date, artifact=artifact, runner=runner,
+            health_generator=health_generator, summary=summary,
         )
         return 1, summary
 
@@ -179,7 +219,7 @@ def _run_locked(
         _read_final_status(status_path, run_date, str(runner_status))
     except ValueError as exc:
         summary.update(phase='runner', error=str(exc))
-        _publish_ops(
+        artifact = _publish_ops(
             operations,
             run_date,
             run=status,
@@ -187,6 +227,10 @@ def _run_locked(
             recovery=recovery,
             summary=summary,
             orchestration_error=str(exc),
+        )
+        _after_ops(
+            operations, run_date, artifact=artifact, runner=runner,
+            health_generator=health_generator, summary=summary,
         )
         return 1, summary
 
@@ -214,7 +258,7 @@ def _run_locked(
                     if isinstance(candidate, Mapping):
                         effective_status = candidate
                 summary.update(phase='runner', error='runner did not complete successfully')
-                _publish_ops(
+                artifact = _publish_ops(
                     operations,
                     run_date,
                     run=effective_status,
@@ -222,10 +266,14 @@ def _run_locked(
                     recovery=recovery,
                     summary=summary,
                 )
+                _after_ops(
+                    operations, run_date, artifact=artifact, runner=runner,
+                    health_generator=health_generator, summary=summary,
+                )
                 return 1, summary
         else:
             summary.update(phase='runner', error='runner did not complete successfully')
-            _publish_ops(
+            artifact = _publish_ops(
                 operations,
                 run_date,
                 run=status,
@@ -233,6 +281,10 @@ def _run_locked(
                 recovery=recovery,
                 summary=summary,
                 orchestration_error='inconsistent runner return code or status',
+            )
+            _after_ops(
+                operations, run_date, artifact=artifact, runner=runner,
+                health_generator=health_generator, summary=summary,
             )
             return 1, summary
 
@@ -253,7 +305,7 @@ def _run_locked(
         except ValueError:
             pass
         summary.update(phase='health', error=str(exc))
-        _publish_ops(
+        artifact = _publish_ops(
             operations,
             run_date,
             run=status,
@@ -262,6 +314,10 @@ def _run_locked(
             summary=summary,
             orchestration_error=f'Daily Health generation failed: {exc}',
         )
+        _after_ops(
+            operations, run_date, artifact=artifact, runner=runner,
+            health_generator=health_generator, summary=summary,
+        )
         return 1, summary
 
     summary.update(
@@ -269,13 +325,17 @@ def _run_locked(
         health_file=str(health_path),
         overall_action=overall_action,
     )
-    _publish_ops(
+    artifact = _publish_ops(
         operations,
         run_date,
         run=status,
         health=health,
         recovery=recovery,
         summary=summary,
+    )
+    _after_ops(
+        operations, run_date, artifact=artifact, runner=runner,
+        health_generator=health_generator, summary=summary,
     )
     return (0 if overall_action == 'NO_NEW_ACTION' else 2), summary
 
