@@ -16,6 +16,7 @@ env/
 
 data/.cookies/
 data/analysis/
+data/ops/
 *.log
 
 .vscode/
@@ -31,6 +32,7 @@ data/analysis/
 # Temp scripts (probe/debug/one-off)
 _*.py
 !src/collectors/__init__.py
+!src/operations/__init__.py
 !src/legacy/**/__init__.py
 !tests/raw/__init__.py
 !tests/legacy/__init__.py

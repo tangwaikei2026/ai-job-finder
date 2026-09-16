@@ -6,6 +6,7 @@ import argparse
 import fcntl
 import hashlib
 import json
+import os
 import sys
 import tempfile
 from contextlib import contextmanager
@@ -19,6 +20,11 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from src.analysis.daily_health import generate_daily_health  # noqa: E402
+from src.operations.daily_ops import (  # noqa: E402
+    DailyOperations,
+    RecoveryOutcome,
+    write_ops_failure_evidence,
+)
 from tools.run_daily import DEFAULT_CONFIG, run_daily  # noqa: E402
 
 
@@ -67,6 +73,44 @@ def _remove_health(path: Path) -> None:
         raise ValueError(f'could not invalidate health artifact: {exc}') from exc
 
 
+def _publish_ops(
+    operations: DailyOperations,
+    run_date: str,
+    *,
+    run: Mapping[str, Any],
+    health: Mapping[str, Any] | None,
+    recovery: RecoveryOutcome,
+    summary: dict[str, Any],
+    orchestration_error: str | None = None,
+) -> None:
+    """Publish Operations without changing the completed production result."""
+    try:
+        artifact = operations.publish(
+            run_date,
+            run=run,
+            health=health,
+            recovery=recovery,
+            orchestration_error=orchestration_error,
+        )
+        summary.update(
+            ops_status=artifact['ops_status'],
+            ops_file=str(operations.ops_dir / 'latest.json'),
+            human_summary_file=str(operations.ops_dir / 'latest.md'),
+            gpt_review_required=artifact['gpt_review_required'],
+        )
+    except Exception as exc:
+        summary['ops_error'] = str(exc)
+        try:
+            write_ops_failure_evidence(
+                data_dir=operations.data_dir,
+                run_date=run_date,
+                error=str(exc),
+                run=run,
+            )
+        except Exception as evidence_error:
+            summary['ops_failure_evidence_error'] = str(evidence_error)
+
+
 def _run_locked(
     run_date: str,
     *,
@@ -84,27 +128,114 @@ def _run_locked(
             resume_from=resume_from,
         )
     except Exception as exc:
-        return 1, {'phase': 'runner', 'error': str(exc)}
+        summary = {'phase': 'runner', 'error': str(exc)}
+        synthetic_run = {
+            'date': run_date,
+            'status': 'FAILED',
+            'crawl': {'status': 'FAILED', 'error': str(exc)},
+            'clean': {'status': 'SKIPPED'},
+            'analysis': {'status': 'SKIPPED'},
+        }
+        operations = DailyOperations(
+            data_dir=Path(root) / 'data',
+            root=root,
+            config_path=config_path,
+            trigger=os.environ.get('AI_JOB_FINDER_TRIGGER', 'daily_wrapper'),
+        )
+        _publish_ops(
+            operations,
+            run_date,
+            run=synthetic_run,
+            health=None,
+            recovery=RecoveryOutcome(),
+            summary=summary,
+            orchestration_error=f'runner raised an exception: {exc}',
+        )
+        return 1, summary
 
     if not isinstance(status, Mapping):
-        return 1, {'phase': 'runner', 'error': 'runner returned an invalid status'}
+        summary = {'phase': 'runner', 'error': 'runner returned an invalid status'}
+        write_ops_failure_evidence(
+            data_dir=Path(root) / 'data',
+            run_date=run_date,
+            error=summary['error'],
+        )
+        return 1, summary
     runner_status = status.get('status')
     status_path = Path(status_path_value).resolve()
+    data_root = status_path.parents[2]
+    operations = DailyOperations(
+        data_dir=data_root,
+        root=root,
+        config_path=config_path,
+        trigger=os.environ.get('AI_JOB_FINDER_TRIGGER', 'daily_wrapper'),
+    )
+    recovery = RecoveryOutcome()
     summary: dict[str, Any] = {
         'runner_status': runner_status,
         'status_file': str(status_path),
     }
-    if runner_code != 0 or runner_status not in RUNNABLE_RUNNER_STATUSES:
-        summary.update(phase='runner', error='runner did not complete successfully')
-        return 1, summary
-
     try:
         _read_final_status(status_path, run_date, str(runner_status))
     except ValueError as exc:
         summary.update(phase='runner', error=str(exc))
+        _publish_ops(
+            operations,
+            run_date,
+            run=status,
+            health=None,
+            recovery=recovery,
+            summary=summary,
+            orchestration_error=str(exc),
+        )
         return 1, summary
 
-    data_root = status_path.parents[2]
+    if runner_code != 0 or runner_status not in RUNNABLE_RUNNER_STATUSES:
+        if runner_code != 0 and runner_status == 'FAILED':
+            recovery = operations.attempt_recovery(
+                run_date,
+                status,
+                runner=runner,
+            )
+            summary['automatic_recovery'] = recovery.as_dict()
+            if recovery.result == 'SUCCESS' and recovery.runner_result is not None:
+                runner_code, recovered_path, recovered_status = recovery.runner_result
+                status_path = Path(recovered_path).resolve()
+                status = recovered_status
+                runner_status = status.get('status')
+                summary.update(
+                    runner_status=runner_status,
+                    status_file=str(status_path),
+                )
+            else:
+                effective_status = status
+                if recovery.runner_result is not None:
+                    candidate = recovery.runner_result[2]
+                    if isinstance(candidate, Mapping):
+                        effective_status = candidate
+                summary.update(phase='runner', error='runner did not complete successfully')
+                _publish_ops(
+                    operations,
+                    run_date,
+                    run=effective_status,
+                    health=None,
+                    recovery=recovery,
+                    summary=summary,
+                )
+                return 1, summary
+        else:
+            summary.update(phase='runner', error='runner did not complete successfully')
+            _publish_ops(
+                operations,
+                run_date,
+                run=status,
+                health=None,
+                recovery=recovery,
+                summary=summary,
+                orchestration_error='inconsistent runner return code or status',
+            )
+            return 1, summary
+
     health_path = data_root / 'analysis' / 'health' / f'{run_date}.json'
     try:
         _remove_health(health_path)
@@ -122,12 +253,29 @@ def _run_locked(
         except ValueError:
             pass
         summary.update(phase='health', error=str(exc))
+        _publish_ops(
+            operations,
+            run_date,
+            run=status,
+            health=None,
+            recovery=recovery,
+            summary=summary,
+            orchestration_error=f'Daily Health generation failed: {exc}',
+        )
         return 1, summary
 
     summary.update(
         phase='complete',
         health_file=str(health_path),
         overall_action=overall_action,
+    )
+    _publish_ops(
+        operations,
+        run_date,
+        run=status,
+        health=health,
+        recovery=recovery,
+        summary=summary,
     )
     return (0 if overall_action == 'NO_NEW_ACTION' else 2), summary
 

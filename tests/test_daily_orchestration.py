@@ -5,6 +5,7 @@ from pathlib import Path
 from threading import Event, Thread
 
 import pytest
+import yaml
 
 from tools.run_daily_with_health import run_daily_with_health
 
@@ -238,3 +239,81 @@ def test_second_concurrent_invocation_fails_fast(tmp_path):
     assert second_runner_calls == []
     assert first_result[0][0] == 0
     assert not thread.is_alive()
+
+
+def test_clean_failure_is_recovered_once_then_ops_runs_after_health(tmp_path):
+    config = tmp_path / 'config.yaml'
+    config.write_text(yaml.safe_dump({'output_dir': 'data/raw'}))
+    raw_dir = tmp_path / 'data' / 'raw'
+    raw_dir.mkdir(parents=True)
+    raw = [{'platform': 'alpha', 'job_id': 'alpha-1'}]
+    manifest = {
+        'config': str(config.resolve()),
+        'job_count': 1,
+        'complete': True,
+        'platforms': [{
+            'platform': 'alpha',
+            'status': 'success',
+            'complete': True,
+            'jobs_in_scope': 1,
+        }],
+    }
+    (raw_dir / f'{DAY}.json').write_text(json.dumps(raw))
+    (raw_dir / f'{DAY}_manifest.json').write_text(json.dumps(manifest))
+    calls = []
+
+    def recovering_runner(run_date, *, config_path, root, resume_from):
+        calls.append(resume_from)
+        success = resume_from == 'clean'
+        status = {
+            'date': run_date,
+            'status': 'SUCCESS' if success else 'FAILED',
+            'crawl': {'status': 'SUCCESS', 'retried_platforms': []},
+            'clean': {'status': 'SUCCESS' if success else 'FAILED'},
+            'analysis': {'status': 'SUCCESS' if success else 'SKIPPED'},
+        }
+        if resume_from:
+            status['resume_from'] = resume_from
+        path = tmp_path / 'data' / 'analysis' / 'runs' / f'{run_date}.json'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(status))
+        return (0 if success else 1), path, status
+
+    def complete_health(run_date, *, data_dir):
+        artifact = {
+            'date': run_date,
+            'runner_status': 'SUCCESS',
+            'technical_run_health': 'SUCCESS',
+            'overall_action': 'NO_NEW_ACTION',
+            'sources': {
+                'alpha': {
+                    'source_completeness': 'COMPLETE',
+                    'limitation_state': 'NORMAL',
+                    'matched_limitation_id': None,
+                },
+            },
+        }
+        path = data_dir / 'analysis' / 'health' / f'{run_date}.json'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(artifact))
+        return path, artifact
+
+    code, summary = run_daily_with_health(
+        DAY,
+        root=tmp_path,
+        config_path=config,
+        runner=recovering_runner,
+        health_generator=complete_health,
+    )
+
+    latest = json.loads((tmp_path / 'data' / 'ops' / 'latest.json').read_text())
+    assert code == 0
+    assert calls == [None, 'clean']
+    assert summary['phase'] == 'complete'
+    assert summary['ops_status'] == 'HEALTHY'
+    assert latest['automatic_recovery'] == {
+        'attempted': True,
+        'type': 'clean',
+        'result': 'SUCCESS',
+        'attempt_count': 1,
+    }

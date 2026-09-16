@@ -5,7 +5,7 @@ from pathlib import Path
 import plistlib
 import re
 
-from ops.launchd.run_daily_launchd import build_command
+from ops.launchd.run_daily_launchd import build_command, rotate_log
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -53,3 +53,17 @@ def test_plist_keeps_the_single_approved_schedule_and_launchd_contract():
     serialized = PLIST_PATH.read_text(encoding='utf-8')
     assert '--resume-from' not in serialized
     assert str(OLD_ROOT) not in serialized
+
+
+def test_launchd_log_rotation_is_size_bounded_with_fixed_backups(tmp_path):
+    log = tmp_path / 'daily.log'
+    log.write_text('current')
+    for index in range(1, 5):
+        log.with_name(f'daily.log.{index}').write_text(f'backup-{index}')
+
+    assert rotate_log(log, max_bytes=1, backups=3) is True
+    assert not log.exists()
+    assert log.with_name('daily.log.1').read_text() == 'current'
+    assert log.with_name('daily.log.2').read_text() == 'backup-1'
+    assert log.with_name('daily.log.3').read_text() == 'backup-2'
+    assert not log.with_name('daily.log.4').exists()
