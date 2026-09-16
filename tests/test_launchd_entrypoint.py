@@ -5,7 +5,15 @@ from pathlib import Path
 import plistlib
 import re
 
-from ops.launchd.run_daily_launchd import build_command, rotate_log
+import pytest
+
+from ops.launchd.run_daily_launchd import (
+    EMAIL_ENVIRONMENT_KEYS,
+    EmailEnvironmentError,
+    build_command,
+    load_email_environment,
+    rotate_log,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -67,3 +75,56 @@ def test_launchd_log_rotation_is_size_bounded_with_fixed_backups(tmp_path):
     assert log.with_name('daily.log.2').read_text() == 'backup-1'
     assert log.with_name('daily.log.3').read_text() == 'backup-2'
     assert not log.with_name('daily.log.4').exists()
+
+
+def test_missing_email_config_keeps_email_environment_unconfigured(tmp_path):
+    environment: dict[str, str] = {}
+
+    assert load_email_environment(tmp_path / 'missing.json', environment=environment) is False
+    assert environment == {}
+
+
+def test_private_email_config_loads_only_supported_keys_without_overrides(tmp_path):
+    config = tmp_path / 'email.json'
+    config.write_text(
+        '{"AI_JOB_FINDER_EMAIL_HOST": "smtp.example.com", '
+        '"AI_JOB_FINDER_EMAIL_PASSWORD": "private-value"}',
+        encoding='utf-8',
+    )
+    config.chmod(0o600)
+    environment = {'AI_JOB_FINDER_EMAIL_HOST': 'explicit.example.com'}
+
+    assert load_email_environment(config, environment=environment) is True
+    assert environment == {
+        'AI_JOB_FINDER_EMAIL_HOST': 'explicit.example.com',
+        'AI_JOB_FINDER_EMAIL_PASSWORD': 'private-value',
+    }
+
+
+def test_email_config_rejects_permissions_available_to_other_users(tmp_path):
+    config = tmp_path / 'email.json'
+    config.write_text('{}', encoding='utf-8')
+    config.chmod(0o644)
+
+    with pytest.raises(EmailEnvironmentError, match='permissions'):
+        load_email_environment(config, environment={})
+
+
+def test_email_config_rejects_unknown_keys_without_disclosing_values(tmp_path):
+    config = tmp_path / 'email.json'
+    config.write_text('{"TYPO_EMAIL_PASSWORD": "must-not-appear"}', encoding='utf-8')
+    config.chmod(0o600)
+
+    with pytest.raises(EmailEnvironmentError) as raised:
+        load_email_environment(config, environment={})
+
+    assert 'must-not-appear' not in str(raised.value)
+    assert EMAIL_ENVIRONMENT_KEYS == {
+        'AI_JOB_FINDER_EMAIL_HOST',
+        'AI_JOB_FINDER_EMAIL_PORT',
+        'AI_JOB_FINDER_EMAIL_FROM',
+        'AI_JOB_FINDER_EMAIL_TO',
+        'AI_JOB_FINDER_EMAIL_USERNAME',
+        'AI_JOB_FINDER_EMAIL_PASSWORD',
+        'AI_JOB_FINDER_EMAIL_SECURITY',
+    }
