@@ -14,9 +14,9 @@
     <key>StartCalendarInterval</key>
     <dict>
         <key>Hour</key>
-        <integer>10</integer>
+        <integer>12</integer>
         <key>Minute</key>
-        <integer>20</integer>
+        <integer>7</integer>
     </dict>
     <key>StandardOutPath</key>
     <string>/Users/waikei/Developer/ai-job-finder/data/logs/launchd-daily.stdout.log</string>

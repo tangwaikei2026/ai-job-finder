@@ -39,7 +39,7 @@ def test_plist_keeps_the_single_approved_schedule_and_launchd_contract():
         str(PRODUCTION_ROOT / 'venv' / 'bin' / 'python'),
         str(PRODUCTION_ROOT / 'ops' / 'launchd' / 'run_daily_launchd.py'),
     ]
-    assert plist['StartCalendarInterval'] == {'Hour': 10, 'Minute': 20}
+    assert plist['StartCalendarInterval'] == {'Hour': 12, 'Minute': 7}
     assert plist['WorkingDirectory'] == str(PRODUCTION_ROOT)
     assert plist['StandardOutPath'] == str(
         PRODUCTION_ROOT / 'data' / 'logs' / 'launchd-daily.stdout.log'
