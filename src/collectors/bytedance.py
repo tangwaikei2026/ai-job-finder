@@ -48,6 +48,7 @@ class ByteDanceRawCollector(RawCollector):
                         self._collect_city(
                             page,
                             bootstrap,
+                            city,
                             code,
                             page_size,
                             jobs_by_id,
@@ -80,6 +81,7 @@ class ByteDanceRawCollector(RawCollector):
         self,
         page: Any,
         bootstrap: Any,
+        city: str,
         city_code: str,
         page_size: int,
         jobs_by_id: dict[str, RawJobPosting],
@@ -89,56 +91,123 @@ class ByteDanceRawCollector(RawCollector):
         city_total = 0
         city_fetched = 0
         seen_pages: set[tuple[str, ...]] = set()
+        city_evidence: dict[str, Any] = {
+            "city": city,
+            "reported_total_first": None,
+            "reported_total_last_observed": None,
+            "reported_total_min": None,
+            "reported_total_max": None,
+            "records_fetched": 0,
+            "pages_fetched": 0,
+            "last_page_size": 0,
+            "last_offset": 0,
+            "termination_reason": "",
+        }
+        manifest.metadata.setdefault("cities", []).append(city_evidence)
 
-        while True:
-            payload = fetch_portal_page(
-                page,
-                bootstrap,
-                offset=offset,
-                limit=page_size,
-                body_updates={"location_code_list": [city_code]},
-            )
-            data = payload.get("data") or {}
-            records = data.get("job_post_list") or []
-            if offset == 0:
-                city_total = int(data.get("count") or 0)
-                manifest.source_total += city_total
-                manifest.expected_pages += math.ceil(city_total / page_size)
-            if not records:
-                if city_fetched < city_total:
-                    raise RuntimeError(
-                        f"empty ByteDance city page after "
-                        f"{city_fetched}/{city_total} records"
+        try:
+            while True:
+                city_evidence["last_offset"] = offset
+                try:
+                    payload = fetch_portal_page(
+                        page,
+                        bootstrap,
+                        offset=offset,
+                        limit=page_size,
+                        body_updates={"location_code_list": [city_code]},
                     )
-                break
+                except Exception:
+                    city_evidence["termination_reason"] = "request_error"
+                    raise
+                data = payload.get("data") or {}
+                records = data.get("job_post_list") or []
+                if offset == 0:
+                    city_total = int(data.get("count") or 0)
+                    self._observe_reported_total(city_evidence, city_total, first=True)
+                    manifest.source_total += city_total
+                    manifest.expected_pages += math.ceil(city_total / page_size)
+                else:
+                    self._observe_later_reported_total(city_evidence, data)
+                if not records:
+                    if city_fetched < city_total:
+                        city_evidence["termination_reason"] = (
+                            "empty_page_before_reported_total"
+                        )
+                        raise RuntimeError(
+                            f"empty ByteDance city page after "
+                            f"{city_fetched}/{city_total} records"
+                        )
+                    city_evidence["termination_reason"] = "reported_total_reached"
+                    break
 
-            page_ids = tuple(str(item.get("id") or "") for item in records)
-            if page_ids in seen_pages:
-                raise RuntimeError("repeated ByteDance city page")
-            seen_pages.add(page_ids)
-            manifest.pages_fetched += 1
-            manifest.records_fetched += len(records)
-            city_fetched += len(records)
+                page_ids = tuple(str(item.get("id") or "") for item in records)
+                if page_ids in seen_pages:
+                    city_evidence["termination_reason"] = "repeated_page"
+                    raise RuntimeError("repeated ByteDance city page")
+                seen_pages.add(page_ids)
+                manifest.pages_fetched += 1
+                manifest.records_fetched += len(records)
+                city_fetched += len(records)
+                city_evidence["pages_fetched"] += 1
+                city_evidence["records_fetched"] = city_fetched
+                city_evidence["last_page_size"] = len(records)
 
-            for item in records:
-                job = self._map_job(item)
-                if not job.job_id:
-                    manifest.missing_job_id += 1
-                    continue
-                if job.job_id in jobs_by_id:
-                    manifest.duplicate_records += 1
-                    continue
-                manifest.jobs_mapped += 1
-                if not job.location:
-                    manifest.unknown_location += 1
-                if not self.location_in_scope(job.location):
-                    manifest.outside_city_scope += 1
-                    continue
-                jobs_by_id[job.job_id] = job
+                for item in records:
+                    job = self._map_job(item)
+                    if not job.job_id:
+                        manifest.missing_job_id += 1
+                        continue
+                    if job.job_id in jobs_by_id:
+                        manifest.duplicate_records += 1
+                        continue
+                    manifest.jobs_mapped += 1
+                    if not job.location:
+                        manifest.unknown_location += 1
+                    if not self.location_in_scope(job.location):
+                        manifest.outside_city_scope += 1
+                        continue
+                    jobs_by_id[job.job_id] = job
 
-            if city_fetched >= city_total:
-                break
-            offset += len(records)
+                if city_fetched >= city_total:
+                    city_evidence["termination_reason"] = "reported_total_reached"
+                    break
+                offset += len(records)
+        finally:
+            if not city_evidence["termination_reason"]:
+                city_evidence["termination_reason"] = "other_existing_reason"
+
+    @staticmethod
+    def _observe_reported_total(
+        city_evidence: dict[str, Any],
+        reported_total: int,
+        *,
+        first: bool = False,
+    ) -> None:
+        if first:
+            city_evidence["reported_total_first"] = reported_total
+        city_evidence["reported_total_last_observed"] = reported_total
+        observed_min = city_evidence["reported_total_min"]
+        observed_max = city_evidence["reported_total_max"]
+        city_evidence["reported_total_min"] = (
+            reported_total if observed_min is None else min(observed_min, reported_total)
+        )
+        city_evidence["reported_total_max"] = (
+            reported_total if observed_max is None else max(observed_max, reported_total)
+        )
+
+    @classmethod
+    def _observe_later_reported_total(
+        cls,
+        city_evidence: dict[str, Any],
+        data: dict[str, Any],
+    ) -> None:
+        if "count" not in data or data["count"] is None:
+            return
+        try:
+            reported_total = int(data["count"])
+        except (TypeError, ValueError):
+            return
+        cls._observe_reported_total(city_evidence, reported_total)
 
     def _map_job(self, item: dict[str, Any]) -> RawJobPosting:
         job_id = str(item.get("id") or "")
