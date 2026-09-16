@@ -4,15 +4,23 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 import plistlib
 import re
+import subprocess
+import sys
 
 import pytest
 
 from ops.launchd.run_daily_launchd import (
+    CAFFEINATE,
     EMAIL_ENVIRONMENT_KEYS,
     EmailEnvironmentError,
     build_command,
+    build_caffeinated_command,
     load_email_environment,
     rotate_log,
+)
+from ops.launchd.run_wake_guard import (
+    WAKE_GUARD_SECONDS,
+    build_command as build_wake_guard_command,
 )
 
 
@@ -20,6 +28,9 @@ ROOT = Path(__file__).resolve().parents[1]
 PRODUCTION_ROOT = Path('/Users/waikei/Developer/ai-job-finder')
 OLD_ROOT = Path('/Users/waikei/Documents/Codex/ai-job-finder')
 PLIST_PATH = ROOT / 'ops' / 'launchd' / 'com.waikei.ai-job-finder.daily.plist'
+WAKE_GUARD_PLIST_PATH = (
+    ROOT / 'ops' / 'launchd' / 'com.waikei.ai-job-finder.wake-guard.plist'
+)
 
 
 def test_command_supplies_runtime_local_date_to_official_wrapper():
@@ -37,6 +48,35 @@ def test_command_supplies_runtime_local_date_to_official_wrapper():
     assert date.fromisoformat(command[-1]).isoformat() == command[-1]
     assert '--resume-from' not in command
     assert str(OLD_ROOT) not in '\n'.join(command)
+
+
+def test_runner_is_wrapped_by_idle_sleep_assertion_without_changing_arguments():
+    runner_command = build_command(
+        datetime(2026, 9, 16, 9, 30, tzinfo=timezone(timedelta(hours=8)))
+    )
+
+    protected_command = build_caffeinated_command(runner_command)
+
+    assert protected_command[:2] == [str(CAFFEINATE), '-i']
+    assert protected_command[2:] == runner_command
+    assert '-d' not in protected_command
+    assert '-s' not in protected_command
+
+
+@pytest.mark.skipif(not CAFFEINATE.exists(), reason='macOS caffeinate is unavailable')
+def test_caffeinate_propagates_runner_exit_code():
+    completed = subprocess.run(
+        [
+            str(CAFFEINATE),
+            '-i',
+            sys.executable,
+            '-c',
+            'raise SystemExit(23)',
+        ],
+        check=False,
+    )
+
+    assert completed.returncode == 23
 
 
 def test_plist_keeps_the_single_approved_schedule_and_launchd_contract():
@@ -61,6 +101,27 @@ def test_plist_keeps_the_single_approved_schedule_and_launchd_contract():
     serialized = PLIST_PATH.read_text(encoding='utf-8')
     assert '--resume-from' not in serialized
     assert str(OLD_ROOT) not in serialized
+
+
+def test_wake_guard_is_single_purpose_and_bounded_across_daily_launch():
+    with WAKE_GUARD_PLIST_PATH.open('rb') as handle:
+        plist = plistlib.load(handle)
+
+    assert plist['ProgramArguments'] == [
+        str(PRODUCTION_ROOT / 'venv' / 'bin' / 'python'),
+        str(PRODUCTION_ROOT / 'ops' / 'launchd' / 'run_wake_guard.py'),
+    ]
+    assert plist['StartCalendarInterval'] == {'Hour': 9, 'Minute': 55}
+    assert plist['WorkingDirectory'] == str(PRODUCTION_ROOT)
+    assert 'RunAtLoad' not in plist
+    assert 'KeepAlive' not in plist
+    assert 'StartInterval' not in plist
+
+    command = build_wake_guard_command()
+    assert command == [str(CAFFEINATE), '-i', '-t', '600']
+    assert WAKE_GUARD_SECONDS == 600
+    assert '-d' not in command
+    assert '-s' not in command
 
 
 def test_launchd_log_rotation_is_size_bounded_with_fixed_backups(tmp_path):

@@ -14,6 +14,7 @@ from typing import Mapping
 PRODUCTION_ROOT = Path(__file__).resolve().parents[2]
 PRODUCTION_PYTHON = PRODUCTION_ROOT / 'venv' / 'bin' / 'python'
 PRODUCTION_WRAPPER = PRODUCTION_ROOT / 'tools' / 'run_daily_with_health.py'
+CAFFEINATE = Path('/usr/bin/caffeinate')
 LOG_DIR = PRODUCTION_ROOT / 'data' / 'logs'
 LOG_PATHS = (
     LOG_DIR / 'launchd-daily.stdout.log',
@@ -98,6 +99,11 @@ def build_command(now: datetime | None = None) -> list[str]:
     ]
 
 
+def build_caffeinated_command(command: list[str]) -> list[str]:
+    """Prevent idle system sleep only while the production command is running."""
+    return [str(CAFFEINATE), '-i', *command]
+
+
 def rotate_log(path: Path, *, max_bytes: int = MAX_LOG_BYTES, backups: int = LOG_BACKUPS) -> bool:
     """Keep a small fixed set of launchd logs; never read or copy log content."""
     try:
@@ -128,7 +134,7 @@ def main() -> None:
     except EmailEnvironmentError as exc:
         print(f'Email configuration was not loaded: {exc}', file=sys.stderr)
     os.environ.setdefault('AI_JOB_FINDER_TRIGGER', 'launchd')
-    command = build_command()
+    command = build_caffeinated_command(build_command())
     os.execv(command[0], command)
 
 
