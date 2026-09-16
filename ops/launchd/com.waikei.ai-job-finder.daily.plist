@@ -7,25 +7,17 @@
     <key>ProgramArguments</key>
     <array>
         <string>/Users/waikei/Developer/ai-job-finder/venv/bin/python</string>
-        <string>/Users/waikei/Developer/ai-job-finder/tools/run_daily_with_health.py</string>
+        <string>/Users/waikei/Developer/ai-job-finder/ops/launchd/run_daily_launchd.py</string>
     </array>
     <key>WorkingDirectory</key>
     <string>/Users/waikei/Developer/ai-job-finder</string>
     <key>StartCalendarInterval</key>
-    <array>
-        <dict>
-            <key>Hour</key>
-            <integer>11</integer>
-            <key>Minute</key>
-            <integer>0</integer>
-        </dict>
-        <dict>
-            <key>Hour</key>
-            <integer>18</integer>
-            <key>Minute</key>
-            <integer>0</integer>
-        </dict>
-    </array>
+    <dict>
+        <key>Hour</key>
+        <integer>9</integer>
+        <key>Minute</key>
+        <integer>30</integer>
+    </dict>
     <key>StandardOutPath</key>
     <string>/Users/waikei/Developer/ai-job-finder/data/logs/launchd-daily.stdout.log</string>
     <key>StandardErrorPath</key>
