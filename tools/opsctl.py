@@ -14,8 +14,13 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from src.operations.daily_ops import DailyOperations, DailyOperationsError  # noqa: E402
-from src.operations.notifications import NotificationService  # noqa: E402
+from src.operations.notifications import EmailConfig, NotificationService  # noqa: E402
 from src.operations.presentation import build_presentation, render_status  # noqa: E402
+from ops.launchd.run_daily_launchd import (  # noqa: E402
+    EMAIL_CONFIG_PATH,
+    EmailEnvironmentError,
+    load_email_environment,
+)
 
 
 def _date_arg(value: str) -> str:
@@ -100,9 +105,29 @@ def _incident(args: argparse.Namespace, operations: DailyOperations) -> int:
     return 0
 
 
-def _notify(args: argparse.Namespace, operations: DailyOperations) -> int:
+def _notification_service_with_config(
+    operations: DailyOperations,
+) -> tuple[NotificationService, str | None]:
+    loaded = False
+    load_error: str | None = None
+    try:
+        loaded = load_email_environment(EMAIL_CONFIG_PATH)
+    except EmailEnvironmentError as exc:
+        load_error = str(exc)
     service = NotificationService(operations)
+    if service.adapter.configured:
+        return service, None
+    if load_error:
+        return service, load_error
+    if not loaded:
+        return service, f'config file is missing: {EMAIL_CONFIG_PATH}'
+    _, validation_error = EmailConfig.from_environment_with_error()
+    return service, validation_error or 'email fields failed validation'
+
+
+def _notify(args: argparse.Namespace, operations: DailyOperations) -> int:
     if args.dry_run:
+        service = NotificationService(operations)
         if not args.date:
             print('--date is required with --dry-run', file=sys.stderr)
             return 2
@@ -113,9 +138,13 @@ def _notify(args: argparse.Namespace, operations: DailyOperations) -> int:
             return 1
         print(f'Subject: {subject}\n\n{body}', end='')
         return 0
+    service, config_error = _notification_service_with_config(operations)
     if args.pending:
         if not service.adapter.configured:
-            print('Email adapter is not configured; pending notifications were unchanged.')
+            print(
+                f'Email adapter not configured: {config_error}; '
+                'pending notifications were unchanged.'
+            )
             return 1
         results = service.send_pending()
         for result in results:
@@ -131,7 +160,10 @@ def _notify(args: argparse.Namespace, operations: DailyOperations) -> int:
         return 2
     service.queue(args.date)
     if not service.adapter.configured:
-        print('Email adapter is not configured; notification remains pending.')
+        print(
+            f'Email adapter not configured: {config_error}; '
+            'notification remains pending.'
+        )
         return 1
     results = service.send_pending(run_date=args.date, limit=1)
     return 0 if results and results[0]['delivery_status'] == 'DELIVERED' else 1

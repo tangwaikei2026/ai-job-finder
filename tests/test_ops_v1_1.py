@@ -360,6 +360,76 @@ def test_opsctl_notification_dry_run_needs_no_credentials(tmp_path, capsys):
     assert 'No action required' in output
 
 
+def test_opsctl_loads_private_email_config_before_constructing_adapter(
+    tmp_path, monkeypatch
+):
+    operations = _operations(tmp_path)
+    config_dir = tmp_path / 'private-email'
+    config_dir.mkdir(mode=0o700)
+    config = config_dir / 'email.json'
+    config.write_text(json.dumps({
+        'AI_JOB_FINDER_EMAIL_HOST': 'smtp.example.com',
+        'AI_JOB_FINDER_EMAIL_PORT': '465',
+        'AI_JOB_FINDER_EMAIL_FROM': 'sender@example.com',
+        'AI_JOB_FINDER_EMAIL_TO': 'recipient@example.com',
+        'AI_JOB_FINDER_EMAIL_USERNAME': 'sender@example.com',
+        'AI_JOB_FINDER_EMAIL_PASSWORD': 'private-test-value',
+        'AI_JOB_FINDER_EMAIL_SECURITY': 'ssl',
+    }), encoding='utf-8')
+    config.chmod(0o600)
+    for key in (
+        'AI_JOB_FINDER_EMAIL_HOST',
+        'AI_JOB_FINDER_EMAIL_PORT',
+        'AI_JOB_FINDER_EMAIL_FROM',
+        'AI_JOB_FINDER_EMAIL_TO',
+        'AI_JOB_FINDER_EMAIL_USERNAME',
+        'AI_JOB_FINDER_EMAIL_PASSWORD',
+        'AI_JOB_FINDER_EMAIL_SECURITY',
+    ):
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.setattr(opsctl, 'EMAIL_CONFIG_PATH', config)
+
+    service, error = opsctl._notification_service_with_config(operations)
+
+    assert service.adapter.configured is True
+    assert error is None
+
+
+def test_opsctl_reports_non_secret_email_field_validation_error(
+    tmp_path, monkeypatch
+):
+    operations = _operations(tmp_path)
+    config_dir = tmp_path / 'private-email'
+    config_dir.mkdir(mode=0o700)
+    config = config_dir / 'email.json'
+    config.write_text(json.dumps({
+        'AI_JOB_FINDER_EMAIL_HOST': 'smtp.example.com',
+        'AI_JOB_FINDER_EMAIL_FROM': 'sender@example.com',
+        'AI_JOB_FINDER_EMAIL_TO': 'recipient@example.com',
+        'AI_JOB_FINDER_EMAIL_SECURITY': 'invalid-private-value',
+    }), encoding='utf-8')
+    config.chmod(0o600)
+    for key in (
+        'AI_JOB_FINDER_EMAIL_HOST',
+        'AI_JOB_FINDER_EMAIL_PORT',
+        'AI_JOB_FINDER_EMAIL_FROM',
+        'AI_JOB_FINDER_EMAIL_TO',
+        'AI_JOB_FINDER_EMAIL_USERNAME',
+        'AI_JOB_FINDER_EMAIL_PASSWORD',
+        'AI_JOB_FINDER_EMAIL_SECURITY',
+    ):
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.setattr(opsctl, 'EMAIL_CONFIG_PATH', config)
+
+    service, error = opsctl._notification_service_with_config(operations)
+
+    assert service.adapter.configured is False
+    assert error == (
+        'AI_JOB_FINDER_EMAIL_SECURITY must be starttls, ssl, or none'
+    )
+    assert 'invalid-private-value' not in error
+
+
 def test_v1_sqlite_is_migrated_without_losing_history(tmp_path):
     operations = _operations(tmp_path)
     operations.ops_dir.mkdir(parents=True, exist_ok=True)

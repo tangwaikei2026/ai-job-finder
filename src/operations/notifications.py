@@ -35,22 +35,45 @@ class EmailConfig:
 
     @classmethod
     def from_environment(cls) -> EmailConfig | None:
+        config, _ = cls.from_environment_with_error()
+        return config
+
+    @classmethod
+    def from_environment_with_error(
+        cls,
+    ) -> tuple[EmailConfig | None, str | None]:
+        """Return config plus a non-secret validation error for operators."""
         host = os.environ.get('AI_JOB_FINDER_EMAIL_HOST', '').strip()
         sender = os.environ.get('AI_JOB_FINDER_EMAIL_FROM', '').strip()
         recipient = os.environ.get('AI_JOB_FINDER_EMAIL_TO', '').strip()
         username = os.environ.get('AI_JOB_FINDER_EMAIL_USERNAME', '').strip() or None
         password = os.environ.get('AI_JOB_FINDER_EMAIL_PASSWORD') or None
-        if not host or not sender or not recipient or (username and not password):
-            return None
+        required = {
+            'AI_JOB_FINDER_EMAIL_HOST': host,
+            'AI_JOB_FINDER_EMAIL_FROM': sender,
+            'AI_JOB_FINDER_EMAIL_TO': recipient,
+        }
+        missing = sorted(key for key, value in required.items() if not value)
+        if missing:
+            return None, f"missing required field(s): {', '.join(missing)}"
+        if username and not password:
+            return None, (
+                'AI_JOB_FINDER_EMAIL_PASSWORD is required when '
+                'AI_JOB_FINDER_EMAIL_USERNAME is configured'
+            )
         try:
             port = int(os.environ.get('AI_JOB_FINDER_EMAIL_PORT', '587'))
         except ValueError:
-            return None
+            return None, 'AI_JOB_FINDER_EMAIL_PORT must be an integer'
         security = os.environ.get(
             'AI_JOB_FINDER_EMAIL_SECURITY', 'starttls'
         ).strip().lower()
-        if port < 1 or port > 65535 or security not in {'starttls', 'ssl', 'none'}:
-            return None
+        if port < 1 or port > 65535:
+            return None, 'AI_JOB_FINDER_EMAIL_PORT must be between 1 and 65535'
+        if security not in {'starttls', 'ssl', 'none'}:
+            return None, (
+                'AI_JOB_FINDER_EMAIL_SECURITY must be starttls, ssl, or none'
+            )
         return cls(
             host=host,
             port=port,
@@ -59,7 +82,7 @@ class EmailConfig:
             username=username,
             password=password,
             security=security,
-        )
+        ), None
 
 
 class EmailAdapter:
