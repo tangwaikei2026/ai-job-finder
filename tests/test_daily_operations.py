@@ -308,9 +308,9 @@ def test_human_status_is_high_level_and_latest_markdown_is_not_required(tmp_path
     artifact = operations.publish(DAY, run=_run(), health=_health())
     summary = render_status(build_presentation(artifact))
 
-    assert f'AI Job Finder — {DAY}' in summary
-    assert 'Result:\nNORMAL' in summary
-    assert 'No action required.' in summary
+    assert f'AI Job Finder｜{DAY}' in summary
+    assert '今天的岗位采集和分析已经完成，你不需要处理。' in summary
+    assert '没有发现新的异常。' in summary
     assert 'crawl_status' not in summary
     assert 'technical_run_health' not in summary
     assert 'matched_limitation_id' not in summary

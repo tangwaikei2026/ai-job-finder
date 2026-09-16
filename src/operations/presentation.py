@@ -1,4 +1,4 @@
-"""Single human-facing interpretation of the Daily Operations machine model."""
+"""Single zh-CN interpretation of the Daily Operations machine model."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -16,42 +16,35 @@ HUMAN_OUTCOMES = frozenset({
 
 def _platform_label(value: str) -> str:
     labels = {
-        'bytedance': 'ByteDance',
-        'didi': 'Didi',
-        'feishu': 'Feishu',
-        'jd': 'JD',
-        'netease': 'NetEase',
-        'quark': 'Quark',
-        'tencent': 'Tencent',
-        'xiaohongshu': 'Xiaohongshu',
+        'bytedance': '字节跳动',
+        'didi': '滴滴',
+        'feishu': '飞书',
+        'jd': '京东',
+        'netease': '网易',
+        'quark': '夸克',
+        'tencent': '腾讯',
+        'xiaohongshu': '小红书',
     }
-    return labels.get(value, value.replace('_', ' ').title())
+    return labels.get(value, value.replace('_', ' '))
+
+
+def _stage_label(value: str | None) -> str:
+    return {
+        'crawl': '岗位采集',
+        'clean': '数据清洗',
+        'analysis': '岗位分析',
+    }.get(value or '', '任务执行')
 
 
 @dataclass(frozen=True)
 class HumanPresentation:
+    """Complete human copy shared by CLI and email renderers."""
+
     run_date: str
     outcome: str
-    summary: str
-    action: str
-    known_limitations: tuple[str, ...] = ()
-    affected_platforms: tuple[str, ...] = ()
-    incident_id: str | None = None
-
-    @property
-    def result_label(self) -> str:
-        return self.outcome.replace('_', ' ')
-
-    @property
-    def email_label(self) -> str:
-        labels = {
-            'NORMAL': 'Normal',
-            'KNOWN_LIMITATION': 'Known Limitation',
-            'ACTION_REQUIRED': 'Action Required',
-            'TECHNICAL_FAILURE': 'Technical Failure',
-            'AUTO_RECOVERED': 'Auto-Recovered',
-        }
-        return labels[self.outcome]
+    subject: str
+    body: str
+    action_required: bool
 
 
 def human_outcome(machine: Mapping[str, Any]) -> str:
@@ -73,125 +66,112 @@ def human_outcome(machine: Mapping[str, Any]) -> str:
     return mapping.get(status, 'TECHNICAL_FAILURE')
 
 
+def _platforms(machine: Mapping[str, Any], key: str) -> tuple[str, ...]:
+    source_summary = machine.get('source_summary')
+    sources = source_summary if isinstance(source_summary, Mapping) else {}
+    values = sources.get(key, [])
+    if not isinstance(values, (list, tuple)):
+        return ()
+    return tuple(_platform_label(str(value)) for value in values)
+
+
+def _failed_stage(machine: Mapping[str, Any]) -> str:
+    for stage in ('crawl', 'clean', 'analysis'):
+        if machine.get(f'{stage}_status') == 'FAILED':
+            return _stage_label(stage)
+    return _stage_label(None)
+
+
 def build_presentation(machine: Mapping[str, Any]) -> HumanPresentation:
+    """Translate one machine result into self-contained human-first copy."""
     outcome = str(machine.get('human_outcome') or human_outcome(machine))
     if outcome not in HUMAN_OUTCOMES:
         outcome = 'TECHNICAL_FAILURE'
-    source_summary = machine.get('source_summary')
-    sources = source_summary if isinstance(source_summary, Mapping) else {}
-    known = tuple(
-        _platform_label(str(value))
-        for value in sources.get('known_limitations', [])
-    )
-    affected = tuple(
-        _platform_label(str(value))
-        for value in sources.get('action_required', [])
-    )
-    copy = {
-        'NORMAL': (
-            'Daily Runner completed successfully.',
-            'No action required.',
-        ),
-        'KNOWN_LIMITATION': (
-            'Daily Runner completed with a known, accepted limitation.',
-            'No action required.',
-        ),
-        'ACTION_REQUIRED': (
-            (
-                f"{', '.join(affected)} has a new completeness regression."
-                if affected else 'A new source regression requires review.'
-            ),
-            'GPT review required.',
-        ),
-        'TECHNICAL_FAILURE': (
-            'The daily pipeline did not complete successfully.',
-            'GPT review required.',
-        ),
-        'AUTO_RECOVERED': (
-            'A technical failure was automatically recovered from preserved data.',
-            'No action required.',
-        ),
-    }
-    summary, action = copy[outcome]
+    run_date = str(machine.get('date') or machine.get('run_date') or '未知日期')
+    known = _platforms(machine, 'known_limitations')
+    affected = _platforms(machine, 'action_required')
+    no_action_subject = 'AI Job Finder｜今日运行完成｜无需处理'
+    action_subject = 'AI Job Finder｜发现新问题｜需要查看'
+
+    if outcome == 'NORMAL':
+        subject = no_action_subject
+        body = (
+            '今天的岗位采集和分析已经完成，你不需要处理。\n\n'
+            '没有发现新的异常。\n\n'
+            '下一次自动运行：明天 10:00。'
+        )
+    elif outcome == 'KNOWN_LIMITATION':
+        names = '、'.join(known) if known else '部分来源'
+        subject = no_action_subject
+        body = (
+            '今天的岗位采集和分析已经完成，你不需要处理。\n\n'
+            '需要知道的一点：\n'
+            f'{names}仍存在已知的数据抓取限制，因此今天的{names}岗位数据可能不完整。\n'
+            '这是已经备案的问题，本次没有发现新的变化。\n\n'
+            '其他数据处理、清洗和分析已经完成。\n\n'
+            '系统没有发现新的异常，也没有执行额外的全量重跑。\n\n'
+            '下一次自动运行：明天 10:00。'
+        )
+    elif outcome == 'ACTION_REQUIRED':
+        names = '、'.join(affected) if affected else '一个岗位来源'
+        subject = action_subject
+        body = (
+            f'今天的自动任务已经完成，但{names}出现新的数据完整性异常。\n\n'
+            '发生了什么：\n'
+            f'{names}取得的岗位数据可能不完整，这不是已备案的旧问题。\n\n'
+            '系统已经自动：\n'
+            '- 保留已有数据\n'
+            '- 完成仍可安全执行的后续处理\n\n'
+            '系统没有：\n'
+            '- 自动再次执行完整岗位采集\n\n'
+            '你现在需要：\n'
+            '让 GPT 分析该异常。\n\n'
+            '命令：\n'
+            'venv/bin/python tools/opsctl.py incident --latest --format gpt'
+        )
+    elif outcome == 'AUTO_RECOVERED':
+        recovery = machine.get('automatic_recovery')
+        recovery_type = (
+            str(recovery.get('type')) if isinstance(recovery, Mapping) else ''
+        )
+        stage = _stage_label(recovery_type)
+        subject = no_action_subject
+        body = (
+            f'{run_date} 的自动任务曾在{stage}步骤失败。\n\n'
+            f'系统今天已从{stage}步骤继续执行，并使用保留的数据完成恢复。\n'
+            '恢复过程中没有重新采集岗位，也没有执行额外的全量重跑。\n\n'
+            '恢复已经成功完成，你不需要处理。\n\n'
+            '下一次自动运行：明天 10:00。'
+        )
+    else:
+        stage = _failed_stage(machine)
+        subject = action_subject
+        body = (
+            '今天的自动任务没有完整完成。\n\n'
+            '失败在哪一步：\n'
+            f'{stage}。\n\n'
+            '已有数据是否安全：\n'
+            '已有数据仍然保留，系统没有用空结果覆盖旧数据。\n\n'
+            '系统是否自动恢复：\n'
+            '系统已检查安全恢复条件，但本次没有成功完成恢复，也没有额外执行全量重跑。\n\n'
+            '你现在需要：\n'
+            '让 GPT 分析该异常。\n\n'
+            '命令：\n'
+            'venv/bin/python tools/opsctl.py incident --latest --format gpt'
+        )
+
     return HumanPresentation(
-        run_date=str(machine.get('date') or machine.get('run_date') or 'UNKNOWN'),
+        run_date=run_date,
         outcome=outcome,
-        summary=summary,
-        action=action,
-        known_limitations=known,
-        affected_platforms=affected,
-        incident_id=machine.get('incident_id'),
+        subject=subject,
+        body=body,
+        action_required=outcome in {'ACTION_REQUIRED', 'TECHNICAL_FAILURE'},
     )
 
 
 def render_status(presentation: HumanPresentation) -> str:
-    lines = [
-        f'AI Job Finder — {presentation.run_date}',
-        '',
-        'Result:',
-        presentation.result_label,
-        '',
-        presentation.summary,
-        presentation.action,
-    ]
-    if presentation.known_limitations:
-        lines.extend([
-            '',
-            'Known limitation:',
-            ', '.join(presentation.known_limitations),
-        ])
-    if presentation.affected_platforms:
-        lines.extend([
-            '',
-            'Affected source:',
-            ', '.join(presentation.affected_platforms),
-        ])
-    if presentation.incident_id and presentation.outcome in {
-        'ACTION_REQUIRED', 'TECHNICAL_FAILURE'
-    }:
-        lines.extend(['', 'Incident ID:', presentation.incident_id])
-    lines.extend([
-        '',
-        'Next scheduled run:',
-        'Managed by the existing 10:00 local schedule.',
-    ])
-    return '\n'.join(lines) + '\n'
+    return f'AI Job Finder｜{presentation.run_date}\n\n{presentation.body}\n'
 
 
 def render_email(presentation: HumanPresentation) -> tuple[str, str]:
-    short_date = presentation.run_date[5:] if len(presentation.run_date) >= 10 else presentation.run_date
-    subject = f'AI Job Finder · {short_date} · {presentation.email_label}'
-    if presentation.outcome in {'ACTION_REQUIRED', 'TECHNICAL_FAILURE'}:
-        lines = ['Problem:', presentation.summary, '']
-    else:
-        lines = [presentation.summary, '']
-    if presentation.outcome in {'NORMAL', 'KNOWN_LIMITATION'}:
-        lines.extend(['Data collection:', 'Completed', ''])
-    if presentation.known_limitations:
-        lines.extend([
-            'Known limitation:',
-            ', '.join(presentation.known_limitations),
-            '',
-        ])
-    if presentation.outcome in {'ACTION_REQUIRED', 'TECHNICAL_FAILURE'}:
-        lines.extend([
-            'System response:',
-            '- bounded safe recovery evaluated',
-            '- existing data preserved when available',
-            '',
-            'Manual full crawl:',
-            'Not performed',
-            '',
-        ])
-    if presentation.outcome == 'AUTO_RECOVERED':
-        lines.extend([
-            'System response:',
-            '- recovery used preserved canonical artifacts',
-            '- no historical crawl performed',
-            '',
-        ])
-    lines.extend(['Action required:', presentation.action.replace('.', ''), ''])
-    if presentation.incident_id:
-        lines.extend(['Incident ID:', presentation.incident_id, ''])
-    lines.extend(['Next run:', 'Managed by the existing 10:00 local schedule.'])
-    return subject, '\n'.join(lines).rstrip() + '\n'
+    return presentation.subject, presentation.body.rstrip() + '\n'

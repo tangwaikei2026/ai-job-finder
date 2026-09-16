@@ -178,9 +178,9 @@ def test_known_limitation_has_one_human_meaning_and_no_action(tmp_path):
     )
 
     output = render_status(build_presentation(artifact))
-    assert 'Result:\nKNOWN LIMITATION' in output
-    assert 'Known limitation:\nDidi' in output
-    assert 'No action required.' in output
+    assert '今天的岗位采集和分析已经完成，你不需要处理。' in output
+    assert '滴滴岗位数据可能不完整' in output
+    assert '这是已经备案的问题，本次没有发现新的变化。' in output
     assert 'DEGRADED' not in output
 
 
@@ -193,10 +193,10 @@ def test_new_regression_email_is_semantic_and_requires_action(tmp_path):
     )
 
     subject, body = NotificationService(operations).render(DAY)
-    assert subject == 'AI Job Finder · 09-15 · Action Required'
-    assert 'Problem:\nByteDance has a new completeness regression.' in body
-    assert 'Manual full crawl:\nNot performed' in body
-    assert 'GPT review required' in body
+    assert subject == 'AI Job Finder｜发现新问题｜需要查看'
+    assert '字节跳动出现新的数据完整性异常' in body
+    assert '系统没有：\n- 自动再次执行完整岗位采集' in body
+    assert '让 GPT 分析该异常' in body
     assert 'technical_run_health' not in body
 
 
@@ -335,7 +335,7 @@ def test_opsctl_status_history_incidents_recover_and_handoff(tmp_path, capsys):
     base = ['--root', str(tmp_path)]
 
     assert opsctl.main([*base, 'status', '--date', DAY]) == 0
-    assert 'Result:\nNORMAL' in capsys.readouterr().out
+    assert '今天的岗位采集和分析已经完成，你不需要处理。' in capsys.readouterr().out
     assert opsctl.main([*base, 'history', '--days', '7']) == 0
     assert 'DATE        RESULT' in capsys.readouterr().out
     assert opsctl.main([*base, 'incidents', '--open']) == 0
@@ -356,8 +356,8 @@ def test_opsctl_notification_dry_run_needs_no_credentials(tmp_path, capsys):
         '--root', str(tmp_path), 'notify', '--date', DAY, '--dry-run'
     ]) == 0
     output = capsys.readouterr().out
-    assert 'Subject: AI Job Finder · 09-15 · Normal' in output
-    assert 'No action required' in output
+    assert 'Subject: AI Job Finder｜今日运行完成｜无需处理' in output
+    assert '今天的岗位采集和分析已经完成，你不需要处理。' in output
 
 
 def test_opsctl_loads_private_email_config_before_constructing_adapter(
