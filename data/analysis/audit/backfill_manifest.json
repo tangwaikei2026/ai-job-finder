@@ -1,0 +1,2142 @@
+{
+  "schema_version": 1,
+  "base_branch": "taxonomy",
+  "base_sha": "bf228dc29dfda76ce974d4acab88769939aa4d61",
+  "backfill_branch": "backfill",
+  "backfill_start_sha": "bf228dc29dfda76ce974d4acab88769939aa4d61",
+  "no_live_recrawl": true,
+  "existing_artifacts_overwritten": false,
+  "date_range": {
+    "earliest": "2026-06-29",
+    "latest": "2026-09-17"
+  },
+  "summary": {
+    "total_historical_dates": 19,
+    "already_complete": 3,
+    "fully_backfilled": 0,
+    "partially_backfilled": 7,
+    "not_recoverable": 9,
+    "failed": 0
+  },
+  "derived_artifact_dependency_map": {
+    "Production AI job analysis": {
+      "entrypoint": "src.analysis.ai_eval_jobs.run_analysis",
+      "inputs": [
+        "dated clean jobs",
+        "config.yaml company scope"
+      ],
+      "outputs": [
+        "*_ai_eval_analysis.json",
+        "*_ai_eval_report.md",
+        "*_ai_eval_hits.jsonl"
+      ],
+      "backfill_role": "reference-only; not required by the current derived pipeline"
+    },
+    "Classification / Personal Fit": {
+      "entrypoint": "src.analysis.pipeline.replay -> src.analysis.classification.classify_record",
+      "inputs": [
+        "dated clean jobs",
+        "SourceHealth",
+        "classifier versions",
+        "prior reliable classification"
+      ],
+      "outputs": [
+        "analysis/classification/YYYY-MM-DD.jsonl"
+      ]
+    },
+    "SourceHealth": {
+      "entrypoint": "src.analysis.source_health.SourceHealth",
+      "inputs": [
+        "crawl manifest",
+        "dated clean jobs"
+      ],
+      "outputs": [
+        "in-memory reliability used by lifecycle, trend, audit, and Daily Health"
+      ]
+    },
+    "Lifecycle / Events": {
+      "entrypoint": "src.analysis.lifecycle.Lifecycle.observe",
+      "inputs": [
+        "strictly chronological clean observations",
+        "SourceHealth",
+        "prior lifecycle state"
+      ],
+      "outputs": [
+        "analysis/events/YYYY-MM-DD.jsonl"
+      ]
+    },
+    "Trend": {
+      "entrypoint": "src.analysis.trends.trend_snapshot / compare_trends",
+      "inputs": [
+        "classification",
+        "canonical events",
+        "SourceHealth",
+        "present clean identities",
+        "prior history"
+      ],
+      "outputs": [
+        "analysis/trends/snapshots/YYYY-MM-DD.json",
+        "optional comparisons"
+      ],
+      "reliability_gate": "src.analysis.trends.trend_comparability"
+    },
+    "Trend report": {
+      "entrypoint": "tools.generate_market_report.render_snapshot",
+      "inputs": [
+        "canonical trend snapshot"
+      ],
+      "outputs": [
+        "analysis/reports/market_report_YYYY-MM-DD.md"
+      ]
+    },
+    "Audit": {
+      "entrypoint": "src.analysis.audit_bundle.export_bundle",
+      "inputs": [
+        "clean jobs",
+        "classification",
+        "SourceHealth",
+        "events",
+        "trend",
+        "prior observation"
+      ],
+      "outputs": [
+        "analysis/audit/YYYY-MM-DD_bundle.json"
+      ]
+    },
+    "Daily Health": {
+      "entrypoint": "src.analysis.daily_health.generate_daily_health",
+      "inputs": [
+        "actual daily run status",
+        "crawl manifest",
+        "clean jobs",
+        "known-limitations registry"
+      ],
+      "outputs": [
+        "analysis/health/YYYY-MM-DD.json"
+      ]
+    },
+    "Daily run status": {
+      "entrypoint": "tools.run_daily.run_daily",
+      "inputs": [
+        "actual crawl/clean/analysis execution results"
+      ],
+      "outputs": [
+        "analysis/runs/YYYY-MM-DD.json"
+      ],
+      "backfill_policy": "never synthesize from artifacts after the fact"
+    },
+    "History registration": {
+      "entrypoint": "src.operations.daily_ops.DailyOperations.publish",
+      "inputs": [
+        "actual daily run status",
+        "Daily Health"
+      ],
+      "outputs": [
+        "ops/ops.sqlite3 runs and sources rows"
+      ]
+    }
+  },
+  "dates": [
+    {
+      "date": "2026-06-29",
+      "initial": {
+        "date": "2026-06-29",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": false,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_CLEAN",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "final": {
+        "date": "2026-06-29",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": false,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_CLEAN",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "generated_artifacts": [],
+      "preserved_artifacts": [],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [
+        "MISSING_CLEAN"
+      ],
+      "result": "NOT_RECOVERABLE",
+      "reason": "MISSING_CLEAN",
+      "artifact_sha256": {
+        "data/raw/2026-06-29.json": "1c7f8b274ea2ebdb4c4e68df53b54e522fcefabe5003b6aa8a1bbe6d102072a6",
+        "data/raw/2026-06-29_manifest.json": "8ac6c062b2be5ff5e5c8171911a648fb10445b784417ee5b9fa95ac85aa0b8b6"
+      }
+    },
+    {
+      "date": "2026-06-30",
+      "initial": {
+        "date": "2026-06-30",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": false,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_CLEAN",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "final": {
+        "date": "2026-06-30",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": false,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_CLEAN",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "generated_artifacts": [],
+      "preserved_artifacts": [],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [
+        "MISSING_CLEAN"
+      ],
+      "result": "NOT_RECOVERABLE",
+      "reason": "MISSING_CLEAN",
+      "artifact_sha256": {
+        "data/raw/2026-06-30.json": "b4fdb74aa8a6d51ae3c3e530005c1e005b34ff5e01699b623b195c62cf34d2a0",
+        "data/raw/2026-06-30_manifest.json": "b19441050ae0adf0dbd8958295650ab7688d7e925e58a4a5344605f3c208b153"
+      }
+    },
+    {
+      "date": "2026-07-01",
+      "initial": {
+        "date": "2026-07-01",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": false,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_CLEAN",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "final": {
+        "date": "2026-07-01",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": false,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_CLEAN",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "generated_artifacts": [],
+      "preserved_artifacts": [],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [
+        "MISSING_CLEAN"
+      ],
+      "result": "NOT_RECOVERABLE",
+      "reason": "MISSING_CLEAN",
+      "artifact_sha256": {
+        "data/raw/2026-07-01.json": "b1e36b529faa31e13cec7553bef942694d507c0dcd0338f72af4130851de6fd0",
+        "data/raw/2026-07-01_manifest.json": "dcf433ca3dbfff109e321781930a3b92c7adbf3ed06e1c5dbbce8c30afdc70c6"
+      }
+    },
+    {
+      "date": "2026-07-02",
+      "initial": {
+        "date": "2026-07-02",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": false,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_CLEAN",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "final": {
+        "date": "2026-07-02",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": false,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_CLEAN",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "generated_artifacts": [],
+      "preserved_artifacts": [],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [
+        "MISSING_CLEAN"
+      ],
+      "result": "NOT_RECOVERABLE",
+      "reason": "MISSING_CLEAN",
+      "artifact_sha256": {
+        "data/raw/2026-07-02.json": "0dc754478ece34b704177fb30019c57cb0ad4190890c686d0c9e5c894f15dd89",
+        "data/raw/2026-07-02_manifest.json": "d4a0729e5e5f435d94e8c58d18c48b0663eeb02009bd5f1ea0a85d5ec5120a27"
+      }
+    },
+    {
+      "date": "2026-07-03",
+      "initial": {
+        "date": "2026-07-03",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": false,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_CLEAN",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "final": {
+        "date": "2026-07-03",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": false,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_CLEAN",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "generated_artifacts": [],
+      "preserved_artifacts": [],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [
+        "MISSING_CLEAN"
+      ],
+      "result": "NOT_RECOVERABLE",
+      "reason": "MISSING_CLEAN",
+      "artifact_sha256": {
+        "data/raw/2026-07-03.json": "a3be5d3b53a4a4098c91b2eeb838fc52d1a9491dee9358c0746cc5bca56a4118",
+        "data/raw/2026-07-03_manifest.json": "6cd5f81f7882e7bbf8a02af0f75d2a0e8e97c5742b6022021403f115e206a737"
+      }
+    },
+    {
+      "date": "2026-07-04",
+      "initial": {
+        "date": "2026-07-04",
+        "crawl_present": false,
+        "crawl_manifest_present": false,
+        "clean_present": true,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_RAW",
+          "MISSING_MANIFEST",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "final": {
+        "date": "2026-07-04",
+        "crawl_present": false,
+        "crawl_manifest_present": false,
+        "clean_present": true,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_RAW",
+          "MISSING_MANIFEST",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "generated_artifacts": [],
+      "preserved_artifacts": [],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [
+        "MISSING_RAW",
+        "MISSING_MANIFEST"
+      ],
+      "result": "NOT_RECOVERABLE",
+      "reason": "MISSING_RAW; MISSING_MANIFEST",
+      "artifact_sha256": {
+        "data/clean/2026-07-04.json": "204bfe6a4d3767589a033accadd850b930ce80627a82401293ffe41cc6ca5da9"
+      }
+    },
+    {
+      "date": "2026-07-06",
+      "initial": {
+        "date": "2026-07-06",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": false,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_CLEAN",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "final": {
+        "date": "2026-07-06",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": false,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_CLEAN",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "generated_artifacts": [],
+      "preserved_artifacts": [],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [
+        "MISSING_CLEAN"
+      ],
+      "result": "NOT_RECOVERABLE",
+      "reason": "MISSING_CLEAN",
+      "artifact_sha256": {
+        "data/raw/2026-07-06.json": "db92bc1d75d554921801a69c4748fecc0be04de58a8a8e1395f1222490b5b58d",
+        "data/raw/2026-07-06_manifest.json": "35cc603c333c4b5147981c4aee9205e496737a031e31077dde1e0cdab6e78e80"
+      }
+    },
+    {
+      "date": "2026-07-07",
+      "initial": {
+        "date": "2026-07-07",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "final": {
+        "date": "2026-07-07",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": true,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": true,
+        "personal_fit_present": true,
+        "source_health_present": false,
+        "reliability_present": true,
+        "lifecycle_present": true,
+        "events_present": true,
+        "trend_snapshot_present": true,
+        "trend_report_present": true,
+        "audit_present": true,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "generated_artifacts": [
+        "data/analysis/audit/2026-07-07_2026-07-07_replay.json",
+        "data/analysis/audit/2026-07-07_bundle.json",
+        "data/analysis/classification/2026-07-07.jsonl",
+        "data/analysis/events/2026-07-07.jsonl",
+        "data/analysis/reports/market_report_2026-07-07.md",
+        "data/analysis/trends/snapshots/2026-07-07.json"
+      ],
+      "preserved_artifacts": [
+        "data/analysis/audit/2026-07-07_2026-07-07_replay.json",
+        "data/analysis/audit/2026-07-07_bundle.json",
+        "data/analysis/classification/2026-07-07.jsonl",
+        "data/analysis/events/2026-07-07.jsonl",
+        "data/analysis/reports/market_report_2026-07-07.md",
+        "data/analysis/trends/snapshots/2026-07-07.json"
+      ],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [],
+      "result": "PARTIAL_BACKFILL",
+      "reason": "Derived analysis recovered; actual historical daily run status is unavailable, so Daily Health/DB history were not fabricated",
+      "artifact_sha256": {
+        "data/analysis/audit/2026-07-07_2026-07-07_replay.json": "4183a110c0dbf38f5b269a9a28084bef8b591df3f99934b3bbdb83aafe46e689",
+        "data/analysis/audit/2026-07-07_bundle.json": "ef7af6108a57aa9ea4a59d700eaf9f404b1fe6c39175d7b7319308d3fabe33cf",
+        "data/analysis/classification/2026-07-07.jsonl": "db808cbd027c7c78f5f116e723cbf860bca6f7739f9f13f9a06d1a7d6e66e74d",
+        "data/analysis/events/2026-07-07.jsonl": "361bdb91e8738d448463c26396fa15691b526b00de58cbf7aab0d22da3c60700",
+        "data/analysis/reports/market_report_2026-07-07.md": "fe22e4ff9a2c8d275b9637eba2ee0199b93df31176f06896d358af9af7379a1f",
+        "data/analysis/trends/snapshots/2026-07-07.json": "8376f39e7b3a2ecaec07cb23ee861e3f4fd81a4a8c94d59a9579a74b46a8db4b",
+        "data/clean/2026-07-07.json": "d4b7dbb0f49288f278119da837f43c5a95591e8203d695a5d76c4098920e72dd",
+        "data/clean/2026-07-07_report.json": "b7125f0574fe11a7ae73c5361e86f1c49716622d783ee3ff3188902779b4e0ce",
+        "data/raw/2026-07-07.json": "32fee8b3933cfc44a992f556c1b7f476d356f603183aa5b0de1e0413b21f75e7",
+        "data/raw/2026-07-07_manifest.json": "8143c866aa9ffdde010370329a5f5bab03cdf1b5df42459e0803dbf8424f8149"
+      }
+    },
+    {
+      "date": "2026-07-08",
+      "initial": {
+        "date": "2026-07-08",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "final": {
+        "date": "2026-07-08",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": true,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": true,
+        "personal_fit_present": true,
+        "source_health_present": false,
+        "reliability_present": true,
+        "lifecycle_present": true,
+        "events_present": true,
+        "trend_snapshot_present": true,
+        "trend_report_present": true,
+        "audit_present": true,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "generated_artifacts": [
+        "data/analysis/audit/2026-07-08_2026-07-08_replay.json",
+        "data/analysis/audit/2026-07-08_bundle.json",
+        "data/analysis/classification/2026-07-08.jsonl",
+        "data/analysis/events/2026-07-08.jsonl",
+        "data/analysis/reports/market_report_2026-07-08.md",
+        "data/analysis/trends/snapshots/2026-07-08.json"
+      ],
+      "preserved_artifacts": [
+        "data/analysis/audit/2026-07-08_2026-07-08_replay.json",
+        "data/analysis/audit/2026-07-08_bundle.json",
+        "data/analysis/classification/2026-07-08.jsonl",
+        "data/analysis/events/2026-07-08.jsonl",
+        "data/analysis/reports/market_report_2026-07-08.md",
+        "data/analysis/trends/snapshots/2026-07-08.json"
+      ],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [],
+      "result": "PARTIAL_BACKFILL",
+      "reason": "Derived analysis recovered; actual historical daily run status is unavailable, so Daily Health/DB history were not fabricated",
+      "artifact_sha256": {
+        "data/analysis/audit/2026-07-08_2026-07-08_replay.json": "70cb228c843569ff9190acee6e6a0460d9537f9b153fceff87435de7147a4fd0",
+        "data/analysis/audit/2026-07-08_bundle.json": "17fd8f4fe8c4e252a8fbd3e6581dcf53717c2049145717d7e629a432e3e9ee86",
+        "data/analysis/classification/2026-07-08.jsonl": "92697c8d27c2789e0858506c4a3c97c76eb88af54bebe643bc8eb230a18dd8fd",
+        "data/analysis/events/2026-07-08.jsonl": "85fcc41b3e591c4b202b3d7fa78d0e9835aafbea6bb6ebedd90e24adb761f9c8",
+        "data/analysis/reports/market_report_2026-07-08.md": "2a2e0cf7151f0d2813ef5f0ad02d9b7234146ac57e1497db1e2a1df5e62f927a",
+        "data/analysis/trends/snapshots/2026-07-08.json": "857ad3774e806c285c93ec185fd09979b938948f894df94bb91d71d778b2d9bb",
+        "data/clean/2026-07-08.json": "b37d25e3524436ed71e9ce403109982053d730bc2f9d30b3e2503725bea27b0c",
+        "data/clean/2026-07-08_report.json": "91faca3da57289ad876a0ae07ecc20b637e8f5a9dcd3e915c6311077576c4c4a",
+        "data/raw/2026-07-08.json": "ccf74b80e08feb2e3430f1323b6847b117311571e21c251a52b2e4538eb66124",
+        "data/raw/2026-07-08_manifest.json": "363750d37ad75c1f00591ee4ce5a53e23091b5497f12ab9480cac00345b780b6"
+      }
+    },
+    {
+      "date": "2026-07-14",
+      "initial": {
+        "date": "2026-07-14",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": false,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_CLEAN",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "final": {
+        "date": "2026-07-14",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": false,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_CLEAN",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "generated_artifacts": [],
+      "preserved_artifacts": [],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [
+        "MISSING_CLEAN"
+      ],
+      "result": "NOT_RECOVERABLE",
+      "reason": "MISSING_CLEAN",
+      "artifact_sha256": {
+        "data/raw/2026-07-14.json": "9e09c5ba479744bc18557d8c5005ea872f98cd0ea6fee499cfe7b0a340a78a66",
+        "data/raw/2026-07-14_manifest.json": "1e0113ebae16c168f2505ba49f5530b6c623fd01b345b4945973d85bdba7d72a"
+      }
+    },
+    {
+      "date": "2026-07-15",
+      "initial": {
+        "date": "2026-07-15",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": false,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_CLEAN",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "final": {
+        "date": "2026-07-15",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": false,
+        "clean_report_present": false,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": false,
+        "can_backfill_lifecycle": false,
+        "can_backfill_events": false,
+        "can_backfill_trend": false,
+        "can_backfill_audit": false,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_CLEAN",
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "generated_artifacts": [],
+      "preserved_artifacts": [],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [
+        "MISSING_CLEAN"
+      ],
+      "result": "NOT_RECOVERABLE",
+      "reason": "MISSING_CLEAN",
+      "artifact_sha256": {
+        "data/raw/2026-07-15.json": "8bd6cbd1fb7795789e1da3a68983d9a0b8b7cb5596e31809ea629a67d430461f",
+        "data/raw/2026-07-15_manifest.json": "94db968a7d7449351002852bffc97236c46c970e06dc0932c73e74ffcecde1ff"
+      }
+    },
+    {
+      "date": "2026-09-01",
+      "initial": {
+        "date": "2026-09-01",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "final": {
+        "date": "2026-09-01",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": true,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": true,
+        "personal_fit_present": true,
+        "source_health_present": false,
+        "reliability_present": true,
+        "lifecycle_present": true,
+        "events_present": true,
+        "trend_snapshot_present": true,
+        "trend_report_present": true,
+        "audit_present": true,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "generated_artifacts": [
+        "data/analysis/audit/2026-09-01_2026-09-01_replay.json",
+        "data/analysis/audit/2026-09-01_bundle.json",
+        "data/analysis/classification/2026-09-01.jsonl",
+        "data/analysis/events/2026-09-01.jsonl",
+        "data/analysis/reports/market_report_2026-09-01.md",
+        "data/analysis/trends/snapshots/2026-09-01.json"
+      ],
+      "preserved_artifacts": [
+        "data/analysis/audit/2026-09-01_2026-09-01_replay.json",
+        "data/analysis/audit/2026-09-01_bundle.json",
+        "data/analysis/classification/2026-09-01.jsonl",
+        "data/analysis/events/2026-09-01.jsonl",
+        "data/analysis/reports/market_report_2026-09-01.md",
+        "data/analysis/trends/snapshots/2026-09-01.json"
+      ],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [],
+      "result": "PARTIAL_BACKFILL",
+      "reason": "Derived analysis recovered; actual historical daily run status is unavailable, so Daily Health/DB history were not fabricated",
+      "artifact_sha256": {
+        "data/analysis/audit/2026-09-01_2026-09-01_replay.json": "cb16f438a07c0bfecd21deadf47eafe5ca535c3eb3626e9fb589e9c50ec68b94",
+        "data/analysis/audit/2026-09-01_bundle.json": "dad478383c0ddbf84c32193bd365e67d056cf923b7f02eb084e3a6511a3c3936",
+        "data/analysis/classification/2026-09-01.jsonl": "c898d67bb7c082243deed757218d4e64345aa50c13ae2bd74ac9dfbf5d3410f7",
+        "data/analysis/events/2026-09-01.jsonl": "bf5ebc11ff72d405a302261aa652cbe5bd3d567ab749d7759f5e1efc6229146b",
+        "data/analysis/reports/market_report_2026-09-01.md": "ebf2c83063054c1b1762a71d3225c9b630382e068682d9fb8133a46d065cb65c",
+        "data/analysis/trends/snapshots/2026-09-01.json": "ac80bf4300feb3e72f3fff5ec1d71543a95d81f80a8720c965b063198c1bc635",
+        "data/clean/2026-09-01.json": "fe6dbf3dd0e0c439db8de40f50b97e24b983a6b44af84eb6918912b4ade9f122",
+        "data/clean/2026-09-01_report.json": "212c4bfaa558f10d9e16bda78cfef0964cd3f3769f7985932e247ad2b0916022",
+        "data/raw/2026-09-01.json": "52e7055e8d6de418ab347ae800308d211403196d391d11e3aa50ac735172c9ed",
+        "data/raw/2026-09-01_manifest.json": "c971ecf74285485ccb821671352e67eef69abb0e52fa91f721980a07186bad1f"
+      }
+    },
+    {
+      "date": "2026-09-02",
+      "initial": {
+        "date": "2026-09-02",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "final": {
+        "date": "2026-09-02",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": true,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": true,
+        "personal_fit_present": true,
+        "source_health_present": false,
+        "reliability_present": true,
+        "lifecycle_present": true,
+        "events_present": true,
+        "trend_snapshot_present": true,
+        "trend_report_present": true,
+        "audit_present": true,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "generated_artifacts": [
+        "data/analysis/audit/2026-09-02_2026-09-02_replay.json",
+        "data/analysis/audit/2026-09-02_bundle.json",
+        "data/analysis/classification/2026-09-02.jsonl",
+        "data/analysis/events/2026-09-02.jsonl",
+        "data/analysis/reports/market_report_2026-09-02.md",
+        "data/analysis/trends/snapshots/2026-09-02.json"
+      ],
+      "preserved_artifacts": [
+        "data/analysis/audit/2026-09-02_2026-09-02_replay.json",
+        "data/analysis/audit/2026-09-02_bundle.json",
+        "data/analysis/classification/2026-09-02.jsonl",
+        "data/analysis/events/2026-09-02.jsonl",
+        "data/analysis/reports/market_report_2026-09-02.md",
+        "data/analysis/trends/snapshots/2026-09-02.json"
+      ],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [],
+      "result": "PARTIAL_BACKFILL",
+      "reason": "Derived analysis recovered; actual historical daily run status is unavailable, so Daily Health/DB history were not fabricated",
+      "artifact_sha256": {
+        "data/analysis/audit/2026-09-02_2026-09-02_replay.json": "af7475bb4f94613f4e1b6c8550b632cf754bee1093d9b36e76558687e8dd923c",
+        "data/analysis/audit/2026-09-02_bundle.json": "b7ff7917c641acf89e00cfb8f7c16ee75b3bb5f3b84ca179aa9f6995e7b9a09c",
+        "data/analysis/classification/2026-09-02.jsonl": "53afc8edc1cf38e927480a53969d0256aaeb1bc6e68ebc8362752b42b6537a62",
+        "data/analysis/events/2026-09-02.jsonl": "1aff78ab94b332739840c72aec3267a7e34f5af7dd16b3af97f26d20b32706cf",
+        "data/analysis/reports/market_report_2026-09-02.md": "63fc49728e0910f3fd51ccc5256eeae2e499fa4a9654437267583a1fb4854918",
+        "data/analysis/trends/snapshots/2026-09-02.json": "a30eeb62bf0b4976a65ff50c989171a1ee4344514a4baeecd671db49618a5b89",
+        "data/clean/2026-09-02.json": "c8b7420de8f02bc08b8796732a56c1600711fde3c540e5db0e8004d4787f62e3",
+        "data/clean/2026-09-02_report.json": "3770529a1d2236aadbefbf9d5561049ecf270ce77244a1c3d19c693d891ca6cb",
+        "data/raw/2026-09-02.json": "9c31936bce25385b63f2d271376b80d9737989c1d1c2ad99dab28696a5e07491",
+        "data/raw/2026-09-02_manifest.json": "790f7e2641363386b05ff0ff5c31458ab2ad2559dccfbeddd27e00eec08029ec"
+      }
+    },
+    {
+      "date": "2026-09-03",
+      "initial": {
+        "date": "2026-09-03",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "final": {
+        "date": "2026-09-03",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": true,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": true,
+        "personal_fit_present": true,
+        "source_health_present": false,
+        "reliability_present": true,
+        "lifecycle_present": true,
+        "events_present": true,
+        "trend_snapshot_present": true,
+        "trend_report_present": true,
+        "audit_present": true,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "generated_artifacts": [
+        "data/analysis/audit/2026-09-03_2026-09-03_replay.json",
+        "data/analysis/audit/2026-09-03_bundle.json",
+        "data/analysis/classification/2026-09-03.jsonl",
+        "data/analysis/events/2026-09-03.jsonl",
+        "data/analysis/reports/market_report_2026-09-03.md",
+        "data/analysis/trends/snapshots/2026-09-03.json"
+      ],
+      "preserved_artifacts": [
+        "data/analysis/audit/2026-09-03_2026-09-03_replay.json",
+        "data/analysis/audit/2026-09-03_bundle.json",
+        "data/analysis/classification/2026-09-03.jsonl",
+        "data/analysis/events/2026-09-03.jsonl",
+        "data/analysis/reports/market_report_2026-09-03.md",
+        "data/analysis/trends/snapshots/2026-09-03.json"
+      ],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [],
+      "result": "PARTIAL_BACKFILL",
+      "reason": "Derived analysis recovered; actual historical daily run status is unavailable, so Daily Health/DB history were not fabricated",
+      "artifact_sha256": {
+        "data/analysis/audit/2026-09-03_2026-09-03_replay.json": "9e5e2767b865e79cfa5dfb7048f731c1038cd99166a3b9ad8acee54b083705ef",
+        "data/analysis/audit/2026-09-03_bundle.json": "d9b4399617f94280dfe12c9020baed116c444427b4382bfcc97d466c12c1ea03",
+        "data/analysis/classification/2026-09-03.jsonl": "bd4def8e0d892949f345658e19d39e8b34c1196eb8792f804fb09052e722cfea",
+        "data/analysis/events/2026-09-03.jsonl": "b2404c78871ea636ae307de4470b162a8abf5db7b35287c1837caef054bccf03",
+        "data/analysis/reports/market_report_2026-09-03.md": "1053a0e6631a8e3b07e1fb9640878277a6e9e8b0c4d820cb448e68d047a1db17",
+        "data/analysis/trends/snapshots/2026-09-03.json": "69c3835cd54c0eee9102dba2dced86ba542c065d29f1d282bbe7a53cb32d7e6e",
+        "data/clean/2026-09-03.json": "2eadd72ed014283142f9c2963e93a285499fcf085153bb755bf040d68cd68f22",
+        "data/clean/2026-09-03_report.json": "fabd3656a8b5b69c1840080245bd761e44348585a37483b9b4559e51fbf297ba",
+        "data/raw/2026-09-03.json": "17a986a6fdb9eaa2b29f165d6d060c520eb8c866cf302ecfa87efc670c036cad",
+        "data/raw/2026-09-03_manifest.json": "ea5ec15d3ea0a5b05ee9b1531a7c2b8b2fd9e43fad486fdbd6e08c9231db57bf"
+      }
+    },
+    {
+      "date": "2026-09-04",
+      "initial": {
+        "date": "2026-09-04",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "final": {
+        "date": "2026-09-04",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": true,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": true,
+        "personal_fit_present": true,
+        "source_health_present": false,
+        "reliability_present": true,
+        "lifecycle_present": true,
+        "events_present": true,
+        "trend_snapshot_present": true,
+        "trend_report_present": true,
+        "audit_present": true,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "generated_artifacts": [
+        "data/analysis/audit/2026-09-04_2026-09-04_replay.json",
+        "data/analysis/audit/2026-09-04_bundle.json",
+        "data/analysis/classification/2026-09-04.jsonl",
+        "data/analysis/events/2026-09-04.jsonl",
+        "data/analysis/reports/market_report_2026-09-04.md",
+        "data/analysis/trends/snapshots/2026-09-04.json"
+      ],
+      "preserved_artifacts": [
+        "data/analysis/audit/2026-09-04_2026-09-04_replay.json",
+        "data/analysis/audit/2026-09-04_bundle.json",
+        "data/analysis/classification/2026-09-04.jsonl",
+        "data/analysis/events/2026-09-04.jsonl",
+        "data/analysis/reports/market_report_2026-09-04.md",
+        "data/analysis/trends/snapshots/2026-09-04.json"
+      ],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [],
+      "result": "PARTIAL_BACKFILL",
+      "reason": "Derived analysis recovered; actual historical daily run status is unavailable, so Daily Health/DB history were not fabricated",
+      "artifact_sha256": {
+        "data/analysis/audit/2026-09-04_2026-09-04_replay.json": "df75084f9a19d7a1f684433c690dc860cefbf43dfce698c2d187a6c230332b14",
+        "data/analysis/audit/2026-09-04_bundle.json": "4618ee9907d754c982324108f4b2fabd3a96c050a6309a450109d40b5167b03d",
+        "data/analysis/classification/2026-09-04.jsonl": "913336690b4e4b37b0a2a5318eaf0782a54b9c4054d09e3d9422543f1d912b9e",
+        "data/analysis/events/2026-09-04.jsonl": "8c6f66d8595f6b36a92afaecc855d23251ee14b38d69467a0f1ad177f5cba671",
+        "data/analysis/reports/market_report_2026-09-04.md": "8c54a7f64f9780e27f6025bfacef7e37de987123e9e3d2baa5a4311c49e53019",
+        "data/analysis/trends/snapshots/2026-09-04.json": "6f8cf750b9dc6f63b11f8fa95a1ffe04caffc88a5289ad7f24819798e3d6075d",
+        "data/clean/2026-09-04.json": "af1dc1f66123c25f47007b0981bf18e075fbed9e2786d4221c49f352dab82b6f",
+        "data/clean/2026-09-04_report.json": "1e43cb77f469eacea9669bea8371d2b8edebc615cd693c5ee78517429dc78d4f",
+        "data/raw/2026-09-04.json": "bdd4287352efb333e88984868cdc51f61173a191e009f34364c4e3033af3e637",
+        "data/raw/2026-09-04_manifest.json": "caebc6c176eb13bfc5c103c12e286b5b9a8fa6d605c98a42463e757261e81188"
+      }
+    },
+    {
+      "date": "2026-09-07",
+      "initial": {
+        "date": "2026-09-07",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": false,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": false,
+        "personal_fit_present": false,
+        "source_health_present": false,
+        "reliability_present": false,
+        "lifecycle_present": false,
+        "events_present": false,
+        "trend_snapshot_present": false,
+        "trend_report_present": false,
+        "audit_present": false,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "final": {
+        "date": "2026-09-07",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": true,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": true,
+        "personal_fit_present": true,
+        "source_health_present": false,
+        "reliability_present": true,
+        "lifecycle_present": true,
+        "events_present": true,
+        "trend_snapshot_present": true,
+        "trend_report_present": true,
+        "audit_present": true,
+        "daily_status_present": false,
+        "daily_health_present": false,
+        "historical_db_present_or_registered": false,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": false,
+        "missing_inputs": [
+          "MISSING_ACTUAL_DAILY_RUN_STATUS"
+        ],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it",
+          "Daily run status is execution evidence and cannot be reconstructed honestly"
+        ]
+      },
+      "generated_artifacts": [
+        "data/analysis/audit/2026-09-07_2026-09-07_replay.json",
+        "data/analysis/audit/2026-09-07_bundle.json",
+        "data/analysis/classification/2026-09-07.jsonl",
+        "data/analysis/events/2026-09-07.jsonl",
+        "data/analysis/reports/market_report_2026-09-07.md",
+        "data/analysis/trends/snapshots/2026-09-07.json"
+      ],
+      "preserved_artifacts": [
+        "data/analysis/audit/2026-09-07_2026-09-07_replay.json",
+        "data/analysis/audit/2026-09-07_bundle.json",
+        "data/analysis/classification/2026-09-07.jsonl",
+        "data/analysis/events/2026-09-07.jsonl",
+        "data/analysis/reports/market_report_2026-09-07.md",
+        "data/analysis/trends/snapshots/2026-09-07.json"
+      ],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [],
+      "result": "PARTIAL_BACKFILL",
+      "reason": "Derived analysis recovered; actual historical daily run status is unavailable, so Daily Health/DB history were not fabricated",
+      "artifact_sha256": {
+        "data/analysis/audit/2026-09-07_2026-09-07_replay.json": "0564bc258958523a69871a6a9d8f04684d99d2c21ba1062ffa98cbe8cf15d9b1",
+        "data/analysis/audit/2026-09-07_bundle.json": "041837f52db97150be1e11d28e971209418f4239f696fe01d509c43f8bed4cc9",
+        "data/analysis/classification/2026-09-07.jsonl": "37b977200be442642d70bfbfbec7b70b213cf8101dfb8245d00c42d04d518430",
+        "data/analysis/events/2026-09-07.jsonl": "92b566eff77512fb1dced9c01162f3e7743b7eca7380e37fdc3ac18e780f723d",
+        "data/analysis/reports/market_report_2026-09-07.md": "946fa1e6c7b6f6640af0e7c5eb2802635b66a0896b4d3d4f95c38374d79bae83",
+        "data/analysis/trends/snapshots/2026-09-07.json": "0ca18d94fa4388dbbe10cf63286b623c230af6dd63c842987880182b6b464c68",
+        "data/clean/2026-09-07.json": "72f9b71bb158f15e034180bb7dc92f826fa613f6dd3548d91783881ef4ad2448",
+        "data/clean/2026-09-07_report.json": "23e6cc3b3ced2da7be0c737a22180245786f9c9c6eec7dbd6c1ec01ba280d5fc",
+        "data/raw/2026-09-07.json": "97fc81ec23db2b25c5484287d42eb2de2784e8cab2d2d1db52c29c94960e06c8",
+        "data/raw/2026-09-07_manifest.json": "6b4c3128334dadecda8c981cd531b1b32c7644ce7be8795957ea765ca07fe3d3"
+      }
+    },
+    {
+      "date": "2026-09-15",
+      "initial": {
+        "date": "2026-09-15",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": true,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": true,
+        "personal_fit_present": true,
+        "source_health_present": true,
+        "reliability_present": true,
+        "lifecycle_present": true,
+        "events_present": true,
+        "trend_snapshot_present": true,
+        "trend_report_present": false,
+        "audit_present": true,
+        "daily_status_present": true,
+        "daily_health_present": true,
+        "historical_db_present_or_registered": true,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": true,
+        "missing_inputs": [],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it"
+        ]
+      },
+      "final": {
+        "date": "2026-09-15",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": true,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": true,
+        "personal_fit_present": true,
+        "source_health_present": true,
+        "reliability_present": true,
+        "lifecycle_present": true,
+        "events_present": true,
+        "trend_snapshot_present": true,
+        "trend_report_present": true,
+        "audit_present": true,
+        "daily_status_present": true,
+        "daily_health_present": true,
+        "historical_db_present_or_registered": true,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": true,
+        "missing_inputs": [],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it"
+        ]
+      },
+      "generated_artifacts": [
+        "data/analysis/reports/market_report_2026-09-15.md"
+      ],
+      "preserved_artifacts": [
+        "data/analysis/audit/2026-09-15_2026-09-15_replay.json",
+        "data/analysis/audit/2026-09-15_bundle.json",
+        "data/analysis/classification/2026-09-15.jsonl",
+        "data/analysis/events/2026-09-15.jsonl",
+        "data/analysis/reports/market_report_2026-09-15.md",
+        "data/analysis/trends/snapshots/2026-09-15.json"
+      ],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [],
+      "result": "ALREADY_COMPLETE",
+      "reason": "Canonical daily derived chain and operations history already existed; preserved",
+      "artifact_sha256": {
+        "data/analysis/audit/2026-09-15_2026-09-15_replay.json": "68970d312d25bea55886b00680c2740def35161d29efb8ad1bfa83e572445752",
+        "data/analysis/audit/2026-09-15_bundle.json": "cddf383943161139b82c35e579c1a958cf3196897c9b58408c2768ba22a2b917",
+        "data/analysis/classification/2026-09-15.jsonl": "bfb8ad6c9213ed4e64fb15eb3172c60d9601158d1da1a7590466c0a228862cd1",
+        "data/analysis/events/2026-09-15.jsonl": "b4829df2c20b0f63f6ca560aab3e0da64b36c430b82f61bb347500f1a8fe39e7",
+        "data/analysis/health/2026-09-15.json": "0f880162655a4ce4b50f623edd32cf71f09aec3115b979cc8392d5d30a480ea9",
+        "data/analysis/reports/market_report_2026-09-15.md": "e8a1f58a4d6c84c3b6717e4a4c06b17ec9b6c09eaf474423691b1c6fe2879966",
+        "data/analysis/runs/2026-09-15.json": "15a4822907d363110d2afca34fd45b517709a29c4c55333353eccd2d80c20f23",
+        "data/analysis/trends/snapshots/2026-09-15.json": "e404a42de9ba42902236ee76a11f58f5526193de0dd4d33b26155b17edb67519",
+        "data/clean/2026-09-15.json": "33e252a633ea5eda14faebc01e8f077a141f4f0b7551f93feced9c6b83d07cbd",
+        "data/clean/2026-09-15_report.json": "54ba6d85dfb1eed114c81d56f03db7bd0910befcdb6bf7a9fc68c4d883eb9334",
+        "data/raw/2026-09-15.json": "d821f8e31ef4b7b2ad3bd8b848733df7e42203ce75b901cfce425fa1d2c41404",
+        "data/raw/2026-09-15_manifest.json": "f4fa2f5af119084ad03024f74c4259aaa41310a597a5f172281ced58107c92e9"
+      }
+    },
+    {
+      "date": "2026-09-16",
+      "initial": {
+        "date": "2026-09-16",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": true,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": true,
+        "personal_fit_present": true,
+        "source_health_present": true,
+        "reliability_present": true,
+        "lifecycle_present": true,
+        "events_present": true,
+        "trend_snapshot_present": true,
+        "trend_report_present": false,
+        "audit_present": true,
+        "daily_status_present": true,
+        "daily_health_present": true,
+        "historical_db_present_or_registered": true,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": true,
+        "missing_inputs": [],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it"
+        ]
+      },
+      "final": {
+        "date": "2026-09-16",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": true,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": true,
+        "personal_fit_present": true,
+        "source_health_present": true,
+        "reliability_present": true,
+        "lifecycle_present": true,
+        "events_present": true,
+        "trend_snapshot_present": true,
+        "trend_report_present": true,
+        "audit_present": true,
+        "daily_status_present": true,
+        "daily_health_present": true,
+        "historical_db_present_or_registered": true,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": true,
+        "missing_inputs": [],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it"
+        ]
+      },
+      "generated_artifacts": [
+        "data/analysis/reports/market_report_2026-09-16.md"
+      ],
+      "preserved_artifacts": [
+        "data/analysis/audit/2026-09-16_2026-09-16_replay.json",
+        "data/analysis/audit/2026-09-16_bundle.json",
+        "data/analysis/classification/2026-09-16.jsonl",
+        "data/analysis/events/2026-09-16.jsonl",
+        "data/analysis/reports/market_report_2026-09-16.md",
+        "data/analysis/trends/snapshots/2026-09-16.json"
+      ],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [],
+      "result": "ALREADY_COMPLETE",
+      "reason": "Canonical daily derived chain and operations history already existed; preserved",
+      "artifact_sha256": {
+        "data/analysis/audit/2026-09-16_2026-09-16_replay.json": "9a13fab45d85e5f17e7d9cbead90449a21e5ed9133e3faa5a75723745e8a6ddd",
+        "data/analysis/audit/2026-09-16_bundle.json": "302f860428d1209db877571532541a935be35a1b0b7f3d736d748b553f8fc76e",
+        "data/analysis/classification/2026-09-16.jsonl": "a747a23d04b5ac8eb022d6ce7c21f2ee85dc62738f4137bd21ee5ab2b41fb08e",
+        "data/analysis/events/2026-09-16.jsonl": "ab0f6fae7d823db403b11f2883e89292c8658038f034aa6ce5dc91dad0d81544",
+        "data/analysis/health/2026-09-16.json": "f6d7e823a41c4baa5be8764c5fa004c3a1bf32669af8927b5406d8eccd60f265",
+        "data/analysis/reports/market_report_2026-09-16.md": "35d5009fbc6ee08e3648ac4bc39aae90d3137e4220ecd254c8fb9f90686f63c8",
+        "data/analysis/runs/2026-09-16.json": "0635358fcaff089ab177deddf0e6317e7aa19247990ca4045bb0809aaeeabbd8",
+        "data/analysis/trends/snapshots/2026-09-16.json": "394988a9d849e5d81f0392e795eb11d4700bde50cc6f78630e18b85b2ed8f436",
+        "data/clean/2026-09-16.json": "498742292c127f27456f5b560f00a577b17234714a8b0763460bc7631541c8f2",
+        "data/clean/2026-09-16_report.json": "6941406c34d1f159658a54159ee4144f1533a64ce793ea1f822fc1e380e2e920",
+        "data/raw/2026-09-16.json": "ead324e4e56be20a9f1a2d544b0d19afa60c33ac9609e4c5468f7aad4373239d",
+        "data/raw/2026-09-16_manifest.json": "c4935cd71e80087f47d4e99816dc7998f3da1fab2bbe3fac6e1779db8c68750d"
+      }
+    },
+    {
+      "date": "2026-09-17",
+      "initial": {
+        "date": "2026-09-17",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": true,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": true,
+        "personal_fit_present": true,
+        "source_health_present": true,
+        "reliability_present": true,
+        "lifecycle_present": true,
+        "events_present": true,
+        "trend_snapshot_present": true,
+        "trend_report_present": false,
+        "audit_present": true,
+        "daily_status_present": true,
+        "daily_health_present": true,
+        "historical_db_present_or_registered": true,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": true,
+        "missing_inputs": [],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it"
+        ]
+      },
+      "final": {
+        "date": "2026-09-17",
+        "crawl_present": true,
+        "crawl_manifest_present": true,
+        "clean_present": true,
+        "clean_report_present": true,
+        "analysis_present": true,
+        "production_ai_analysis_present": false,
+        "production_ai_hits_present": false,
+        "classification_present": true,
+        "personal_fit_present": true,
+        "source_health_present": true,
+        "reliability_present": true,
+        "lifecycle_present": true,
+        "events_present": true,
+        "trend_snapshot_present": true,
+        "trend_report_present": true,
+        "audit_present": true,
+        "daily_status_present": true,
+        "daily_health_present": true,
+        "historical_db_present_or_registered": true,
+        "can_backfill_source_health": true,
+        "can_backfill_lifecycle": true,
+        "can_backfill_events": true,
+        "can_backfill_trend": true,
+        "can_backfill_audit": true,
+        "can_backfill_daily_status": false,
+        "can_backfill_daily_health": true,
+        "missing_inputs": [],
+        "notes": [
+          "No legacy/full *_ai_eval_analysis.json artifact; current pipeline does not require it"
+        ]
+      },
+      "generated_artifacts": [
+        "data/analysis/reports/market_report_2026-09-17.md"
+      ],
+      "preserved_artifacts": [
+        "data/analysis/audit/2026-09-17_2026-09-17_replay.json",
+        "data/analysis/audit/2026-09-17_bundle.json",
+        "data/analysis/classification/2026-09-17.jsonl",
+        "data/analysis/events/2026-09-17.jsonl",
+        "data/analysis/reports/market_report_2026-09-17.md",
+        "data/analysis/trends/snapshots/2026-09-17.json"
+      ],
+      "existing_artifact_mismatches": [],
+      "failed_stage": null,
+      "error": null,
+      "skip_reasons": [],
+      "result": "ALREADY_COMPLETE",
+      "reason": "Canonical daily derived chain and operations history already existed; preserved",
+      "artifact_sha256": {
+        "data/analysis/audit/2026-09-17_2026-09-17_replay.json": "d3ee8f2cdd8d22259d665082923007a1e286fdb9785d4d6b7c3a24c8864e170f",
+        "data/analysis/audit/2026-09-17_bundle.json": "ce5c8ef2c03a1dbc4b70309a1a9f4411792bc33a9b2ed658b55691727efd50ce",
+        "data/analysis/classification/2026-09-17.jsonl": "c36103b844aa5d58f75f0377e432a05735d55734dbd179a5954723df5e2186b9",
+        "data/analysis/events/2026-09-17.jsonl": "aee9faeea4fc34eecd4ed09d4bf6f9aa7e2a365e060fcbf35546d3f698669114",
+        "data/analysis/health/2026-09-17.json": "803261628ebbaf43e3ddb8b65f2ec148e5740dc7462d5d88e2b3bf60c2f1f0ba",
+        "data/analysis/reports/market_report_2026-09-17.md": "b9dfb93d2dd00a4e9492b6c4fc75a985d45709da276a8d2cf00526959ff06872",
+        "data/analysis/runs/2026-09-17.json": "8bb74461123190c536007b92bc4b3761316378016d7d82f008fc67131b1750f5",
+        "data/analysis/trends/snapshots/2026-09-17.json": "bbb0428703b004a00c8745a7a81ff3e9b72cc520f9c80f02f3e6876db2e2a0f6",
+        "data/clean/2026-09-17.json": "1e06bb076baf562b9f7c3c2983e4d166546696094fde9290950d52a3e04c0c02",
+        "data/clean/2026-09-17_report.json": "40efab8bf25c9485020482d7dd4e152156d7785099267865b867c05a01f7e2e5",
+        "data/raw/2026-09-17.json": "25c214b1bf4c949fb0b22064fa0a810e7de477d2077e17ab9e078db2461f110e",
+        "data/raw/2026-09-17_manifest.json": "79633014e8b18b7255504312ee9495ff91927b22466343fd93b029148dc3cf51"
+      }
+    }
+  ],
+  "recomputed_artifacts": [
+    {
+      "date": "2026-07-07",
+      "artifact": "data/analysis/classification/2026-07-07.jsonl",
+      "historical_input": "data/clean/2026-07-07.json",
+      "original_artifact": null,
+      "taxonomy_sha": "bf228dc29dfda76ce974d4acab88769939aa4d61",
+      "reason": "RECOMPUTED_WITH_CURRENT_TAXONOMY because the structured classification artifact was missing"
+    },
+    {
+      "date": "2026-07-08",
+      "artifact": "data/analysis/classification/2026-07-08.jsonl",
+      "historical_input": "data/clean/2026-07-08.json",
+      "original_artifact": null,
+      "taxonomy_sha": "bf228dc29dfda76ce974d4acab88769939aa4d61",
+      "reason": "RECOMPUTED_WITH_CURRENT_TAXONOMY because the structured classification artifact was missing"
+    },
+    {
+      "date": "2026-09-01",
+      "artifact": "data/analysis/classification/2026-09-01.jsonl",
+      "historical_input": "data/clean/2026-09-01.json",
+      "original_artifact": null,
+      "taxonomy_sha": "bf228dc29dfda76ce974d4acab88769939aa4d61",
+      "reason": "RECOMPUTED_WITH_CURRENT_TAXONOMY because the structured classification artifact was missing"
+    },
+    {
+      "date": "2026-09-02",
+      "artifact": "data/analysis/classification/2026-09-02.jsonl",
+      "historical_input": "data/clean/2026-09-02.json",
+      "original_artifact": null,
+      "taxonomy_sha": "bf228dc29dfda76ce974d4acab88769939aa4d61",
+      "reason": "RECOMPUTED_WITH_CURRENT_TAXONOMY because the structured classification artifact was missing"
+    },
+    {
+      "date": "2026-09-03",
+      "artifact": "data/analysis/classification/2026-09-03.jsonl",
+      "historical_input": "data/clean/2026-09-03.json",
+      "original_artifact": null,
+      "taxonomy_sha": "bf228dc29dfda76ce974d4acab88769939aa4d61",
+      "reason": "RECOMPUTED_WITH_CURRENT_TAXONOMY because the structured classification artifact was missing"
+    },
+    {
+      "date": "2026-09-04",
+      "artifact": "data/analysis/classification/2026-09-04.jsonl",
+      "historical_input": "data/clean/2026-09-04.json",
+      "original_artifact": null,
+      "taxonomy_sha": "bf228dc29dfda76ce974d4acab88769939aa4d61",
+      "reason": "RECOMPUTED_WITH_CURRENT_TAXONOMY because the structured classification artifact was missing"
+    },
+    {
+      "date": "2026-09-07",
+      "artifact": "data/analysis/classification/2026-09-07.jsonl",
+      "historical_input": "data/clean/2026-09-07.json",
+      "original_artifact": null,
+      "taxonomy_sha": "bf228dc29dfda76ce974d4acab88769939aa4d61",
+      "reason": "RECOMPUTED_WITH_CURRENT_TAXONOMY because the structured classification artifact was missing"
+    }
+  ],
+  "remaining_gaps": [
+    "2026-06-29: actual daily run status / Daily Health / operations history unavailable",
+    "2026-06-29: original full production AI job analysis and structured classification are unavailable",
+    "2026-06-30: actual daily run status / Daily Health / operations history unavailable",
+    "2026-06-30: original full production AI job analysis and structured classification are unavailable",
+    "2026-07-01: actual daily run status / Daily Health / operations history unavailable",
+    "2026-07-01: original full production AI job analysis and structured classification are unavailable",
+    "2026-07-02: actual daily run status / Daily Health / operations history unavailable",
+    "2026-07-02: original full production AI job analysis and structured classification are unavailable",
+    "2026-07-03: actual daily run status / Daily Health / operations history unavailable",
+    "2026-07-03: original full production AI job analysis and structured classification are unavailable",
+    "2026-07-04: actual daily run status / Daily Health / operations history unavailable",
+    "2026-07-04: original full production AI job analysis and structured classification are unavailable",
+    "2026-07-06: actual daily run status / Daily Health / operations history unavailable",
+    "2026-07-06: original full production AI job analysis and structured classification are unavailable",
+    "2026-07-07: actual daily run status / Daily Health / operations history unavailable",
+    "2026-07-07: original full production AI job analysis artifact unavailable; structured current-taxonomy classification is used",
+    "2026-07-08: actual daily run status / Daily Health / operations history unavailable",
+    "2026-07-08: original full production AI job analysis artifact unavailable; structured current-taxonomy classification is used",
+    "2026-07-14: actual daily run status / Daily Health / operations history unavailable",
+    "2026-07-14: original full production AI job analysis and structured classification are unavailable",
+    "2026-07-15: actual daily run status / Daily Health / operations history unavailable",
+    "2026-07-15: original full production AI job analysis and structured classification are unavailable",
+    "2026-09-01: actual daily run status / Daily Health / operations history unavailable",
+    "2026-09-01: original full production AI job analysis artifact unavailable; structured current-taxonomy classification is used",
+    "2026-09-02: actual daily run status / Daily Health / operations history unavailable",
+    "2026-09-02: original full production AI job analysis artifact unavailable; structured current-taxonomy classification is used",
+    "2026-09-03: actual daily run status / Daily Health / operations history unavailable",
+    "2026-09-03: original full production AI job analysis artifact unavailable; structured current-taxonomy classification is used",
+    "2026-09-04: actual daily run status / Daily Health / operations history unavailable",
+    "2026-09-04: original full production AI job analysis artifact unavailable; structured current-taxonomy classification is used",
+    "2026-09-07: actual daily run status / Daily Health / operations history unavailable",
+    "2026-09-07: original full production AI job analysis artifact unavailable; structured current-taxonomy classification is used",
+    "2026-09-15: original full production AI job analysis artifact unavailable; structured current-taxonomy classification is used",
+    "2026-09-16: original full production AI job analysis artifact unavailable; structured current-taxonomy classification is used",
+    "2026-09-17: original full production AI job analysis artifact unavailable; structured current-taxonomy classification is used"
+  ],
+  "ai_eval_validation": [
+    {
+      "date": "2026-07-07",
+      "position": "early",
+      "sufficient": true,
+      "note": "1436 classified jobs; classification→clean join complete=True; events=True; reliability gate=True"
+    },
+    {
+      "date": "2026-09-04",
+      "position": "middle",
+      "sufficient": true,
+      "note": "1579 classified jobs; classification→clean join complete=True; events=True; reliability gate=True"
+    },
+    {
+      "date": "2026-09-17",
+      "position": "recent",
+      "sufficient": true,
+      "note": "1625 classified jobs; classification→clean join complete=True; events=True; reliability gate=True"
+    }
+  ],
+  "trend_reliability_finding": "PASS: 33 platform-date observations with an unreliable metric family carry explicit reason codes. `trend_comparability` excludes those platform/family pairs and emits null deltas when no comparable platform remains, so source failure is not reported as market movement.",
+  "requires_user_decision": "Lifecycle currently advances by successive available observations rather than calendar-consecutive runs. Gaps found: 2026-07-08→2026-09-01 (55 days), 2026-09-04→2026-09-07 (3 days), 2026-09-07→2026-09-15 (8 days). Boundary NEW/REMOVED events are valid observation-to-observation facts but must not be described as daily market movement without a production semantics decision."
+}
