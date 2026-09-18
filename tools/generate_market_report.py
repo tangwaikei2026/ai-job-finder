@@ -51,6 +51,8 @@ def render_snapshot(snapshot: dict[str, Any]) -> str:
         f"- trend_version: {snapshot.get('trend_version')}",
         f"- snapshot_date: {snapshot['snapshot_date']}", "",
         "## Market Universe", "", f"- active_jobs: {_value(snapshot.get('active_jobs'))}",
+        f"- unknown_classification_count: {_value(snapshot.get('unknown_classification_count', 0))}",
+        f"- observed_inventory_count: {_value(snapshot.get('observed_inventory_count', snapshot.get('active_jobs')))}",
         f"- core: {_value(snapshot.get('by_market_relevance', {}).get('core'))}",
         f"- adjacent: {_value(snapshot.get('by_market_relevance', {}).get('adjacent'))}", "",
         *_snapshot_section("Primary Role Structure", snapshot.get("by_role_family", {})),
@@ -96,7 +98,11 @@ def render_comparison(comparison: dict[str, Any]) -> str:
     _comparability(lines, "inventory", inventory)
     _comparability(lines, "presence_flow", presence)
     _comparability(lines, "content_flow", content)
-    _comparison_section(lines, "Active Jobs Change", {"active_jobs": comparison.get("market", {}).get("active_jobs", {})}, inventory)
+    _comparison_section(lines, "Inventory Change", {
+        "active_jobs": comparison.get("market", {}).get("active_jobs", {}),
+        "unknown_classification_count": comparison.get("market", {}).get("unknown_classification_count", {}),
+        "observed_inventory_count": comparison.get("market", {}).get("observed_inventory_count", {}),
+    }, inventory)
     _comparison_section(lines, "Core / Adjacent Change", {
         "core": comparison.get("market", {}).get("core_jobs", {}),
         "adjacent": comparison.get("market", {}).get("adjacent_jobs", {}),

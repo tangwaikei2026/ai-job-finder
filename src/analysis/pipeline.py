@@ -112,7 +112,7 @@ def replay(start, end, *, data_dir=Path('data'), output_dir=None, settings_path=
         if not jobs and not any(health.resolve(p, c).presence_reliable for p, c in health.scopes()):
             incomplete.append(dict(date=day, reason_codes=['ALL_SOURCES_UNRELIABLE', 'OUTPUT_PRESERVED'], missing=[]))
             continue
-        snapshot = trend_snapshot(history, trend_version=settings['trend'].get('version', 'trend_v1_candidate'),
+        snapshot = trend_snapshot(history, trend_version=settings['trend'].get('version', 'trend_v2'),
                                   removal_confirmation_runs=settings['trend']['removal_confirmation_runs'])
         comparison = compare_trends(previous_trend_snapshot, snapshot) if previous_trend_snapshot else None
         write_json_atomic(output_dir / 'trends' / 'snapshots' / f'{day}.json', snapshot)

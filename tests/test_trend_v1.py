@@ -94,6 +94,20 @@ def test_empty_inventory_and_zero_baseline_do_not_divide_by_zero():
     assert not result['market']['hybrid_role_share']['comparable']
 
 
+def test_additive_v2_fields_remain_backward_compatible_with_v1_snapshots():
+    a = trend_snapshot([observation('2026-09-01', [row()])])
+    b = trend_snapshot([observation('2026-09-02', [row(), row('2')])])
+    for snapshot in (a, b):
+        for metrics in [snapshot, *(item['metrics'] for item in snapshot['platforms'].values())]:
+            for field in ('unknown_classification_count', 'observed_inventory_count',
+                          'unknown_new_jobs', 'unknown_updated_jobs',
+                          'unknown_removed_jobs', 'unknown_reappeared_jobs'):
+                metrics.pop(field)
+    result = compare_trends(a, b)
+    assert result['market']['unknown_classification_count']['delta'] == 0
+    assert result['market']['observed_inventory_count']['delta'] == 1
+
+
 def test_common_platform_intersection_prevents_false_growth():
     a = observation('2026-09-01', [row(platform='tencent'), row(platform='alibaba'), row(platform='bytedance')],
                     unhealthy={'bytedance': {'complete': False, 'stopped_by': 'incomplete_list'}})
@@ -154,19 +168,20 @@ def test_carried_forward_requires_contract_and_classification_coverage():
     result = compare_trends(trend_snapshot([a]), trend_snapshot([a, b]))
     assert result['comparability']['inventory']['comparable']
     assert result['comparability']['presence_flow']['comparable']
-    assert not result['comparability']['content_flow']['comparable']
+    assert result['comparability']['content_flow']['comparable']
     b['classifications'][0]['reason_codes']['market'] = []
     bad = trend_snapshot([a, b])
     assert bad['active_jobs'] == 0
     assert not bad['platforms']['tencent']['reliability']['inventory']['reliable']
 
 
-def test_detail_failure_without_classification_blocks_inventory():
+def test_detail_failure_without_classification_is_explicit_unknown_inventory():
     a = observation('2026-09-01', [row()])
     b = observation('2026-09-02', [], jobs=[row(description='')], unhealthy={'tencent': {'detail_failed': 1}})
     result = compare_trends(trend_snapshot([a]), trend_snapshot([a, b]))
-    assert not result['comparability']['inventory']['comparable']
-    assert result['market']['active_jobs']['delta'] is None
+    assert result['comparability']['inventory']['comparable']
+    assert result['market']['active_jobs']['delta'] == -1
+    assert result['market']['unknown_classification_count']['to'] == 1
 
 
 def test_canonical_lifecycle_flows_keep_missing_reappearance_and_updates_distinct():
@@ -274,8 +289,23 @@ def test_unknown_removal_label_is_not_silently_zero_reliable_flow():
     snap = trend_snapshot([observation('2026-09-02', [], events=[event('REMOVED', 'unseen')])])
     assert snap['removed_jobs'] == 0
     assert snap['diagnostics']['unclassified_flow_events'] == 1
-    assert not snap['platforms']['tencent']['reliability']['presence_flow']['reliable']
-    assert 'FLOW_CLASSIFICATION_UNAVAILABLE' in snap['platforms']['tencent']['reliability']['presence_flow']['reason_codes']
+    assert snap['unknown_removed_jobs'] == 1
+    assert snap['platforms']['tencent']['reliability']['presence_flow']['reliable']
+    assert snap['platforms']['tencent']['reliability']['presence_flow']['reason_codes'] == []
+
+
+@pytest.mark.parametrize(('kind', 'known_field', 'unknown_field', 'family'), [
+    ('NEW', 'new_jobs', 'unknown_new_jobs', 'presence_flow'),
+    ('REMOVED', 'removed_jobs', 'unknown_removed_jobs', 'presence_flow'),
+    ('REAPPEARED', 'reappeared_jobs', 'unknown_reappeared_jobs', 'presence_flow'),
+    ('UPDATED', 'updated_jobs', 'unknown_updated_jobs', 'content_flow'),
+])
+def test_unknown_flows_are_explicit_and_do_not_pollute_confirmed_counts(
+        kind, known_field, unknown_field, family):
+    snap = trend_snapshot([observation('2026-09-02', [], events=[event(kind, 'unseen')])])
+    assert snap[known_field] == 0
+    assert snap[unknown_field] == 1
+    assert snap['platforms']['tencent']['reliability'][family]['reliable']
 
 
 @pytest.mark.parametrize('changes', [

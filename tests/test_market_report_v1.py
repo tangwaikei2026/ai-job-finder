@@ -17,7 +17,8 @@ def change(before, after, comparable=True):
 def snapshot():
     return {
         "artifact_type": "trend_snapshot_v1", "trend_version": "trend_v1", "snapshot_date": "2026-09-07",
-        "active_jobs": 2, "by_market_relevance": {"core": 1, "adjacent": 1},
+        "active_jobs": 2, "unknown_classification_count": 1, "observed_inventory_count": 3,
+        "by_market_relevance": {"core": 1, "adjacent": 1},
         "by_role_family": {"product": 2}, "by_role_family_any": {"product": 2, "development": 1},
         "hybrid_role_count": 1, "hybrid_role_share": {"share": 0.5},
         "by_ai_relation": {"core_ai_evaluation": 2}, "by_career_pool": {"P1": 1, "X": 1},
@@ -33,7 +34,8 @@ def comparison(comparable=True):
         "artifact_type": "trend_comparison_v1", "trend_version": "trend_v1",
         "from_date": "2026-09-04", "to_date": "2026-09-07",
         "comparability": {key: copy.deepcopy(info) for key in ("inventory", "presence_flow", "content_flow")},
-        "market": {"active_jobs": copy.deepcopy(item), "core_jobs": copy.deepcopy(item),
+        "market": {"active_jobs": copy.deepcopy(item), "unknown_classification_count": change(0, 1, comparable),
+                   "observed_inventory_count": change(1, 3, comparable), "core_jobs": copy.deepcopy(item),
                    "adjacent_jobs": copy.deepcopy(item), "hybrid_role_share": copy.deepcopy(item)},
         "by_role_family": {"product": copy.deepcopy(item)}, "by_role_family_any": {"product": copy.deepcopy(item)},
         "by_ai_relation": {"core_ai_evaluation": copy.deepcopy(item)}, "by_career_pool": {"P1": copy.deepcopy(item)},
@@ -49,6 +51,7 @@ def test_snapshot_report_renders_non_additive_fields():
     assert "snapshot_date: 2026-09-07" in output
     assert "Role Responsibility Coverage — NON_ADDITIVE" in output
     assert "Skill Tags — NON_ADDITIVE" in output
+    assert "unknown_classification_count: 1" in output
 
 
 def test_comparison_report_renders_lifecycle_without_relabeling_reappeared():
@@ -56,6 +59,7 @@ def test_comparison_report_renders_lifecycle_without_relabeling_reappeared():
     assert "from_date: 2026-09-04" in output
     assert "| REAPPEARED | 0 | 1 | 1 | True |" in output
     assert "| NEW | 1 | 2 | 1 | True |" in output
+    assert "| unknown_classification_count | 0 | 1 | 1 | True |" in output
 
 
 def test_not_comparable_keeps_null_delta_and_renders_guard():

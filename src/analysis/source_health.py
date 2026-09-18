@@ -111,9 +111,7 @@ class SourceHealth:
         if legacy_reason:
             reasons.append(legacy_reason)
         content = status in {'success', 'partial'}
-        if job is None:
-            content = content and row['detail_failed'] == 0
-        else:
+        if job is not None:
             fields = [str(job.get(key) or '').strip() for key in ('title', 'description', 'requirements')]
             if str(job.get('job_id')) in set(row.get('detail_failed_job_ids', [])):
                 content = False

@@ -267,9 +267,12 @@ def test_review_required_no_safe_version_carry():
     previous = observation('2026-09-01', [good])['classifications'][0]
     previous['versions']['market'] = 'old'
     result, market = classify_record('2026-09-02', row, health, VERSIONS, previous)
-    # V1 requires substantive duties: an empty body cannot establish scope or
-    # inherit an incompatible version. SourceHealth retains the failure signal.
-    assert result is None
+    # V2 preserves the observed identity as UNKNOWN without inheriting an
+    # incompatible label or assigning any career bucket.
+    assert result['classification_status'] == 'review_required'
+    assert result['reason_codes']['market'] == ['CONTENT_CLASSIFICATION_UNKNOWN']
+    assert result['career_pool'] is None
+    assert result['skill_tags'] == []
     assert not market['in_scope']
     assert not health.content_reliable
 

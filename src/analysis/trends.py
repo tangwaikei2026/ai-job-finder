@@ -5,7 +5,7 @@ from collections import Counter, defaultdict
 from datetime import date, timedelta
 from typing import Any, Sequence
 
-from src.analysis.classification import market_classification_reliable
+from src.analysis.classification import classification_unknown, market_classification_reliable
 from src.analysis.lifecycle import identity
 
 
@@ -56,9 +56,8 @@ def aggregate_trends(history: Sequence[dict[str, Any]], window_days: int = 7) ->
                 if not resolved.content_reliable:
                     codes.add('SOURCE_CONTENT_UNRELIABLE')
                 blocked[(platform, company)].update(codes)
-        if obs.get('content_unreliable_count', 0):
-            reasons.add('CONTENT_COVERAGE_INCOMPLETE')
-        if any(not market_classification_reliable(row) for row in obs['classifications']):
+        if any(not market_classification_reliable(row) and not classification_unknown(row)
+               for row in obs['classifications']):
             reasons.add('CLASSIFICATION_REVIEW_REQUIRED')
     if blocked:
         reasons.add('SOURCE_COVERAGE_INCOMPARABLE')
@@ -123,6 +122,7 @@ def aggregate_trends(history: Sequence[dict[str, Any]], window_days: int = 7) ->
                                change_7d=count - old_skills[skill] if skill_comparable else None,
                                mention_share_change_7d=round(share - old_share, 6) if skill_comparable else None,
                                company_breadth_change_7d=(len(breadth[skill]) - len(old_breadth[skill])) if skill_comparable else None))
+    unknown_count = _observation_unknown_count(current)
     return {
         'as_of': current['date'], 'window_days': window_days, 'versions': dict(versions),
         'coverage': {
@@ -134,8 +134,10 @@ def aggregate_trends(history: Sequence[dict[str, Any]], window_days: int = 7) ->
             'blocked_scopes': [dict(platform=p, company=c, reason_codes=sorted(codes))
                                for (p, c), codes in sorted(blocked.items())],
             'active_jobs_basis': 'observed_classified_identities_including_carried_forward',
+            'unknown_classification_count': unknown_count,
         },
         'market': {**metrics(active, 'market', comparable),
+                   'unknown_classification_count': unknown_count,
                    'by_role_family': _counts(active, 'role_family'),
                    'by_ai_relation': _counts(active, 'ai_relation'), 'by_company': _counts(active, 'company')},
         'qa_bridge': {**metrics(qa, 'qa_bridge', qa_comparable),
@@ -150,14 +152,16 @@ def aggregate_trends(history: Sequence[dict[str, Any]], window_days: int = 7) ->
     }
 
 
-# Trend V1 is the canonical machine contract. aggregate_trends above is retained
-# solely for the existing seven-day audit compatibility interface.
-TREND_VERSION = 'trend_v1_candidate'
+# Keep the additive snapshot_v1 machine shape for existing consumers; the
+# trend_version field owns Reliability V2 activation. aggregate_trends above is
+# retained solely for the existing seven-day audit compatibility interface.
+TREND_VERSION = 'trend_v2'
 SNAPSHOT_CONTRACT = 'trend_snapshot_v1'
 COMPARISON_CONTRACT = 'trend_comparison_v1'
 COMPARABILITY_CONTRACT = 'trend_comparability_v1'
 FLOW_FIELDS = {'NEW': 'new_jobs', 'UPDATED': 'updated_jobs',
                'REMOVED': 'removed_jobs', 'REAPPEARED': 'reappeared_jobs'}
+UNKNOWN_FLOW_FIELDS = {kind: f'unknown_{kind.lower()}_jobs' for kind in FLOW_FIELDS}
 DIMENSIONS = {'by_market_relevance': 'market_relevance',
               'by_role_family': 'role_family', 'by_ai_relation': 'ai_relation',
               'by_career_pool': 'career_pool'}
@@ -170,9 +174,11 @@ def _share(count, denominator):
                 share=count / denominator if denominator else None)
 
 
-def _inventory(rows):
+def _inventory(rows, unknown_count=0):
     """Rows are already unique official identities with usable classifications."""
-    result = {'active_jobs': len(rows)}
+    result = {'active_jobs': len(rows),
+              'unknown_classification_count': unknown_count,
+              'observed_inventory_count': len(rows) + unknown_count}
     for output, field in DIMENSIONS.items():
         result[output] = _counts(rows, field)
     for key in ('core', 'adjacent'):
@@ -206,6 +212,14 @@ def _usable(row):
 def _validate_row(row):
     # Consume the frozen field contract, without classifying or extending enums.
     from src.analysis.market_rules import AI_RELATIONS, ROLE_FAMILIES
+    if classification_unknown(row):
+        if (row.get('in_scope') is not None
+                or any(row.get(field) is not None for field in (
+                    'market_relevance', 'role_family', 'ai_relation', 'seniority_level', 'career_pool'))
+                or row.get('secondary_role_families') != []
+                or row.get('skill_tags') != []):
+            raise ValueError('TREND_UNKNOWN_CLASSIFICATION_NOT_DISJOINT')
+        return
     if type(row.get('in_scope')) is not bool:
         raise ValueError('TREND_SCHEMA_REPLAY_REQUIRED: in_scope')
     if not row['in_scope'] or not _usable(row):
@@ -227,8 +241,9 @@ def _validate_row(row):
         raise ValueError('TREND_CLASSIFICATION_VERSION_MISSING')
 
 
-def _company_metrics(rows, flows):
-    names = {row['company'] for row in rows} | {event['company'] for event in flows}
+def _company_metrics(rows, flows, unknown_flows=()):
+    names = ({row['company'] for row in rows} | {event['company'] for event in flows}
+             | {event['company'] for event in unknown_flows})
     result = {}
     for name in sorted(names):
         jobs = [row for row in rows if row['company'] == name]
@@ -237,14 +252,47 @@ def _company_metrics(rows, flows):
                             adjacent=sum(row['market_relevance'] == 'adjacent' for row in jobs),
                             P1=sum(row['career_pool'] == 'P1' for row in jobs),
                             **{field: sum(e['event_type'] == kind and e['company'] == name for e in flows)
-                               for kind, field in FLOW_FIELDS.items()})
+                               for kind, field in FLOW_FIELDS.items()},
+                            **{field: sum(e['event_type'] == kind and e['company'] == name
+                                         for e in unknown_flows)
+                               for kind, field in UNKNOWN_FLOW_FIELDS.items()})
     return result
 
 
-def _metrics(rows, flows):
-    return {**_inventory(rows),
+def _metrics(rows, flows, unknown_flows=(), unknown_count=0):
+    return {**_inventory(rows, unknown_count),
             **{field: sum(e['event_type'] == kind for e in flows) for kind, field in FLOW_FIELDS.items()},
-            'by_company': _company_metrics(rows, flows)}
+            **{field: sum(e['event_type'] == kind for e in unknown_flows)
+               for kind, field in UNKNOWN_FLOW_FIELDS.items()},
+            'by_company': _company_metrics(rows, flows, unknown_flows)}
+
+
+def _observation_unknown_count(observation, platform=None):
+    """Count record-level unknowns, including legacy manifests without failed IDs."""
+    from src.analysis.lifecycle import index_jobs
+    classifications = index_jobs(observation.get('classifications', []))
+    jobs = observation.get('jobs_by_identity', {})
+    platforms = ([platform] if platform is not None else
+                 sorted(set(observation['health'].platforms) | {key[0] for key in jobs}))
+    total = 0
+    for name in platforms:
+        manifest_failed = int(observation['health'].platforms.get(name, {}).get('detail_failed', 0) or 0)
+        identified_failures = 0
+        identified_unknowns = 0
+        for key, job in jobs.items():
+            if key[0] != name:
+                continue
+            resolved = observation['health'].resolve(name, str(job.get('company', '')), job)
+            if resolved.content_reliable:
+                continue
+            identified_failures += 1
+            row = classifications.get(key)
+            if row is None or classification_unknown(row):
+                identified_unknowns += 1
+        # Legacy manifests retained only the aggregate failure count. Preserve it
+        # explicitly instead of treating un-attributable failures as zero.
+        total += identified_unknowns + max(manifest_failed - identified_failures, 0)
+    return total
 
 
 def trend_snapshot(history, *, trend_version=TREND_VERSION, removal_confirmation_runs=2):
@@ -276,7 +324,7 @@ def trend_snapshot(history, *, trend_version=TREND_VERSION, removal_confirmation
             known_out_of_scope.discard(key)
             row = indexed.get(key)
             job = obs.get('jobs_by_identity', {}).get(key)
-            if (row is not None and not row['in_scope']) or (
+            if (row is not None and row['in_scope'] is False) or (
                 row is None and job is not None
                 and obs['health'].resolve(key[0], str(job.get('company', '')), job).content_reliable
             ):
@@ -289,7 +337,7 @@ def trend_snapshot(history, *, trend_version=TREND_VERSION, removal_confirmation
     platforms = (set(health.platforms) | {p for p, _ in health.scopes()}
                  | {identity(row)[0] for row in indexed.values()}
                  | {identity(event)[0] for event in current['events']})
-    per_platform, reliable_flows = {}, []
+    per_platform, reliable_flows, unknown_flows = {}, [], []
     diagnostics = Counter()
     for platform in sorted(platforms):
         scopes = sorted(c for p, c in health.scopes() if p == platform) or ['']
@@ -305,23 +353,14 @@ def trend_snapshot(history, *, trend_version=TREND_VERSION, removal_confirmation
         platform_rows = [row for row in rows if row['platform'] == platform]
         candidates = [row for row in indexed.values() if row['platform'] == platform]
         for row in candidates:
-            if not _usable(row):
+            if not _usable(row) and not classification_unknown(row):
                 reasons['inventory'].add('CLASSIFICATION_REVIEW_REQUIRED')
                 diagnostics['excluded_classification_identities'] += 1
             elif row['in_scope'] and row['versions'] != versions:
                 reasons['inventory'].update({'CLASSIFIER_VERSION_MISMATCH', 'REPLAY_REQUIRED'})
-        # A failed detail may conceal an in-scope job that never produced a row.
-        # Carry-forward is accepted only for the exact identity under its contract.
-        for key, job in jobs.items():
-            if key[0] != platform:
-                continue
-            if not health.resolve(platform, str(job.get('company', '')), job).content_reliable:
-                row = indexed.get(key)
-                if not row or row.get('classification_status') != 'carried_forward' or not _usable(row):
-                    reasons['inventory'].add('CLASSIFICATION_COVERAGE_INCOMPLETE')
         if not jobs and not all(item.content_reliable for item in resolved):
             reasons['inventory'].add('CLASSIFICATION_COVERAGE_UNVERIFIED')
-        events, seen = [], set()
+        events, platform_unknown_flows, seen = [], [], set()
         for event in current['events']:
             if event['platform'] != platform:
                 continue
@@ -340,7 +379,14 @@ def trend_snapshot(history, *, trend_version=TREND_VERSION, removal_confirmation
                     diagnostics['out_of_scope_flow_events'] += 1
                 else:
                     diagnostics['unclassified_flow_events'] += 1
-                    reasons[family].add('FLOW_CLASSIFICATION_UNAVAILABLE')
+                    company = str(event.get('company', ''))
+                    resolved_event = health.resolve(platform, company, jobs.get(key))
+                    allowed = (resolved_event.content_reliable if kind == 'UPDATED'
+                               else resolved_event.presence_reliable)
+                    if allowed:
+                        platform_unknown_flows.append({**event, 'company': company})
+                    else:
+                        reasons[family].add('UNRELIABLE_CANONICAL_EVENT_EXCLUDED')
                 continue
             if row['versions'] != versions:
                 reasons[family].update({'CLASSIFIER_VERSION_MISMATCH', 'REPLAY_REQUIRED'})
@@ -358,8 +404,10 @@ def trend_snapshot(history, *, trend_version=TREND_VERSION, removal_confirmation
                 continue
             events.append({**event, 'company': row['company']})
         reliable_flows.extend(events)
+        unknown_flows.extend(platform_unknown_flows)
+        unknown_count = _observation_unknown_count(current, platform)
         per_platform[platform] = {
-            'metrics': _metrics(platform_rows, events),
+            'metrics': _metrics(platform_rows, events, platform_unknown_flows, unknown_count),
             'content_versions': sorted({row['content_sha256'] for row in platform_rows}),
             'source_scope': {'cities': list(health.cities), 'companies': scopes},
             'reliability': {family: {'reliable': not reasons[family], 'reason_codes': sorted(reasons[family])}
@@ -372,8 +420,11 @@ def trend_snapshot(history, *, trend_version=TREND_VERSION, removal_confirmation
                                       'code_sha256': sha256(Path(__file__).with_name('lifecycle.py').read_bytes()).hexdigest(),
                                       'removal_confirmation_runs': removal_confirmation_runs},
                   counting_unit=['platform', 'job_id'], market_universe='market.in_scope == true',
-                  active_jobs_basis='observed_usable_classified_identities_including_valid_carried_forward',
-                  **_metrics(rows, reliable_flows), platforms=per_platform,
+                  active_jobs_basis=('confirmed_usable_classified_identities_including_valid_carried_forward'
+                                     '_plus_explicit_unknown_classification_count'),
+                  **_metrics(rows, reliable_flows, unknown_flows,
+                             sum(item['metrics']['unknown_classification_count']
+                                 for item in per_platform.values())), platforms=per_platform,
                   diagnostics=dict(sorted(diagnostics.items())))
     validate_snapshot(result)
     return result
@@ -383,6 +434,15 @@ def validate_snapshot(snapshot):
     """Fail closed on additive/denominator errors, including empty snapshots."""
     for metrics in [snapshot, *(p['metrics'] for p in snapshot['platforms'].values())]:
         n = metrics['active_jobs']
+        unknown = metrics.get('unknown_classification_count', 0)
+        if isinstance(unknown, bool) or not isinstance(unknown, int) or unknown < 0:
+            raise ValueError('TREND_UNKNOWN_CLASSIFICATION_INVARIANT_FAILED')
+        if metrics.get('observed_inventory_count', n + unknown) != n + unknown:
+            raise ValueError('TREND_OBSERVED_INVENTORY_INVARIANT_FAILED')
+        for field in UNKNOWN_FLOW_FIELDS.values():
+            value = metrics.get(field, 0)
+            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                raise ValueError('TREND_UNKNOWN_FLOW_INVARIANT_FAILED')
         if any(sum(metrics[key].values()) != n for key in DIMENSIONS):
             raise ValueError('TREND_ADDITIVE_INVARIANT_FAILED')
         if sum(metrics['by_role_family_any'].values()) < n:
@@ -441,8 +501,10 @@ def _subset(snapshot, platforms):
     for platform in platforms:
         item = snapshot['platforms'][platform]
         metrics = item['metrics']
-        for field in ('active_jobs', 'hybrid_role_count', *FLOW_FIELDS.values()):
-            result[field] += metrics[field]
+        for field in ('active_jobs', 'unknown_classification_count', 'observed_inventory_count',
+                      'hybrid_role_count', *FLOW_FIELDS.values(), *UNKNOWN_FLOW_FIELDS.values()):
+            default = metrics['active_jobs'] if field == 'observed_inventory_count' else 0
+            result[field] += metrics.get(field, default)
         for dimension in (*DIMENSIONS, *NON_ADDITIVE):
             for key, count in metrics[dimension].items():
                 result[dimension][key] = result[dimension].get(key, 0) + count
@@ -485,6 +547,10 @@ def compare_trends(before, after):
     valid = comparability['inventory']['comparable']
     a, b = (subsets['inventory'][side] or _metrics([], []) for side in ('from', 'to'))
     market = {'active_jobs': _change(a['active_jobs'], b['active_jobs'], valid),
+              'unknown_classification_count': _change(a['unknown_classification_count'],
+                                                      b['unknown_classification_count'], valid),
+              'observed_inventory_count': _change(a['observed_inventory_count'],
+                                                  b['observed_inventory_count'], valid),
               'core_jobs': _change(a['by_market_relevance']['core'], b['by_market_relevance']['core'], valid),
               'adjacent_jobs': _change(a['by_market_relevance']['adjacent'], b['by_market_relevance']['adjacent'], valid),
               'hybrid_role_share': _share_change(a['hybrid_role_share'], b['hybrid_role_share'], valid)}
@@ -501,11 +567,16 @@ def compare_trends(before, after):
         pair = subsets[family]
         lifecycle[kind] = _change(pair['from'][field] if allowed else 0,
                                   pair['to'][field] if allowed else 0, allowed)
+        unknown_field = UNKNOWN_FLOW_FIELDS[kind]
+        lifecycle[f'UNKNOWN_{kind}'] = _change(pair['from'][unknown_field] if allowed else 0,
+                                               pair['to'][unknown_field] if allowed else 0, allowed)
     company_changes = {}
     for company in sorted(before['by_company'].keys() | after['by_company'].keys()):
         changes = {}
-        for field in ('active_jobs', 'core', 'adjacent', 'P1', *FLOW_FIELDS.values()):
-            family = ('content_flow' if field == 'updated_jobs' else 'presence_flow') if field in FLOW_FIELDS.values() else 'inventory'
+        for field in ('active_jobs', 'core', 'adjacent', 'P1',
+                      *FLOW_FIELDS.values(), *UNKNOWN_FLOW_FIELDS.values()):
+            family = ('content_flow' if field in {'updated_jobs', 'unknown_updated_jobs'}
+                      else 'presence_flow') if field in {*FLOW_FIELDS.values(), *UNKNOWN_FLOW_FIELDS.values()} else 'inventory'
             allowed = comparability[family]['comparable']
             pair = subsets[family]
             values = [pair[side]['by_company'].get(company, {}).get(field, 0) if allowed else 0 for side in ('from', 'to')]
@@ -515,7 +586,10 @@ def compare_trends(before, after):
                   from_date=before['snapshot_date'], to_date=after['snapshot_date'],
                   versions=dict(after['versions']), lifecycle_contract=after['lifecycle_contract'],
                   comparability=comparability,
-                  observed_full_snapshot={side: {key: snapshot[key] for key in _metrics([], [])}
+                  observed_full_snapshot={side: {
+                      key: snapshot.get(key, snapshot.get('active_jobs', 0)
+                                        if key == 'observed_inventory_count' else 0)
+                      for key in _metrics([], [])}
                                           for side, snapshot in (('from', before), ('to', after))},
                   comparable_subset=subsets, market=market, **dimensions,
                   lifecycle=lifecycle, company_changes=company_changes,

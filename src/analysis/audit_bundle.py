@@ -5,6 +5,7 @@ import re
 from collections import Counter, defaultdict
 
 from src.analysis.ai_eval_jobs import AI_CONTEXT_ONLY_PATTERN, SKILL_PATTERNS
+from src.analysis.classification import classification_unknown
 from src.analysis.lifecycle import identity
 
 
@@ -60,15 +61,17 @@ def export_bundle(day, jobs, classifications, markets, health, events, trend, pr
             category_emitted[category] += 1
     anomalies = []
     if previous:
+        previous_classified = [row for row in previous['classifications'] if not classification_unknown(row)]
+        current_classified = [row for row in classifications if not classification_unknown(row)]
         for field in ('company', 'role_family'):
-            old = Counter(row[field] for row in previous['classifications'])
-            new = Counter(row[field] for row in classifications)
+            old = Counter(row[field] for row in previous_classified)
+            new = Counter(row[field] for row in current_classified)
             for key in sorted(old.keys() | new.keys()):
                 delta = new[key] - old[key]
                 if abs(delta) >= 3 and abs(delta) / max(old[key], 1) >= .25:
                     anomalies.append(dict(dimension=field, value=key, previous=old[key], current=new[key], delta=delta))
-        old = Counter(tag for row in previous['classifications'] for tag in row['skill_tags'])
-        new = Counter(tag for row in classifications for tag in row['skill_tags'])
+        old = Counter(tag for row in previous_classified for tag in row['skill_tags'])
+        new = Counter(tag for row in current_classified for tag in row['skill_tags'])
         for key in sorted(old.keys() | new.keys()):
             if abs(new[key] - old[key]) >= 3 and abs(new[key] - old[key]) / max(old[key], 1) >= .25:
                 anomalies.append(dict(dimension='skill', value=key, previous=old[key], current=new[key], delta=new[key]-old[key]))

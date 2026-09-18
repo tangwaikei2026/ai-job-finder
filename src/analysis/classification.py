@@ -11,6 +11,14 @@ from src.analysis.source_health import Health
 from src.analysis.market_rules import validate_market_output
 
 CLASSIFICATION_STATUSES = frozenset({'fresh', 'carried_forward', 'review_required'})
+UNKNOWN_CLASSIFICATION_REASON = 'CONTENT_CLASSIFICATION_UNKNOWN'
+
+
+def classification_unknown(row: Mapping[str, Any]) -> bool:
+    return (
+        row.get('classification_status') == 'review_required'
+        and UNKNOWN_CLASSIFICATION_REASON in row.get('reason_codes', {}).get('market', [])
+    )
 
 
 def market_classification_reliable(row: Mapping[str, Any]) -> bool:
@@ -45,6 +53,32 @@ def classify_record(day: str, job: Mapping[str, Any], health: Health,
                 row['career_pool'] = None
                 row['reason_codes']['fit'] = ['REPLAY_REQUIRED']
             return row, market
+    if failure:
+        # The identity is observed, but today's body is not trustworthy enough
+        # to decide market scope, fit, or skills. Keep it explicit and disjoint
+        # from every confirmed market/career bucket.
+        row = {
+            'snapshot_date': day,
+            **{key: job.get(key, '') for key in ('platform', 'job_id', 'company', 'title', 'url')},
+            'city_norm': job.get('city_norm', []),
+            'content_sha256': job_content_sha256(job),
+            'in_scope': None,
+            'market_relevance': None,
+            'role_family': None,
+            'secondary_role_families': [],
+            'ai_relation': None,
+            'seniority_level': None,
+            'career_pool': None,
+            'reason_codes': {
+                'market': [UNKNOWN_CLASSIFICATION_REASON],
+                'fit': ['INSUFFICIENT_CONTENT'],
+            },
+            'evidence': {'title': [], 'description': [], 'requirements': []},
+            'skill_tags': [],
+            'classification_status': 'review_required',
+            'versions': dict(versions),
+        }
+        return row, market
     if not market['in_scope']:
         return None, market
     reliable = health.content_reliable
