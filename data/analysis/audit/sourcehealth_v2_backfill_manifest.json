@@ -1,0 +1,1853 @@
+{
+  "schema_version": 1,
+  "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+  "base_branch": "taxonomy",
+  "backfill_branch": "sourcehealth-v2-backfill",
+  "backfill_start_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+  "replay_generated_at": "2026-09-18T07:42:40+00:00",
+  "date_range": {
+    "earliest": "2026-06-29",
+    "latest": "2026-09-18"
+  },
+  "no_live_recrawl": true,
+  "raw_clean_modified": false,
+  "daily_health_modified": false,
+  "existing_v1_derived_artifacts_replaced": true,
+  "summary": {
+    "total_dates": 20,
+    "already_v2": 0,
+    "replayed_v2": 2,
+    "partial_v2": 9,
+    "not_recoverable": 9,
+    "failed": 0
+  },
+  "artifact_counts": {
+    "classification": 11,
+    "events": 11,
+    "trend": 11,
+    "audit_bundle": 11,
+    "daily_market_report": 11,
+    "weekly": 11
+  },
+  "unknown_totals": {
+    "inventory": 2046,
+    "flows": {
+      "unknown_new_jobs": 1,
+      "unknown_reappeared_jobs": 1,
+      "unknown_removed_jobs": 2,
+      "unknown_updated_jobs": 0
+    }
+  },
+  "acceptance": {
+    "tencent_2026_09_17": {
+      "passed": true,
+      "metrics": {
+        "active_jobs": 127,
+        "unknown_classification_count": 1,
+        "observed_inventory_count": 128,
+        "by_market_relevance": {
+          "adjacent": 58,
+          "core": 69
+        },
+        "by_role_family": {
+          "algorithm_research": 21,
+          "development": 47,
+          "domain_expert": 1,
+          "evaluation_engineering": 16,
+          "operations": 1,
+          "product": 25,
+          "qa_test": 10,
+          "quality_engineering": 6
+        },
+        "by_ai_relation": {
+          "ai_for_testing": 4,
+          "ai_product_quality": 56,
+          "core_ai_evaluation": 67
+        },
+        "by_career_pool": {
+          "P1": 9,
+          "P2": 14,
+          "REF": 3,
+          "X": 101
+        },
+        "by_role_family_any": {
+          "algorithm_research": 21,
+          "development": 47,
+          "domain_expert": 1,
+          "evaluation_engineering": 115,
+          "operations": 1,
+          "product": 25,
+          "qa_test": 10,
+          "quality_engineering": 9
+        },
+        "by_skill_tag": {
+          "Agent/智能体": 81,
+          "Benchmark与评测集": 32,
+          "NLP": 12,
+          "Prompt工程": 24,
+          "Python": 64,
+          "RAG与检索": 32,
+          "SQL": 6,
+          "多模态与计算机视觉": 36,
+          "大语言模型/LLM": 89,
+          "安全评测与红队": 23,
+          "强化学习/RLHF": 18,
+          "数据分析与处理": 59,
+          "机器学习/深度学习": 40,
+          "测试与质量保障": 23,
+          "评测体系与指标设计": 74,
+          "评测平台与自动化工具链": 49
+        },
+        "hybrid_role_count": 102,
+        "hybrid_role_share": {
+          "count": 102,
+          "denominator": 127,
+          "share": 0.8031496062992126
+        },
+        "shares": {
+          "by_market_relevance": {
+            "adjacent": {
+              "count": 58,
+              "denominator": 127,
+              "share": 0.4566929133858268
+            },
+            "core": {
+              "count": 69,
+              "denominator": 127,
+              "share": 0.5433070866141733
+            }
+          },
+          "by_role_family": {
+            "algorithm_research": {
+              "count": 21,
+              "denominator": 127,
+              "share": 0.16535433070866143
+            },
+            "development": {
+              "count": 47,
+              "denominator": 127,
+              "share": 0.3700787401574803
+            },
+            "domain_expert": {
+              "count": 1,
+              "denominator": 127,
+              "share": 0.007874015748031496
+            },
+            "evaluation_engineering": {
+              "count": 16,
+              "denominator": 127,
+              "share": 0.12598425196850394
+            },
+            "operations": {
+              "count": 1,
+              "denominator": 127,
+              "share": 0.007874015748031496
+            },
+            "product": {
+              "count": 25,
+              "denominator": 127,
+              "share": 0.1968503937007874
+            },
+            "qa_test": {
+              "count": 10,
+              "denominator": 127,
+              "share": 0.07874015748031496
+            },
+            "quality_engineering": {
+              "count": 6,
+              "denominator": 127,
+              "share": 0.047244094488188976
+            }
+          },
+          "by_ai_relation": {
+            "ai_for_testing": {
+              "count": 4,
+              "denominator": 127,
+              "share": 0.031496062992125984
+            },
+            "ai_product_quality": {
+              "count": 56,
+              "denominator": 127,
+              "share": 0.4409448818897638
+            },
+            "core_ai_evaluation": {
+              "count": 67,
+              "denominator": 127,
+              "share": 0.5275590551181102
+            }
+          },
+          "by_career_pool": {
+            "P1": {
+              "count": 9,
+              "denominator": 127,
+              "share": 0.07086614173228346
+            },
+            "P2": {
+              "count": 14,
+              "denominator": 127,
+              "share": 0.11023622047244094
+            },
+            "REF": {
+              "count": 3,
+              "denominator": 127,
+              "share": 0.023622047244094488
+            },
+            "X": {
+              "count": 101,
+              "denominator": 127,
+              "share": 0.7952755905511811
+            }
+          },
+          "by_role_family_any": {
+            "algorithm_research": {
+              "count": 21,
+              "denominator": 127,
+              "share": 0.16535433070866143
+            },
+            "development": {
+              "count": 47,
+              "denominator": 127,
+              "share": 0.3700787401574803
+            },
+            "domain_expert": {
+              "count": 1,
+              "denominator": 127,
+              "share": 0.007874015748031496
+            },
+            "evaluation_engineering": {
+              "count": 115,
+              "denominator": 127,
+              "share": 0.905511811023622
+            },
+            "operations": {
+              "count": 1,
+              "denominator": 127,
+              "share": 0.007874015748031496
+            },
+            "product": {
+              "count": 25,
+              "denominator": 127,
+              "share": 0.1968503937007874
+            },
+            "qa_test": {
+              "count": 10,
+              "denominator": 127,
+              "share": 0.07874015748031496
+            },
+            "quality_engineering": {
+              "count": 9,
+              "denominator": 127,
+              "share": 0.07086614173228346
+            }
+          },
+          "by_skill_tag": {
+            "Agent/智能体": {
+              "count": 81,
+              "denominator": 127,
+              "share": 0.6377952755905512
+            },
+            "Benchmark与评测集": {
+              "count": 32,
+              "denominator": 127,
+              "share": 0.25196850393700787
+            },
+            "NLP": {
+              "count": 12,
+              "denominator": 127,
+              "share": 0.09448818897637795
+            },
+            "Prompt工程": {
+              "count": 24,
+              "denominator": 127,
+              "share": 0.1889763779527559
+            },
+            "Python": {
+              "count": 64,
+              "denominator": 127,
+              "share": 0.5039370078740157
+            },
+            "RAG与检索": {
+              "count": 32,
+              "denominator": 127,
+              "share": 0.25196850393700787
+            },
+            "SQL": {
+              "count": 6,
+              "denominator": 127,
+              "share": 0.047244094488188976
+            },
+            "多模态与计算机视觉": {
+              "count": 36,
+              "denominator": 127,
+              "share": 0.28346456692913385
+            },
+            "大语言模型/LLM": {
+              "count": 89,
+              "denominator": 127,
+              "share": 0.7007874015748031
+            },
+            "安全评测与红队": {
+              "count": 23,
+              "denominator": 127,
+              "share": 0.18110236220472442
+            },
+            "强化学习/RLHF": {
+              "count": 18,
+              "denominator": 127,
+              "share": 0.14173228346456693
+            },
+            "数据分析与处理": {
+              "count": 59,
+              "denominator": 127,
+              "share": 0.4645669291338583
+            },
+            "机器学习/深度学习": {
+              "count": 40,
+              "denominator": 127,
+              "share": 0.31496062992125984
+            },
+            "测试与质量保障": {
+              "count": 23,
+              "denominator": 127,
+              "share": 0.18110236220472442
+            },
+            "评测体系与指标设计": {
+              "count": 74,
+              "denominator": 127,
+              "share": 0.5826771653543307
+            },
+            "评测平台与自动化工具链": {
+              "count": 49,
+              "denominator": 127,
+              "share": 0.3858267716535433
+            }
+          }
+        },
+        "unique_content_versions": 125,
+        "metric_semantics": {
+          "by_role_family_any": "NON_ADDITIVE",
+          "by_skill_tag": "NON_ADDITIVE",
+          "unique_content_versions": "DIAGNOSTIC_ONLY"
+        },
+        "new_jobs": 3,
+        "updated_jobs": 0,
+        "removed_jobs": 3,
+        "reappeared_jobs": 0,
+        "unknown_new_jobs": 1,
+        "unknown_updated_jobs": 0,
+        "unknown_removed_jobs": 0,
+        "unknown_reappeared_jobs": 0,
+        "by_company": {
+          "腾讯": {
+            "active_jobs": 127,
+            "core": 69,
+            "adjacent": 58,
+            "P1": 9,
+            "new_jobs": 3,
+            "updated_jobs": 0,
+            "removed_jobs": 3,
+            "reappeared_jobs": 0,
+            "unknown_new_jobs": 1,
+            "unknown_updated_jobs": 0,
+            "unknown_removed_jobs": 0,
+            "unknown_reappeared_jobs": 0
+          }
+        }
+      },
+      "reliability": {
+        "inventory": {
+          "reliable": true,
+          "reason_codes": []
+        },
+        "presence_flow": {
+          "reliable": true,
+          "reason_codes": []
+        },
+        "content_flow": {
+          "reliable": true,
+          "reason_codes": []
+        }
+      },
+      "failed_job": [
+        {
+          "ai_relation": null,
+          "career_pool": null,
+          "city_norm": [
+            "深圳"
+          ],
+          "classification_status": "review_required",
+          "company": "腾讯",
+          "content_sha256": "dd09a2f5f8da717676a051d6b3ec0df3b8788fb7f9fff7dfab570ee147a00c1d",
+          "evidence": {
+            "description": [],
+            "requirements": [],
+            "title": []
+          },
+          "in_scope": null,
+          "job_id": "2093528517592662016",
+          "market_relevance": null,
+          "platform": "tencent",
+          "reason_codes": {
+            "fit": [
+              "INSUFFICIENT_CONTENT"
+            ],
+            "market": [
+              "CONTENT_CLASSIFICATION_UNKNOWN"
+            ]
+          },
+          "role_family": null,
+          "secondary_role_families": [],
+          "seniority_level": null,
+          "skill_tags": [],
+          "snapshot_date": "2026-09-17",
+          "title": "腾讯金融科技-清算机构合作对接",
+          "url": "http://careers.tencent.com/jobdesc.html?postId=2093528517592662016",
+          "versions": {
+            "fit": "fit_v1",
+            "market": "market_v1",
+            "skills": "skills_v1"
+          }
+        }
+      ]
+    },
+    "meituan_severe": {
+      "passed": true,
+      "dates": {
+        "2026-07-07": {
+          "passed": true,
+          "confirmed": 121,
+          "unknown": 1194,
+          "observed": 1315,
+          "career_pool_sum": 121,
+          "skill_categories": 16
+        },
+        "2026-09-07": {
+          "passed": true,
+          "confirmed": 147,
+          "unknown": 829,
+          "observed": 976,
+          "career_pool_sum": 147,
+          "skill_categories": 16
+        }
+      }
+    },
+    "didi_2026_09_04": {
+      "passed": true,
+      "metrics": {
+        "active_jobs": 43,
+        "unknown_classification_count": 9,
+        "observed_inventory_count": 52,
+        "by_market_relevance": {
+          "adjacent": 21,
+          "core": 22
+        },
+        "by_role_family": {
+          "algorithm_research": 5,
+          "development": 19,
+          "operations": 1,
+          "product": 11,
+          "quality_engineering": 7
+        },
+        "by_ai_relation": {
+          "ai_for_testing": 4,
+          "ai_product_quality": 20,
+          "core_ai_evaluation": 19
+        },
+        "by_career_pool": {
+          "P1": 3,
+          "REF": 1,
+          "X": 39,
+          "P2": 0
+        },
+        "by_role_family_any": {
+          "algorithm_research": 5,
+          "development": 19,
+          "evaluation_engineering": 37,
+          "operations": 1,
+          "product": 11,
+          "quality_engineering": 9
+        },
+        "by_skill_tag": {
+          "Agent/智能体": 22,
+          "Benchmark与评测集": 6,
+          "NLP": 3,
+          "Prompt工程": 12,
+          "Python": 19,
+          "RAG与检索": 13,
+          "SQL": 3,
+          "多模态与计算机视觉": 4,
+          "大语言模型/LLM": 25,
+          "安全评测与红队": 3,
+          "强化学习/RLHF": 5,
+          "数据分析与处理": 18,
+          "机器学习/深度学习": 7,
+          "测试与质量保障": 10,
+          "评测体系与指标设计": 26,
+          "评测平台与自动化工具链": 12
+        },
+        "hybrid_role_count": 37,
+        "hybrid_role_share": {
+          "count": 37,
+          "denominator": 43,
+          "share": 0.8604651162790697
+        },
+        "shares": {
+          "by_market_relevance": {
+            "adjacent": {
+              "count": 21,
+              "denominator": 43,
+              "share": 0.4883720930232558
+            },
+            "core": {
+              "count": 22,
+              "denominator": 43,
+              "share": 0.5116279069767442
+            }
+          },
+          "by_role_family": {
+            "algorithm_research": {
+              "count": 5,
+              "denominator": 43,
+              "share": 0.11627906976744186
+            },
+            "development": {
+              "count": 19,
+              "denominator": 43,
+              "share": 0.4418604651162791
+            },
+            "operations": {
+              "count": 1,
+              "denominator": 43,
+              "share": 0.023255813953488372
+            },
+            "product": {
+              "count": 11,
+              "denominator": 43,
+              "share": 0.2558139534883721
+            },
+            "quality_engineering": {
+              "count": 7,
+              "denominator": 43,
+              "share": 0.16279069767441862
+            }
+          },
+          "by_ai_relation": {
+            "ai_for_testing": {
+              "count": 4,
+              "denominator": 43,
+              "share": 0.09302325581395349
+            },
+            "ai_product_quality": {
+              "count": 20,
+              "denominator": 43,
+              "share": 0.46511627906976744
+            },
+            "core_ai_evaluation": {
+              "count": 19,
+              "denominator": 43,
+              "share": 0.4418604651162791
+            }
+          },
+          "by_career_pool": {
+            "P1": {
+              "count": 3,
+              "denominator": 43,
+              "share": 0.06976744186046512
+            },
+            "REF": {
+              "count": 1,
+              "denominator": 43,
+              "share": 0.023255813953488372
+            },
+            "X": {
+              "count": 39,
+              "denominator": 43,
+              "share": 0.9069767441860465
+            },
+            "P2": {
+              "count": 0,
+              "denominator": 43,
+              "share": 0.0
+            }
+          },
+          "by_role_family_any": {
+            "algorithm_research": {
+              "count": 5,
+              "denominator": 43,
+              "share": 0.11627906976744186
+            },
+            "development": {
+              "count": 19,
+              "denominator": 43,
+              "share": 0.4418604651162791
+            },
+            "evaluation_engineering": {
+              "count": 37,
+              "denominator": 43,
+              "share": 0.8604651162790697
+            },
+            "operations": {
+              "count": 1,
+              "denominator": 43,
+              "share": 0.023255813953488372
+            },
+            "product": {
+              "count": 11,
+              "denominator": 43,
+              "share": 0.2558139534883721
+            },
+            "quality_engineering": {
+              "count": 9,
+              "denominator": 43,
+              "share": 0.20930232558139536
+            }
+          },
+          "by_skill_tag": {
+            "Agent/智能体": {
+              "count": 22,
+              "denominator": 43,
+              "share": 0.5116279069767442
+            },
+            "Benchmark与评测集": {
+              "count": 6,
+              "denominator": 43,
+              "share": 0.13953488372093023
+            },
+            "NLP": {
+              "count": 3,
+              "denominator": 43,
+              "share": 0.06976744186046512
+            },
+            "Prompt工程": {
+              "count": 12,
+              "denominator": 43,
+              "share": 0.27906976744186046
+            },
+            "Python": {
+              "count": 19,
+              "denominator": 43,
+              "share": 0.4418604651162791
+            },
+            "RAG与检索": {
+              "count": 13,
+              "denominator": 43,
+              "share": 0.3023255813953488
+            },
+            "SQL": {
+              "count": 3,
+              "denominator": 43,
+              "share": 0.06976744186046512
+            },
+            "多模态与计算机视觉": {
+              "count": 4,
+              "denominator": 43,
+              "share": 0.09302325581395349
+            },
+            "大语言模型/LLM": {
+              "count": 25,
+              "denominator": 43,
+              "share": 0.5813953488372093
+            },
+            "安全评测与红队": {
+              "count": 3,
+              "denominator": 43,
+              "share": 0.06976744186046512
+            },
+            "强化学习/RLHF": {
+              "count": 5,
+              "denominator": 43,
+              "share": 0.11627906976744186
+            },
+            "数据分析与处理": {
+              "count": 18,
+              "denominator": 43,
+              "share": 0.4186046511627907
+            },
+            "机器学习/深度学习": {
+              "count": 7,
+              "denominator": 43,
+              "share": 0.16279069767441862
+            },
+            "测试与质量保障": {
+              "count": 10,
+              "denominator": 43,
+              "share": 0.23255813953488372
+            },
+            "评测体系与指标设计": {
+              "count": 26,
+              "denominator": 43,
+              "share": 0.6046511627906976
+            },
+            "评测平台与自动化工具链": {
+              "count": 12,
+              "denominator": 43,
+              "share": 0.27906976744186046
+            }
+          }
+        },
+        "unique_content_versions": 43,
+        "metric_semantics": {
+          "by_role_family_any": "NON_ADDITIVE",
+          "by_skill_tag": "NON_ADDITIVE",
+          "unique_content_versions": "DIAGNOSTIC_ONLY"
+        },
+        "new_jobs": 0,
+        "updated_jobs": 0,
+        "removed_jobs": 0,
+        "reappeared_jobs": 0,
+        "unknown_new_jobs": 0,
+        "unknown_updated_jobs": 0,
+        "unknown_removed_jobs": 0,
+        "unknown_reappeared_jobs": 0,
+        "by_company": {
+          "滴滴": {
+            "active_jobs": 43,
+            "core": 22,
+            "adjacent": 21,
+            "P1": 3,
+            "new_jobs": 0,
+            "updated_jobs": 0,
+            "removed_jobs": 0,
+            "reappeared_jobs": 0,
+            "unknown_new_jobs": 0,
+            "unknown_updated_jobs": 0,
+            "unknown_removed_jobs": 0,
+            "unknown_reappeared_jobs": 0
+          }
+        }
+      },
+      "reliability": {
+        "inventory": {
+          "reliable": false,
+          "reason_codes": [
+            "LIST_RECORDS_INCOMPLETE",
+            "SOURCE_PRESENCE_UNRELIABLE"
+          ]
+        },
+        "presence_flow": {
+          "reliable": false,
+          "reason_codes": [
+            "LIST_RECORDS_INCOMPLETE",
+            "SOURCE_PRESENCE_UNRELIABLE"
+          ]
+        },
+        "content_flow": {
+          "reliable": true,
+          "reason_codes": []
+        }
+      }
+    },
+    "weekly": {
+      "passed": true,
+      "pairs": [
+        "2026-09-01_2026-09-07",
+        "2026-09-03_2026-09-04",
+        "2026-09-16_2026-09-17"
+      ]
+    }
+  },
+  "idempotency": {
+    "verified": true,
+    "derived_artifacts_changed_on_second_run": false
+  },
+  "source_input_sha256": {
+    "data/clean/2026-07-04.json": "204bfe6a4d3767589a033accadd850b930ce80627a82401293ffe41cc6ca5da9",
+    "data/clean/2026-07-07.json": "d4b7dbb0f49288f278119da837f43c5a95591e8203d695a5d76c4098920e72dd",
+    "data/clean/2026-07-08.json": "b37d25e3524436ed71e9ce403109982053d730bc2f9d30b3e2503725bea27b0c",
+    "data/clean/2026-09-01.json": "fe6dbf3dd0e0c439db8de40f50b97e24b983a6b44af84eb6918912b4ade9f122",
+    "data/clean/2026-09-02.json": "c8b7420de8f02bc08b8796732a56c1600711fde3c540e5db0e8004d4787f62e3",
+    "data/clean/2026-09-03.json": "2eadd72ed014283142f9c2963e93a285499fcf085153bb755bf040d68cd68f22",
+    "data/clean/2026-09-04.json": "af1dc1f66123c25f47007b0981bf18e075fbed9e2786d4221c49f352dab82b6f",
+    "data/clean/2026-09-07.json": "72f9b71bb158f15e034180bb7dc92f826fa613f6dd3548d91783881ef4ad2448",
+    "data/clean/2026-09-15.json": "33e252a633ea5eda14faebc01e8f077a141f4f0b7551f93feced9c6b83d07cbd",
+    "data/clean/2026-09-16.json": "498742292c127f27456f5b560f00a577b17234714a8b0763460bc7631541c8f2",
+    "data/clean/2026-09-17.json": "1e06bb076baf562b9f7c3c2983e4d166546696094fde9290950d52a3e04c0c02",
+    "data/clean/2026-09-18.json": "8e5b7894f56dd265229ffc1f290c119132ca36d4f81c6bb6e520079b6d165279",
+    "data/raw/2026-06-29.json": "1c7f8b274ea2ebdb4c4e68df53b54e522fcefabe5003b6aa8a1bbe6d102072a6",
+    "data/raw/2026-06-29_manifest.json": "8ac6c062b2be5ff5e5c8171911a648fb10445b784417ee5b9fa95ac85aa0b8b6",
+    "data/raw/2026-06-30.json": "b4fdb74aa8a6d51ae3c3e530005c1e005b34ff5e01699b623b195c62cf34d2a0",
+    "data/raw/2026-06-30_manifest.json": "b19441050ae0adf0dbd8958295650ab7688d7e925e58a4a5344605f3c208b153",
+    "data/raw/2026-07-01.json": "b1e36b529faa31e13cec7553bef942694d507c0dcd0338f72af4130851de6fd0",
+    "data/raw/2026-07-01_manifest.json": "dcf433ca3dbfff109e321781930a3b92c7adbf3ed06e1c5dbbce8c30afdc70c6",
+    "data/raw/2026-07-02.json": "0dc754478ece34b704177fb30019c57cb0ad4190890c686d0c9e5c894f15dd89",
+    "data/raw/2026-07-02_manifest.json": "d4a0729e5e5f435d94e8c58d18c48b0663eeb02009bd5f1ea0a85d5ec5120a27",
+    "data/raw/2026-07-03.json": "a3be5d3b53a4a4098c91b2eeb838fc52d1a9491dee9358c0746cc5bca56a4118",
+    "data/raw/2026-07-03_manifest.json": "6cd5f81f7882e7bbf8a02af0f75d2a0e8e97c5742b6022021403f115e206a737",
+    "data/raw/2026-07-06.json": "db92bc1d75d554921801a69c4748fecc0be04de58a8a8e1395f1222490b5b58d",
+    "data/raw/2026-07-06_manifest.json": "35cc603c333c4b5147981c4aee9205e496737a031e31077dde1e0cdab6e78e80",
+    "data/raw/2026-07-07.json": "32fee8b3933cfc44a992f556c1b7f476d356f603183aa5b0de1e0413b21f75e7",
+    "data/raw/2026-07-07_manifest.json": "8143c866aa9ffdde010370329a5f5bab03cdf1b5df42459e0803dbf8424f8149",
+    "data/raw/2026-07-08.json": "ccf74b80e08feb2e3430f1323b6847b117311571e21c251a52b2e4538eb66124",
+    "data/raw/2026-07-08_manifest.json": "363750d37ad75c1f00591ee4ce5a53e23091b5497f12ab9480cac00345b780b6",
+    "data/raw/2026-07-14.json": "9e09c5ba479744bc18557d8c5005ea872f98cd0ea6fee499cfe7b0a340a78a66",
+    "data/raw/2026-07-14_manifest.json": "1e0113ebae16c168f2505ba49f5530b6c623fd01b345b4945973d85bdba7d72a",
+    "data/raw/2026-07-15.json": "8bd6cbd1fb7795789e1da3a68983d9a0b8b7cb5596e31809ea629a67d430461f",
+    "data/raw/2026-07-15_manifest.json": "94db968a7d7449351002852bffc97236c46c970e06dc0932c73e74ffcecde1ff",
+    "data/raw/2026-09-01.json": "52e7055e8d6de418ab347ae800308d211403196d391d11e3aa50ac735172c9ed",
+    "data/raw/2026-09-01_manifest.json": "c971ecf74285485ccb821671352e67eef69abb0e52fa91f721980a07186bad1f",
+    "data/raw/2026-09-02.json": "9c31936bce25385b63f2d271376b80d9737989c1d1c2ad99dab28696a5e07491",
+    "data/raw/2026-09-02_manifest.json": "790f7e2641363386b05ff0ff5c31458ab2ad2559dccfbeddd27e00eec08029ec",
+    "data/raw/2026-09-03.json": "17a986a6fdb9eaa2b29f165d6d060c520eb8c866cf302ecfa87efc670c036cad",
+    "data/raw/2026-09-03_manifest.json": "ea5ec15d3ea0a5b05ee9b1531a7c2b8b2fd9e43fad486fdbd6e08c9231db57bf",
+    "data/raw/2026-09-04.json": "bdd4287352efb333e88984868cdc51f61173a191e009f34364c4e3033af3e637",
+    "data/raw/2026-09-04_manifest.json": "caebc6c176eb13bfc5c103c12e286b5b9a8fa6d605c98a42463e757261e81188",
+    "data/raw/2026-09-07.json": "97fc81ec23db2b25c5484287d42eb2de2784e8cab2d2d1db52c29c94960e06c8",
+    "data/raw/2026-09-07_manifest.json": "6b4c3128334dadecda8c981cd531b1b32c7644ce7be8795957ea765ca07fe3d3",
+    "data/raw/2026-09-15.json": "d821f8e31ef4b7b2ad3bd8b848733df7e42203ce75b901cfce425fa1d2c41404",
+    "data/raw/2026-09-15_manifest.json": "f4fa2f5af119084ad03024f74c4259aaa41310a597a5f172281ced58107c92e9",
+    "data/raw/2026-09-16.json": "ead324e4e56be20a9f1a2d544b0d19afa60c33ac9609e4c5468f7aad4373239d",
+    "data/raw/2026-09-16_manifest.json": "c4935cd71e80087f47d4e99816dc7998f3da1fab2bbe3fac6e1779db8c68750d",
+    "data/raw/2026-09-17.json": "25c214b1bf4c949fb0b22064fa0a810e7de477d2077e17ab9e078db2461f110e",
+    "data/raw/2026-09-17_manifest.json": "79633014e8b18b7255504312ee9495ff91927b22466343fd93b029148dc3cf51",
+    "data/raw/2026-09-18.json": "b50e69034f1dfe330a24e7c91eaf04e990544d243e4547a88858e87ba0300afc",
+    "data/raw/2026-09-18_manifest.json": "97fb51910b4af8bfe08411688082ba4e9de006668995ad77eb2c34cba17ed7e3"
+  },
+  "daily_health_sha256": {
+    "data/analysis/health/2026-09-15.json": "0f880162655a4ce4b50f623edd32cf71f09aec3115b979cc8392d5d30a480ea9",
+    "data/analysis/health/2026-09-16.json": "f6d7e823a41c4baa5be8764c5fa004c3a1bf32669af8927b5406d8eccd60f265",
+    "data/analysis/health/2026-09-17.json": "803261628ebbaf43e3ddb8b65f2ec148e5740dc7462d5d88e2b3bf60c2f1f0ba",
+    "data/analysis/health/2026-09-18.json": "10a1aa44ec3b3e3da8c75e363e66e413912a013fde07da12fcac1f669d56b23f"
+  },
+  "dates": [
+    {
+      "date": "2026-06-29",
+      "status": "NOT_RECOVERABLE",
+      "coverage": {
+        "date": "2026-06-29",
+        "raw": true,
+        "manifest": true,
+        "clean": false,
+        "classification": false,
+        "events": false,
+        "trend_snapshot": false,
+        "trend_version": null,
+        "audit_bundle": false,
+        "daily_health": false,
+        "market_report": false,
+        "weekly_dependencies": false,
+        "coverage_status": "NOT_RECOVERABLE",
+        "missing_inputs": [
+          "MISSING_CLEAN"
+        ]
+      },
+      "reasons": [
+        "MISSING_CLEAN"
+      ],
+      "validation": {},
+      "source_historical_date": "2026-06-29",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": null,
+      "replay_generated_at": null,
+      "input_sha256": {
+        "raw": "1c7f8b274ea2ebdb4c4e68df53b54e522fcefabe5003b6aa8a1bbe6d102072a6",
+        "manifest": "8ac6c062b2be5ff5e5c8171911a648fb10445b784417ee5b9fa95ac85aa0b8b6",
+        "clean": null
+      },
+      "before_artifact_sha256": {},
+      "after_artifact_sha256": {}
+    },
+    {
+      "date": "2026-06-30",
+      "status": "NOT_RECOVERABLE",
+      "coverage": {
+        "date": "2026-06-30",
+        "raw": true,
+        "manifest": true,
+        "clean": false,
+        "classification": false,
+        "events": false,
+        "trend_snapshot": false,
+        "trend_version": null,
+        "audit_bundle": false,
+        "daily_health": false,
+        "market_report": false,
+        "weekly_dependencies": false,
+        "coverage_status": "NOT_RECOVERABLE",
+        "missing_inputs": [
+          "MISSING_CLEAN"
+        ]
+      },
+      "reasons": [
+        "MISSING_CLEAN"
+      ],
+      "validation": {},
+      "source_historical_date": "2026-06-30",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": null,
+      "replay_generated_at": null,
+      "input_sha256": {
+        "raw": "b4fdb74aa8a6d51ae3c3e530005c1e005b34ff5e01699b623b195c62cf34d2a0",
+        "manifest": "b19441050ae0adf0dbd8958295650ab7688d7e925e58a4a5344605f3c208b153",
+        "clean": null
+      },
+      "before_artifact_sha256": {},
+      "after_artifact_sha256": {}
+    },
+    {
+      "date": "2026-07-01",
+      "status": "NOT_RECOVERABLE",
+      "coverage": {
+        "date": "2026-07-01",
+        "raw": true,
+        "manifest": true,
+        "clean": false,
+        "classification": false,
+        "events": false,
+        "trend_snapshot": false,
+        "trend_version": null,
+        "audit_bundle": false,
+        "daily_health": false,
+        "market_report": false,
+        "weekly_dependencies": false,
+        "coverage_status": "NOT_RECOVERABLE",
+        "missing_inputs": [
+          "MISSING_CLEAN"
+        ]
+      },
+      "reasons": [
+        "MISSING_CLEAN"
+      ],
+      "validation": {},
+      "source_historical_date": "2026-07-01",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": null,
+      "replay_generated_at": null,
+      "input_sha256": {
+        "raw": "b1e36b529faa31e13cec7553bef942694d507c0dcd0338f72af4130851de6fd0",
+        "manifest": "dcf433ca3dbfff109e321781930a3b92c7adbf3ed06e1c5dbbce8c30afdc70c6",
+        "clean": null
+      },
+      "before_artifact_sha256": {},
+      "after_artifact_sha256": {}
+    },
+    {
+      "date": "2026-07-02",
+      "status": "NOT_RECOVERABLE",
+      "coverage": {
+        "date": "2026-07-02",
+        "raw": true,
+        "manifest": true,
+        "clean": false,
+        "classification": false,
+        "events": false,
+        "trend_snapshot": false,
+        "trend_version": null,
+        "audit_bundle": false,
+        "daily_health": false,
+        "market_report": false,
+        "weekly_dependencies": false,
+        "coverage_status": "NOT_RECOVERABLE",
+        "missing_inputs": [
+          "MISSING_CLEAN"
+        ]
+      },
+      "reasons": [
+        "MISSING_CLEAN"
+      ],
+      "validation": {},
+      "source_historical_date": "2026-07-02",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": null,
+      "replay_generated_at": null,
+      "input_sha256": {
+        "raw": "0dc754478ece34b704177fb30019c57cb0ad4190890c686d0c9e5c894f15dd89",
+        "manifest": "d4a0729e5e5f435d94e8c58d18c48b0663eeb02009bd5f1ea0a85d5ec5120a27",
+        "clean": null
+      },
+      "before_artifact_sha256": {},
+      "after_artifact_sha256": {}
+    },
+    {
+      "date": "2026-07-03",
+      "status": "NOT_RECOVERABLE",
+      "coverage": {
+        "date": "2026-07-03",
+        "raw": true,
+        "manifest": true,
+        "clean": false,
+        "classification": false,
+        "events": false,
+        "trend_snapshot": false,
+        "trend_version": null,
+        "audit_bundle": false,
+        "daily_health": false,
+        "market_report": false,
+        "weekly_dependencies": false,
+        "coverage_status": "NOT_RECOVERABLE",
+        "missing_inputs": [
+          "MISSING_CLEAN"
+        ]
+      },
+      "reasons": [
+        "MISSING_CLEAN"
+      ],
+      "validation": {},
+      "source_historical_date": "2026-07-03",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": null,
+      "replay_generated_at": null,
+      "input_sha256": {
+        "raw": "a3be5d3b53a4a4098c91b2eeb838fc52d1a9491dee9358c0746cc5bca56a4118",
+        "manifest": "6cd5f81f7882e7bbf8a02af0f75d2a0e8e97c5742b6022021403f115e206a737",
+        "clean": null
+      },
+      "before_artifact_sha256": {},
+      "after_artifact_sha256": {}
+    },
+    {
+      "date": "2026-07-04",
+      "status": "NOT_RECOVERABLE",
+      "coverage": {
+        "date": "2026-07-04",
+        "raw": false,
+        "manifest": false,
+        "clean": true,
+        "classification": false,
+        "events": false,
+        "trend_snapshot": false,
+        "trend_version": null,
+        "audit_bundle": false,
+        "daily_health": false,
+        "market_report": false,
+        "weekly_dependencies": false,
+        "coverage_status": "NOT_RECOVERABLE",
+        "missing_inputs": [
+          "MISSING_RAW",
+          "MISSING_MANIFEST"
+        ]
+      },
+      "reasons": [
+        "MISSING_RAW",
+        "MISSING_MANIFEST"
+      ],
+      "validation": {},
+      "source_historical_date": "2026-07-04",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": null,
+      "replay_generated_at": null,
+      "input_sha256": {
+        "raw": null,
+        "manifest": null,
+        "clean": "204bfe6a4d3767589a033accadd850b930ce80627a82401293ffe41cc6ca5da9"
+      },
+      "before_artifact_sha256": {},
+      "after_artifact_sha256": {}
+    },
+    {
+      "date": "2026-07-06",
+      "status": "NOT_RECOVERABLE",
+      "coverage": {
+        "date": "2026-07-06",
+        "raw": true,
+        "manifest": true,
+        "clean": false,
+        "classification": false,
+        "events": false,
+        "trend_snapshot": false,
+        "trend_version": null,
+        "audit_bundle": false,
+        "daily_health": false,
+        "market_report": false,
+        "weekly_dependencies": false,
+        "coverage_status": "NOT_RECOVERABLE",
+        "missing_inputs": [
+          "MISSING_CLEAN"
+        ]
+      },
+      "reasons": [
+        "MISSING_CLEAN"
+      ],
+      "validation": {},
+      "source_historical_date": "2026-07-06",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": null,
+      "replay_generated_at": null,
+      "input_sha256": {
+        "raw": "db92bc1d75d554921801a69c4748fecc0be04de58a8a8e1395f1222490b5b58d",
+        "manifest": "35cc603c333c4b5147981c4aee9205e496737a031e31077dde1e0cdab6e78e80",
+        "clean": null
+      },
+      "before_artifact_sha256": {},
+      "after_artifact_sha256": {}
+    },
+    {
+      "date": "2026-07-07",
+      "status": "PARTIAL_V2",
+      "coverage": {
+        "date": "2026-07-07",
+        "raw": true,
+        "manifest": true,
+        "clean": true,
+        "classification": true,
+        "events": true,
+        "trend_snapshot": true,
+        "trend_version": "trend_v1",
+        "audit_bundle": true,
+        "daily_health": false,
+        "market_report": true,
+        "weekly_dependencies": true,
+        "coverage_status": "CAN_REPLAY_V2",
+        "missing_inputs": []
+      },
+      "reasons": [
+        "LEGACY_DETAIL_FAILURE_IDENTITIES_UNAVAILABLE"
+      ],
+      "validation": {
+        "confirmed_active": 1436,
+        "unknown_inventory": 1196,
+        "observed_inventory": 2632,
+        "explicit_unknown_rows": 0,
+        "unattributed_legacy_unknown": 1196,
+        "unknown_flows": {
+          "unknown_new_jobs": 0,
+          "unknown_removed_jobs": 0,
+          "unknown_reappeared_jobs": 0,
+          "unknown_updated_jobs": 0
+        }
+      },
+      "source_historical_date": "2026-07-07",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": "trend_v2",
+      "replay_generated_at": "2026-09-18T07:42:40+00:00",
+      "input_sha256": {
+        "raw": "32fee8b3933cfc44a992f556c1b7f476d356f603183aa5b0de1e0413b21f75e7",
+        "manifest": "8143c866aa9ffdde010370329a5f5bab03cdf1b5df42459e0803dbf8424f8149",
+        "clean": "d4b7dbb0f49288f278119da837f43c5a95591e8203d695a5d76c4098920e72dd"
+      },
+      "before_artifact_sha256": {
+        "classification": "db808cbd027c7c78f5f116e723cbf860bca6f7739f9f13f9a06d1a7d6e66e74d",
+        "events": "361bdb91e8738d448463c26396fa15691b526b00de58cbf7aab0d22da3c60700",
+        "trend_snapshot": "8376f39e7b3a2ecaec07cb23ee861e3f4fd81a4a8c94d59a9579a74b46a8db4b",
+        "audit": "ef7af6108a57aa9ea4a59d700eaf9f404b1fe6c39175d7b7319308d3fabe33cf",
+        "trend_report": "fe22e4ff9a2c8d275b9637eba2ee0199b93df31176f06896d358af9af7379a1f"
+      },
+      "after_artifact_sha256": {
+        "classification": "db808cbd027c7c78f5f116e723cbf860bca6f7739f9f13f9a06d1a7d6e66e74d",
+        "events": "361bdb91e8738d448463c26396fa15691b526b00de58cbf7aab0d22da3c60700",
+        "trend_snapshot": "77e3bf313c811790d2adb48d59b1b7e350c76078f5a069aff56a5b2091425559",
+        "audit": "443fad5b0b33b7266c573ec6838c31d15dcac6c9293a9364013a816c285d3623",
+        "trend_report": "ef3d479e9eceb81e5fcbe42754c30ac569c4beffc0b0560d6ac517586b096299"
+      }
+    },
+    {
+      "date": "2026-07-08",
+      "status": "REPLAYED_V2",
+      "coverage": {
+        "date": "2026-07-08",
+        "raw": true,
+        "manifest": true,
+        "clean": true,
+        "classification": true,
+        "events": true,
+        "trend_snapshot": true,
+        "trend_version": "trend_v1",
+        "audit_bundle": true,
+        "daily_health": false,
+        "market_report": true,
+        "weekly_dependencies": true,
+        "coverage_status": "CAN_REPLAY_V2",
+        "missing_inputs": []
+      },
+      "reasons": [],
+      "validation": {
+        "confirmed_active": 1408,
+        "unknown_inventory": 0,
+        "observed_inventory": 1408,
+        "explicit_unknown_rows": 0,
+        "unattributed_legacy_unknown": 0,
+        "unknown_flows": {
+          "unknown_new_jobs": 0,
+          "unknown_removed_jobs": 0,
+          "unknown_reappeared_jobs": 0,
+          "unknown_updated_jobs": 0
+        }
+      },
+      "source_historical_date": "2026-07-08",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": "trend_v2",
+      "replay_generated_at": "2026-09-18T07:42:40+00:00",
+      "input_sha256": {
+        "raw": "ccf74b80e08feb2e3430f1323b6847b117311571e21c251a52b2e4538eb66124",
+        "manifest": "363750d37ad75c1f00591ee4ce5a53e23091b5497f12ab9480cac00345b780b6",
+        "clean": "b37d25e3524436ed71e9ce403109982053d730bc2f9d30b3e2503725bea27b0c"
+      },
+      "before_artifact_sha256": {
+        "classification": "92697c8d27c2789e0858506c4a3c97c76eb88af54bebe643bc8eb230a18dd8fd",
+        "events": "85fcc41b3e591c4b202b3d7fa78d0e9835aafbea6bb6ebedd90e24adb761f9c8",
+        "trend_snapshot": "857ad3774e806c285c93ec185fd09979b938948f894df94bb91d71d778b2d9bb",
+        "audit": "17fd8f4fe8c4e252a8fbd3e6581dcf53717c2049145717d7e629a432e3e9ee86",
+        "trend_report": "2a2e0cf7151f0d2813ef5f0ad02d9b7234146ac57e1497db1e2a1df5e62f927a"
+      },
+      "after_artifact_sha256": {
+        "classification": "92697c8d27c2789e0858506c4a3c97c76eb88af54bebe643bc8eb230a18dd8fd",
+        "events": "85fcc41b3e591c4b202b3d7fa78d0e9835aafbea6bb6ebedd90e24adb761f9c8",
+        "trend_snapshot": "7459756c1fda9f340e0fa815d084466600d6c1a3ea8774acc2b6c40daff86cd1",
+        "audit": "c493ce12d8f49e1cc9fb720fc2018d46bed271bad9b70c5f3d3d1879561bcf16",
+        "trend_report": "f8917f7b2ed95176cf48512a47b0c7ddfe4aabc18a50a73af6329d41a578d8fe"
+      }
+    },
+    {
+      "date": "2026-07-14",
+      "status": "NOT_RECOVERABLE",
+      "coverage": {
+        "date": "2026-07-14",
+        "raw": true,
+        "manifest": true,
+        "clean": false,
+        "classification": false,
+        "events": false,
+        "trend_snapshot": false,
+        "trend_version": null,
+        "audit_bundle": false,
+        "daily_health": false,
+        "market_report": false,
+        "weekly_dependencies": false,
+        "coverage_status": "NOT_RECOVERABLE",
+        "missing_inputs": [
+          "MISSING_CLEAN"
+        ]
+      },
+      "reasons": [
+        "MISSING_CLEAN"
+      ],
+      "validation": {},
+      "source_historical_date": "2026-07-14",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": null,
+      "replay_generated_at": null,
+      "input_sha256": {
+        "raw": "9e09c5ba479744bc18557d8c5005ea872f98cd0ea6fee499cfe7b0a340a78a66",
+        "manifest": "1e0113ebae16c168f2505ba49f5530b6c623fd01b345b4945973d85bdba7d72a",
+        "clean": null
+      },
+      "before_artifact_sha256": {},
+      "after_artifact_sha256": {}
+    },
+    {
+      "date": "2026-07-15",
+      "status": "NOT_RECOVERABLE",
+      "coverage": {
+        "date": "2026-07-15",
+        "raw": true,
+        "manifest": true,
+        "clean": false,
+        "classification": false,
+        "events": false,
+        "trend_snapshot": false,
+        "trend_version": null,
+        "audit_bundle": false,
+        "daily_health": false,
+        "market_report": false,
+        "weekly_dependencies": false,
+        "coverage_status": "NOT_RECOVERABLE",
+        "missing_inputs": [
+          "MISSING_CLEAN"
+        ]
+      },
+      "reasons": [
+        "MISSING_CLEAN"
+      ],
+      "validation": {},
+      "source_historical_date": "2026-07-15",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": null,
+      "replay_generated_at": null,
+      "input_sha256": {
+        "raw": "8bd6cbd1fb7795789e1da3a68983d9a0b8b7cb5596e31809ea629a67d430461f",
+        "manifest": "94db968a7d7449351002852bffc97236c46c970e06dc0932c73e74ffcecde1ff",
+        "clean": null
+      },
+      "before_artifact_sha256": {},
+      "after_artifact_sha256": {}
+    },
+    {
+      "date": "2026-09-01",
+      "status": "REPLAYED_V2",
+      "coverage": {
+        "date": "2026-09-01",
+        "raw": true,
+        "manifest": true,
+        "clean": true,
+        "classification": true,
+        "events": true,
+        "trend_snapshot": true,
+        "trend_version": "trend_v1",
+        "audit_bundle": true,
+        "daily_health": false,
+        "market_report": true,
+        "weekly_dependencies": true,
+        "coverage_status": "CAN_REPLAY_V2",
+        "missing_inputs": []
+      },
+      "reasons": [],
+      "validation": {
+        "confirmed_active": 1458,
+        "unknown_inventory": 0,
+        "observed_inventory": 1458,
+        "explicit_unknown_rows": 0,
+        "unattributed_legacy_unknown": 0,
+        "unknown_flows": {
+          "unknown_new_jobs": 0,
+          "unknown_removed_jobs": 0,
+          "unknown_reappeared_jobs": 0,
+          "unknown_updated_jobs": 0
+        }
+      },
+      "source_historical_date": "2026-09-01",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": "trend_v2",
+      "replay_generated_at": "2026-09-18T07:42:40+00:00",
+      "input_sha256": {
+        "raw": "52e7055e8d6de418ab347ae800308d211403196d391d11e3aa50ac735172c9ed",
+        "manifest": "c971ecf74285485ccb821671352e67eef69abb0e52fa91f721980a07186bad1f",
+        "clean": "fe6dbf3dd0e0c439db8de40f50b97e24b983a6b44af84eb6918912b4ade9f122"
+      },
+      "before_artifact_sha256": {
+        "classification": "c898d67bb7c082243deed757218d4e64345aa50c13ae2bd74ac9dfbf5d3410f7",
+        "events": "bf5ebc11ff72d405a302261aa652cbe5bd3d567ab749d7759f5e1efc6229146b",
+        "trend_snapshot": "ac80bf4300feb3e72f3fff5ec1d71543a95d81f80a8720c965b063198c1bc635",
+        "audit": "dad478383c0ddbf84c32193bd365e67d056cf923b7f02eb084e3a6511a3c3936",
+        "trend_report": "ebf2c83063054c1b1762a71d3225c9b630382e068682d9fb8133a46d065cb65c"
+      },
+      "after_artifact_sha256": {
+        "classification": "c898d67bb7c082243deed757218d4e64345aa50c13ae2bd74ac9dfbf5d3410f7",
+        "events": "bf5ebc11ff72d405a302261aa652cbe5bd3d567ab749d7759f5e1efc6229146b",
+        "trend_snapshot": "5689e0ccc83da8ba462c7175fea607eedfe6018ac0c5c9fdc953f7173f1839aa",
+        "audit": "f97c9bb8447a599d6811260b7aa642fb04ecbb2bd5f49b157d2e43d03ed22d7c",
+        "trend_report": "efbe489122903ac444cc890284dccb24dbde340f067e8adc84aea38f880b7292"
+      }
+    },
+    {
+      "date": "2026-09-02",
+      "status": "PARTIAL_V2",
+      "coverage": {
+        "date": "2026-09-02",
+        "raw": true,
+        "manifest": true,
+        "clean": true,
+        "classification": true,
+        "events": true,
+        "trend_snapshot": true,
+        "trend_version": "trend_v1",
+        "audit_bundle": true,
+        "daily_health": false,
+        "market_report": true,
+        "weekly_dependencies": true,
+        "coverage_status": "CAN_REPLAY_V2",
+        "missing_inputs": []
+      },
+      "reasons": [
+        "LEGACY_DETAIL_FAILURE_IDENTITIES_UNAVAILABLE"
+      ],
+      "validation": {
+        "confirmed_active": 1427,
+        "unknown_inventory": 1,
+        "observed_inventory": 1428,
+        "explicit_unknown_rows": 0,
+        "unattributed_legacy_unknown": 1,
+        "unknown_flows": {
+          "unknown_new_jobs": 0,
+          "unknown_removed_jobs": 0,
+          "unknown_reappeared_jobs": 0,
+          "unknown_updated_jobs": 0
+        }
+      },
+      "source_historical_date": "2026-09-02",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": "trend_v2",
+      "replay_generated_at": "2026-09-18T07:42:40+00:00",
+      "input_sha256": {
+        "raw": "9c31936bce25385b63f2d271376b80d9737989c1d1c2ad99dab28696a5e07491",
+        "manifest": "790f7e2641363386b05ff0ff5c31458ab2ad2559dccfbeddd27e00eec08029ec",
+        "clean": "c8b7420de8f02bc08b8796732a56c1600711fde3c540e5db0e8004d4787f62e3"
+      },
+      "before_artifact_sha256": {
+        "classification": "53afc8edc1cf38e927480a53969d0256aaeb1bc6e68ebc8362752b42b6537a62",
+        "events": "1aff78ab94b332739840c72aec3267a7e34f5af7dd16b3af97f26d20b32706cf",
+        "trend_snapshot": "a30eeb62bf0b4976a65ff50c989171a1ee4344514a4baeecd671db49618a5b89",
+        "audit": "b7ff7917c641acf89e00cfb8f7c16ee75b3bb5f3b84ca179aa9f6995e7b9a09c",
+        "trend_report": "63fc49728e0910f3fd51ccc5256eeae2e499fa4a9654437267583a1fb4854918"
+      },
+      "after_artifact_sha256": {
+        "classification": "53afc8edc1cf38e927480a53969d0256aaeb1bc6e68ebc8362752b42b6537a62",
+        "events": "1aff78ab94b332739840c72aec3267a7e34f5af7dd16b3af97f26d20b32706cf",
+        "trend_snapshot": "ec74203002c615574fc5c1a632c2680fd25ceddf6ec83f1cbafac2055c598ea6",
+        "audit": "d5879a35c02f2d1d8e212f291473e309040841416ecde449255aa0074c11b40a",
+        "trend_report": "f85fc01d864a86a7226ae9e3d8381430ebf81c40da988931f2c78566ad4c5b31"
+      }
+    },
+    {
+      "date": "2026-09-03",
+      "status": "PARTIAL_V2",
+      "coverage": {
+        "date": "2026-09-03",
+        "raw": true,
+        "manifest": true,
+        "clean": true,
+        "classification": true,
+        "events": true,
+        "trend_snapshot": true,
+        "trend_version": "trend_v1",
+        "audit_bundle": true,
+        "daily_health": false,
+        "market_report": true,
+        "weekly_dependencies": true,
+        "coverage_status": "CAN_REPLAY_V2",
+        "missing_inputs": []
+      },
+      "reasons": [
+        "LEGACY_DETAIL_FAILURE_IDENTITIES_UNAVAILABLE"
+      ],
+      "validation": {
+        "confirmed_active": 1570,
+        "unknown_inventory": 1,
+        "observed_inventory": 1571,
+        "explicit_unknown_rows": 0,
+        "unattributed_legacy_unknown": 1,
+        "unknown_flows": {
+          "unknown_new_jobs": 0,
+          "unknown_removed_jobs": 0,
+          "unknown_reappeared_jobs": 0,
+          "unknown_updated_jobs": 0
+        }
+      },
+      "source_historical_date": "2026-09-03",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": "trend_v2",
+      "replay_generated_at": "2026-09-18T07:42:40+00:00",
+      "input_sha256": {
+        "raw": "17a986a6fdb9eaa2b29f165d6d060c520eb8c866cf302ecfa87efc670c036cad",
+        "manifest": "ea5ec15d3ea0a5b05ee9b1531a7c2b8b2fd9e43fad486fdbd6e08c9231db57bf",
+        "clean": "2eadd72ed014283142f9c2963e93a285499fcf085153bb755bf040d68cd68f22"
+      },
+      "before_artifact_sha256": {
+        "classification": "bd4def8e0d892949f345658e19d39e8b34c1196eb8792f804fb09052e722cfea",
+        "events": "b2404c78871ea636ae307de4470b162a8abf5db7b35287c1837caef054bccf03",
+        "trend_snapshot": "69c3835cd54c0eee9102dba2dced86ba542c065d29f1d282bbe7a53cb32d7e6e",
+        "audit": "d9b4399617f94280dfe12c9020baed116c444427b4382bfcc97d466c12c1ea03",
+        "trend_report": "1053a0e6631a8e3b07e1fb9640878277a6e9e8b0c4d820cb448e68d047a1db17"
+      },
+      "after_artifact_sha256": {
+        "classification": "bd4def8e0d892949f345658e19d39e8b34c1196eb8792f804fb09052e722cfea",
+        "events": "b2404c78871ea636ae307de4470b162a8abf5db7b35287c1837caef054bccf03",
+        "trend_snapshot": "2b1e6620f849e1772530ca79e5a152e4c8be1e106515c65c9b52951e5c9e93ae",
+        "audit": "0efd5ddd951d4970f92fc8832e306b92b9d3573e51674528fb3ae00b3a57eb36",
+        "trend_report": "e51e21c8e99817d5b49e93f6fd92d23260d8542fc2ac791ec28de69f690a5c4c"
+      }
+    },
+    {
+      "date": "2026-09-04",
+      "status": "PARTIAL_V2",
+      "coverage": {
+        "date": "2026-09-04",
+        "raw": true,
+        "manifest": true,
+        "clean": true,
+        "classification": true,
+        "events": true,
+        "trend_snapshot": true,
+        "trend_version": "trend_v1",
+        "audit_bundle": true,
+        "daily_health": false,
+        "market_report": true,
+        "weekly_dependencies": true,
+        "coverage_status": "CAN_REPLAY_V2",
+        "missing_inputs": []
+      },
+      "reasons": [
+        "LEGACY_DETAIL_FAILURE_IDENTITIES_UNAVAILABLE"
+      ],
+      "validation": {
+        "confirmed_active": 1579,
+        "unknown_inventory": 10,
+        "observed_inventory": 1589,
+        "explicit_unknown_rows": 9,
+        "unattributed_legacy_unknown": 1,
+        "unknown_flows": {
+          "unknown_new_jobs": 0,
+          "unknown_removed_jobs": 0,
+          "unknown_reappeared_jobs": 0,
+          "unknown_updated_jobs": 0
+        }
+      },
+      "source_historical_date": "2026-09-04",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": "trend_v2",
+      "replay_generated_at": "2026-09-18T07:42:40+00:00",
+      "input_sha256": {
+        "raw": "bdd4287352efb333e88984868cdc51f61173a191e009f34364c4e3033af3e637",
+        "manifest": "caebc6c176eb13bfc5c103c12e286b5b9a8fa6d605c98a42463e757261e81188",
+        "clean": "af1dc1f66123c25f47007b0981bf18e075fbed9e2786d4221c49f352dab82b6f"
+      },
+      "before_artifact_sha256": {
+        "classification": "913336690b4e4b37b0a2a5318eaf0782a54b9c4054d09e3d9422543f1d912b9e",
+        "events": "8c6f66d8595f6b36a92afaecc855d23251ee14b38d69467a0f1ad177f5cba671",
+        "trend_snapshot": "6f8cf750b9dc6f63b11f8fa95a1ffe04caffc88a5289ad7f24819798e3d6075d",
+        "audit": "4618ee9907d754c982324108f4b2fabd3a96c050a6309a450109d40b5167b03d",
+        "trend_report": "8c54a7f64f9780e27f6025bfacef7e37de987123e9e3d2baa5a4311c49e53019"
+      },
+      "after_artifact_sha256": {
+        "classification": "10706bef1a9bc7c13c3510b3728c996708de8621c197acb8341f557dbd40488f",
+        "events": "8c6f66d8595f6b36a92afaecc855d23251ee14b38d69467a0f1ad177f5cba671",
+        "trend_snapshot": "8ec990c8fbaf8b23dd0a41b3c9b99728d0cc1a11a76bfcc1f7c43671ce374f88",
+        "audit": "d389dd8a5075d3f234fbceb349f6d6dc7d999f4e02d44db3f549917770d0fcc4",
+        "trend_report": "48ee48edd0790d015f2ce5693476fce6c76cd418951f2c82e745e4b295a91833"
+      }
+    },
+    {
+      "date": "2026-09-07",
+      "status": "PARTIAL_V2",
+      "coverage": {
+        "date": "2026-09-07",
+        "raw": true,
+        "manifest": true,
+        "clean": true,
+        "classification": true,
+        "events": true,
+        "trend_snapshot": true,
+        "trend_version": "trend_v1",
+        "audit_bundle": true,
+        "daily_health": false,
+        "market_report": true,
+        "weekly_dependencies": true,
+        "coverage_status": "CAN_REPLAY_V2",
+        "missing_inputs": []
+      },
+      "reasons": [
+        "LEGACY_DETAIL_FAILURE_IDENTITIES_UNAVAILABLE"
+      ],
+      "validation": {
+        "confirmed_active": 1584,
+        "unknown_inventory": 833,
+        "observed_inventory": 2417,
+        "explicit_unknown_rows": 0,
+        "unattributed_legacy_unknown": 833,
+        "unknown_flows": {
+          "unknown_new_jobs": 0,
+          "unknown_removed_jobs": 0,
+          "unknown_reappeared_jobs": 1,
+          "unknown_updated_jobs": 0
+        }
+      },
+      "source_historical_date": "2026-09-07",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": "trend_v2",
+      "replay_generated_at": "2026-09-18T07:42:40+00:00",
+      "input_sha256": {
+        "raw": "97fc81ec23db2b25c5484287d42eb2de2784e8cab2d2d1db52c29c94960e06c8",
+        "manifest": "6b4c3128334dadecda8c981cd531b1b32c7644ce7be8795957ea765ca07fe3d3",
+        "clean": "72f9b71bb158f15e034180bb7dc92f826fa613f6dd3548d91783881ef4ad2448"
+      },
+      "before_artifact_sha256": {
+        "classification": "37b977200be442642d70bfbfbec7b70b213cf8101dfb8245d00c42d04d518430",
+        "events": "92b566eff77512fb1dced9c01162f3e7743b7eca7380e37fdc3ac18e780f723d",
+        "trend_snapshot": "0ca18d94fa4388dbbe10cf63286b623c230af6dd63c842987880182b6b464c68",
+        "audit": "041837f52db97150be1e11d28e971209418f4239f696fe01d509c43f8bed4cc9",
+        "trend_report": "946fa1e6c7b6f6640af0e7c5eb2802635b66a0896b4d3d4f95c38374d79bae83"
+      },
+      "after_artifact_sha256": {
+        "classification": "37b977200be442642d70bfbfbec7b70b213cf8101dfb8245d00c42d04d518430",
+        "events": "92b566eff77512fb1dced9c01162f3e7743b7eca7380e37fdc3ac18e780f723d",
+        "trend_snapshot": "7f7dfa4b184aa86f514c68af04c830822ac8c1965c5f88815c1abe0d966c4dab",
+        "audit": "29f38c0775f7d57e47e77c503f8412fc03006bcde26545f10f55149d2fc33773",
+        "trend_report": "8c82789605ba871c4a5e2c0b72b4798c2a86e4f9018119e9fbb3db6e65b95d36"
+      }
+    },
+    {
+      "date": "2026-09-15",
+      "status": "PARTIAL_V2",
+      "coverage": {
+        "date": "2026-09-15",
+        "raw": true,
+        "manifest": true,
+        "clean": true,
+        "classification": true,
+        "events": true,
+        "trend_snapshot": true,
+        "trend_version": "trend_v1",
+        "audit_bundle": true,
+        "daily_health": true,
+        "market_report": true,
+        "weekly_dependencies": true,
+        "coverage_status": "CAN_REPLAY_V2",
+        "missing_inputs": []
+      },
+      "reasons": [
+        "LEGACY_DETAIL_FAILURE_IDENTITIES_UNAVAILABLE"
+      ],
+      "validation": {
+        "confirmed_active": 1625,
+        "unknown_inventory": 1,
+        "observed_inventory": 1626,
+        "explicit_unknown_rows": 0,
+        "unattributed_legacy_unknown": 1,
+        "unknown_flows": {
+          "unknown_new_jobs": 0,
+          "unknown_removed_jobs": 0,
+          "unknown_reappeared_jobs": 0,
+          "unknown_updated_jobs": 0
+        }
+      },
+      "source_historical_date": "2026-09-15",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": "trend_v2",
+      "replay_generated_at": "2026-09-18T07:42:40+00:00",
+      "input_sha256": {
+        "raw": "d821f8e31ef4b7b2ad3bd8b848733df7e42203ce75b901cfce425fa1d2c41404",
+        "manifest": "f4fa2f5af119084ad03024f74c4259aaa41310a597a5f172281ced58107c92e9",
+        "clean": "33e252a633ea5eda14faebc01e8f077a141f4f0b7551f93feced9c6b83d07cbd"
+      },
+      "before_artifact_sha256": {
+        "classification": "bfb8ad6c9213ed4e64fb15eb3172c60d9601158d1da1a7590466c0a228862cd1",
+        "events": "b4829df2c20b0f63f6ca560aab3e0da64b36c430b82f61bb347500f1a8fe39e7",
+        "trend_snapshot": "e404a42de9ba42902236ee76a11f58f5526193de0dd4d33b26155b17edb67519",
+        "audit": "cddf383943161139b82c35e579c1a958cf3196897c9b58408c2768ba22a2b917",
+        "trend_report": "e8a1f58a4d6c84c3b6717e4a4c06b17ec9b6c09eaf474423691b1c6fe2879966"
+      },
+      "after_artifact_sha256": {
+        "classification": "bfb8ad6c9213ed4e64fb15eb3172c60d9601158d1da1a7590466c0a228862cd1",
+        "events": "b4829df2c20b0f63f6ca560aab3e0da64b36c430b82f61bb347500f1a8fe39e7",
+        "trend_snapshot": "5f8101b08d9f85982b64a0bd55d7f588303d80197298efdec1b4b33c9bec8c64",
+        "audit": "f33a87df8321a57a96fc9f71a4350ea30c29abfa51518e7a66fdbe56c43a3380",
+        "trend_report": "07e6764153e0532ba61b4615acf1ceb64041838f2f25d2c172e2420baf5a0c99"
+      }
+    },
+    {
+      "date": "2026-09-16",
+      "status": "PARTIAL_V2",
+      "coverage": {
+        "date": "2026-09-16",
+        "raw": true,
+        "manifest": true,
+        "clean": true,
+        "classification": true,
+        "events": true,
+        "trend_snapshot": true,
+        "trend_version": "trend_v1",
+        "audit_bundle": true,
+        "daily_health": true,
+        "market_report": true,
+        "weekly_dependencies": true,
+        "coverage_status": "CAN_REPLAY_V2",
+        "missing_inputs": []
+      },
+      "reasons": [
+        "LEGACY_DETAIL_FAILURE_IDENTITIES_UNAVAILABLE"
+      ],
+      "validation": {
+        "confirmed_active": 1637,
+        "unknown_inventory": 1,
+        "observed_inventory": 1638,
+        "explicit_unknown_rows": 0,
+        "unattributed_legacy_unknown": 1,
+        "unknown_flows": {
+          "unknown_new_jobs": 0,
+          "unknown_removed_jobs": 2,
+          "unknown_reappeared_jobs": 0,
+          "unknown_updated_jobs": 0
+        }
+      },
+      "source_historical_date": "2026-09-16",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": "trend_v2",
+      "replay_generated_at": "2026-09-18T07:42:40+00:00",
+      "input_sha256": {
+        "raw": "ead324e4e56be20a9f1a2d544b0d19afa60c33ac9609e4c5468f7aad4373239d",
+        "manifest": "c4935cd71e80087f47d4e99816dc7998f3da1fab2bbe3fac6e1779db8c68750d",
+        "clean": "498742292c127f27456f5b560f00a577b17234714a8b0763460bc7631541c8f2"
+      },
+      "before_artifact_sha256": {
+        "classification": "a747a23d04b5ac8eb022d6ce7c21f2ee85dc62738f4137bd21ee5ab2b41fb08e",
+        "events": "ab0f6fae7d823db403b11f2883e89292c8658038f034aa6ce5dc91dad0d81544",
+        "trend_snapshot": "394988a9d849e5d81f0392e795eb11d4700bde50cc6f78630e18b85b2ed8f436",
+        "audit": "302f860428d1209db877571532541a935be35a1b0b7f3d736d748b553f8fc76e",
+        "trend_report": "35d5009fbc6ee08e3648ac4bc39aae90d3137e4220ecd254c8fb9f90686f63c8"
+      },
+      "after_artifact_sha256": {
+        "classification": "a747a23d04b5ac8eb022d6ce7c21f2ee85dc62738f4137bd21ee5ab2b41fb08e",
+        "events": "ab0f6fae7d823db403b11f2883e89292c8658038f034aa6ce5dc91dad0d81544",
+        "trend_snapshot": "b8ae4b6bd3db6e059b9616cbed7edc5cc59948006ace0e700a353221f196e9ad",
+        "audit": "dcc6700c989c7782911ad713a558d5f395612b9fc4a4aa12a12b6def7cce4bdd",
+        "trend_report": "2953fcea21981bacdf6db59264d897311f8a2025ea398d9190fcb9e26077d1fc"
+      }
+    },
+    {
+      "date": "2026-09-17",
+      "status": "PARTIAL_V2",
+      "coverage": {
+        "date": "2026-09-17",
+        "raw": true,
+        "manifest": true,
+        "clean": true,
+        "classification": true,
+        "events": true,
+        "trend_snapshot": true,
+        "trend_version": "trend_v1",
+        "audit_bundle": true,
+        "daily_health": true,
+        "market_report": true,
+        "weekly_dependencies": true,
+        "coverage_status": "CAN_REPLAY_V2",
+        "missing_inputs": []
+      },
+      "reasons": [
+        "LEGACY_DETAIL_FAILURE_IDENTITIES_UNAVAILABLE"
+      ],
+      "validation": {
+        "confirmed_active": 1625,
+        "unknown_inventory": 2,
+        "observed_inventory": 1627,
+        "explicit_unknown_rows": 1,
+        "unattributed_legacy_unknown": 1,
+        "unknown_flows": {
+          "unknown_new_jobs": 1,
+          "unknown_removed_jobs": 0,
+          "unknown_reappeared_jobs": 0,
+          "unknown_updated_jobs": 0
+        }
+      },
+      "source_historical_date": "2026-09-17",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": "trend_v2",
+      "replay_generated_at": "2026-09-18T07:42:40+00:00",
+      "input_sha256": {
+        "raw": "25c214b1bf4c949fb0b22064fa0a810e7de477d2077e17ab9e078db2461f110e",
+        "manifest": "79633014e8b18b7255504312ee9495ff91927b22466343fd93b029148dc3cf51",
+        "clean": "1e06bb076baf562b9f7c3c2983e4d166546696094fde9290950d52a3e04c0c02"
+      },
+      "before_artifact_sha256": {
+        "classification": "c36103b844aa5d58f75f0377e432a05735d55734dbd179a5954723df5e2186b9",
+        "events": "aee9faeea4fc34eecd4ed09d4bf6f9aa7e2a365e060fcbf35546d3f698669114",
+        "trend_snapshot": "bbb0428703b004a00c8745a7a81ff3e9b72cc520f9c80f02f3e6876db2e2a0f6",
+        "audit": "ce5c8ef2c03a1dbc4b70309a1a9f4411792bc33a9b2ed658b55691727efd50ce",
+        "trend_report": "b9dfb93d2dd00a4e9492b6c4fc75a985d45709da276a8d2cf00526959ff06872"
+      },
+      "after_artifact_sha256": {
+        "classification": "1742ff75614edb3d5aba1f259fd827e393bf00aabefe16a0ef9273f4f6c48f62",
+        "events": "aee9faeea4fc34eecd4ed09d4bf6f9aa7e2a365e060fcbf35546d3f698669114",
+        "trend_snapshot": "f7de8746bdae4285891387c0453da5a282fddbda6d6f09b4fec3e79adf412849",
+        "audit": "d996856c2202515e97a39b8ffa41f9241ced7151341ee35725bdbc89e8249c36",
+        "trend_report": "e1c87542c00ab4f672bef5b1c64c8db63647b683482529b0f751ec1d15c27412"
+      }
+    },
+    {
+      "date": "2026-09-18",
+      "status": "PARTIAL_V2",
+      "coverage": {
+        "date": "2026-09-18",
+        "raw": true,
+        "manifest": true,
+        "clean": true,
+        "classification": true,
+        "events": true,
+        "trend_snapshot": true,
+        "trend_version": "trend_v1",
+        "audit_bundle": true,
+        "daily_health": true,
+        "market_report": false,
+        "weekly_dependencies": true,
+        "coverage_status": "CAN_REPLAY_V2",
+        "missing_inputs": []
+      },
+      "reasons": [
+        "LEGACY_DETAIL_FAILURE_IDENTITIES_UNAVAILABLE"
+      ],
+      "validation": {
+        "confirmed_active": 1638,
+        "unknown_inventory": 1,
+        "observed_inventory": 1639,
+        "explicit_unknown_rows": 0,
+        "unattributed_legacy_unknown": 1,
+        "unknown_flows": {
+          "unknown_new_jobs": 0,
+          "unknown_removed_jobs": 0,
+          "unknown_reappeared_jobs": 0,
+          "unknown_updated_jobs": 0
+        }
+      },
+      "source_historical_date": "2026-09-18",
+      "taxonomy_sha": "4161514aed0a0a0cb471ed6d8f79175537c17b33",
+      "trend_version": "trend_v2",
+      "replay_generated_at": "2026-09-18T07:42:40+00:00",
+      "input_sha256": {
+        "raw": "b50e69034f1dfe330a24e7c91eaf04e990544d243e4547a88858e87ba0300afc",
+        "manifest": "97fb51910b4af8bfe08411688082ba4e9de006668995ad77eb2c34cba17ed7e3",
+        "clean": "8e5b7894f56dd265229ffc1f290c119132ca36d4f81c6bb6e520079b6d165279"
+      },
+      "before_artifact_sha256": {
+        "classification": "e2d269a8eee7daaea35be9748eaa6ede2bfdb2a25497a40d03b816fea896b871",
+        "events": "cfe847c831cc4df65a2e32fb5a365db75acf4c646cb5b904e19b0d1a45cb1a03",
+        "trend_snapshot": "665e96ea7f1d4932bf953648f4a1df55655a17f83b58965cba0af2173eb7a72e",
+        "audit": "b19e212707822e798853acd08131bc49f72de1f2f999d998b000e5ce010f0a0e",
+        "trend_report": null
+      },
+      "after_artifact_sha256": {
+        "classification": "e2d269a8eee7daaea35be9748eaa6ede2bfdb2a25497a40d03b816fea896b871",
+        "events": "cfe847c831cc4df65a2e32fb5a365db75acf4c646cb5b904e19b0d1a45cb1a03",
+        "trend_snapshot": "0113ea9c60ed2624c87ebf2801c4f22082e55c0fe404b7d2111d01f7b44de4b7",
+        "audit": "35e98a1b7efa39a4d720b315a772db8aa6f090573063494cac69af41604c9966",
+        "trend_report": "ab408af9147dcaef34a2960d4d86f59b75b0239009d98ffe91ae13fdb7dc13d2"
+      }
+    }
+  ],
+  "before_after": {
+    "tencent_2026_09_17": {
+      "before_v1": {
+        "confirmed_active": 127,
+        "unknown": 0,
+        "observed": 127,
+        "confirmed_new": 3,
+        "unknown_new": 0,
+        "inventory_reliable": false,
+        "presence_flow_reliable": false,
+        "content_flow_reliable": false
+      },
+      "after_v2": {
+        "confirmed_active": 127,
+        "unknown": 1,
+        "observed": 128,
+        "confirmed_new": 3,
+        "unknown_new": 1,
+        "inventory_reliable": true,
+        "presence_flow_reliable": true,
+        "content_flow_reliable": true
+      }
+    },
+    "meituan_severe": {
+      "2026-07-07": {
+        "passed": true,
+        "confirmed": 121,
+        "unknown": 1194,
+        "observed": 1315,
+        "career_pool_sum": 121,
+        "skill_categories": 16
+      },
+      "2026-09-07": {
+        "passed": true,
+        "confirmed": 147,
+        "unknown": 829,
+        "observed": 976,
+        "career_pool_sum": 147,
+        "skill_categories": 16
+      }
+    },
+    "didi_2026_09_04": {
+      "after_v2": {
+        "confirmed_active": 43,
+        "unknown": 9,
+        "observed": 52,
+        "inventory_reliable": false,
+        "presence_flow_reliable": false,
+        "content_flow_reliable": true,
+        "inventory_reason_codes": [
+          "LIST_RECORDS_INCOMPLETE",
+          "SOURCE_PRESENCE_UNRELIABLE"
+        ],
+        "presence_flow_reason_codes": [
+          "LIST_RECORDS_INCOMPLETE",
+          "SOURCE_PRESENCE_UNRELIABLE"
+        ]
+      }
+    }
+  }
+}
