@@ -7,6 +7,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
 from typing import Any
 
+import httpx
+
 from src.base import RawCollector
 from src.models import (
     CollectionManifest,
@@ -123,7 +125,14 @@ class TencentRawCollector(RawCollector):
                         try:
                             self._apply_detail(job, future.result())
                             manifest.details_fetched += 1
-                        except Exception:
+                        except Exception as exc:
+                            # Fixed type buckets only: no messages, URLs, headers or response bodies.
+                            error_type = next((kind.__name__ for kind in (
+                                httpx.TimeoutException, TimeoutError, httpx.HTTPStatusError,
+                                httpx.RequestError, ValueError, TypeError, KeyError, RuntimeError,
+                            ) if isinstance(exc, kind)), "Exception")
+                            counts = manifest.metadata.setdefault("detail_error_types", {})
+                            counts[error_type] = counts.get(error_type, 0) + 1
                             manifest.detail_failed += 1
                             manifest.detail_failed_job_ids.append(job.job_id)
                         detail_done += 1

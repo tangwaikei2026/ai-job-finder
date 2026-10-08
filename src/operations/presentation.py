@@ -20,6 +20,7 @@ def _platform_label(value: str) -> str:
         'didi': '滴滴',
         'feishu': '飞书',
         'jd': '京东',
+        'meituan': '美团',
         'netease': '网易',
         'quark': '夸克',
         'tencent': '腾讯',
@@ -159,6 +160,22 @@ def build_presentation(machine: Mapping[str, Any]) -> HumanPresentation:
             '命令：\n'
             'venv/bin/python tools/opsctl.py incident --latest --format gpt'
         )
+
+    warning_rows = (machine.get('source_summary') or {}).get('warnings', [])
+    if warning_rows:
+        lines = []
+        for warning in warning_rows:
+            name = _platform_label(str(warning['platform']))
+            count = warning.get('detail_failed')
+            detail = f'{count} 条岗位详情采集失败' if count is not None else '详情缺口数量待核验'
+            lines.append(f'- {name}：{detail}。')
+        body = body.replace('没有发现新的异常。', '存在少量可容忍的详情缺口。')
+        body = body.replace('系统没有发现新的异常，也没有执行额外的全量重跑。',
+                            '存在少量可容忍的详情缺口，没有执行额外的全量重跑。')
+        body += '\n\nWarning｜可容忍的详情缺口\n' + '\n'.join(lines)
+        body += '\n这些详情缺口无需人工处理；相关岗位已保留，详情仍待核验。'
+        if outcome in {'ACTION_REQUIRED', 'TECHNICAL_FAILURE'}:
+            body += '\n上面的严重告警仍需按原提示处理。'
 
     return HumanPresentation(
         run_date=run_date,

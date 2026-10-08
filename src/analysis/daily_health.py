@@ -1,4 +1,4 @@
-"""Deterministic Daily Health V1 interpretation over existing artifacts."""
+"""Deterministic Daily Health interpretation over existing artifacts."""
 from __future__ import annotations
 
 import argparse
@@ -7,6 +7,8 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
+import yaml
+
 from src.analysis.ai_eval_jobs import load_jobs
 from src.analysis.known_limitations import DEFAULT_REGISTRY, load_known_limitations
 from src.analysis.lifecycle import index_jobs
@@ -14,7 +16,8 @@ from src.analysis.source_health import SourceHealth
 from src.models import write_json_atomic
 
 
-HEALTH_CONTRACT_VERSION = 1
+HEALTH_CONTRACT_VERSION = 2
+DEFAULT_DETAIL_TOLERANCE = Path(__file__).resolve().parents[2] / 'configs/analysis/detail_tolerance.yaml'
 TECHNICAL_RUN_HEALTHS = frozenset({'SUCCESS', 'FAILED'})
 SOURCE_COMPLETENESS_VALUES = frozenset({'COMPLETE', 'PARTIAL', 'UNKNOWN'})
 LIMITATION_STATES = frozenset({'NORMAL', 'KNOWN_LIMITATION', 'NEW_REGRESSION'})
@@ -34,6 +37,19 @@ class DailyHealthError(ValueError):
 
 def _fail(code: str) -> None:
     raise DailyHealthError(code)
+
+
+def _load_detail_tolerance(path: Path) -> dict[str, Any]:
+    try:
+        policy = yaml.safe_load(Path(path).read_text(encoding='utf-8'))
+    except (OSError, yaml.YAMLError) as exc:
+        raise DailyHealthError('INVALID_DETAIL_TOLERANCE_POLICY') from exc
+    if (not isinstance(policy, dict) or set(policy) != {'max_failed', 'max_failure_rate'}
+            or type(policy['max_failed']) is not int or policy['max_failed'] < 0
+            or type(policy['max_failure_rate']) not in (int, float)
+            or not 0 <= policy['max_failure_rate'] <= 1):
+        _fail('INVALID_DETAIL_TOLERANCE_POLICY')
+    return policy
 
 
 def _mapping(value: Any, code: str) -> Mapping[str, Any]:
@@ -309,6 +325,7 @@ def build_daily_health(
     jobs: Sequence[Mapping[str, Any]],
     *,
     registry_path: Path = DEFAULT_REGISTRY,
+    detail_tolerance_path: Path = DEFAULT_DETAIL_TOLERANCE,
 ) -> dict[str, Any]:
     """Build the deterministic semantic body; this function performs no writes."""
     try:
@@ -323,6 +340,8 @@ def build_daily_health(
     except ValueError as exc:
         raise DailyHealthError(str(exc)) from exc
     source_health = _resolve_source_health(manifest, validated_jobs, rows)
+    tolerance = _load_detail_tolerance(detail_tolerance_path)
+    observation_health = SourceHealth(manifest, validated_jobs)
     sources = {}
     for row in sorted(rows, key=lambda value: str(value['platform'])):
         platform = str(row['platform'])
@@ -330,6 +349,17 @@ def build_daily_health(
         limitation_state, matched, governance_reasons = _limitation_interpretation(
             run_date, row, completeness, source_health[platform], registry,
         )
+        warnings = []
+        if (row.get('stopped_by') == 'detail_errors'
+                and source_health[platform]['presence_reliable']
+                and source_health[platform]['content_reliable']
+                and not source_health[platform]['reason_codes']
+                and observation_health.tolerates_detail_gap(platform, **tolerance)):
+            # NORMAL is the existing no-human-action governance state, not a
+            # claim of strict completeness or reliable content for every job.
+            limitation_state, matched = 'NORMAL', None
+            warnings = ['TOLERATED_DETAIL_GAP']
+            governance_reasons = list(warnings)
         sources[platform] = {
             'source_status': row['status'],
             'source_complete': row['complete'],
@@ -345,6 +375,8 @@ def build_daily_health(
                 'reference': dict(matched['reference']),
             } if matched else None),
             'governance_reasons': governance_reasons,
+            'warnings': warnings,
+            'detail_failed': row.get('detail_failed'),
         }
     technical = derive_technical_run_health(run)
     action = (

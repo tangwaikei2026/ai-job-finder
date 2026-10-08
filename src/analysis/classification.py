@@ -48,6 +48,9 @@ def classify_record(day: str, job: Mapping[str, Any], health: Health,
             row['classification_status'] = 'carried_forward'
             row['reason_codes']['market'] = list(dict.fromkeys([
                 *row['reason_codes']['market'], 'CONTENT_CARRIED_FORWARD']))
+            if row['career_pool'] in {'P1', 'P2'}:
+                row['reason_codes']['fit'] = list(dict.fromkeys([
+                    *row['reason_codes']['fit'], 'DETAIL_VERIFICATION_REQUIRED']))
             if previous['versions']['fit'] != versions['fit']:
                 row['classification_status'] = 'review_required'
                 row['career_pool'] = None

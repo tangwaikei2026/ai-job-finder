@@ -1,0 +1,202 @@
+{
+  "provenance": "Frozen Daily Health V2 presentation projections; Tencent 1915/3 and Meituan 1825/1; mixed Feishu source from detail_gap_history.json. Normal and severe cases are synthetic controls.",
+  "cases": [
+    {
+      "name": "complete",
+      "run": {
+        "date": "2026-10-08",
+        "status": "SUCCESS",
+        "crawl": {
+          "status": "SUCCESS"
+        },
+        "clean": {
+          "status": "SUCCESS"
+        },
+        "analysis": {
+          "status": "SUCCESS"
+        }
+      },
+      "health": {
+        "date": "2026-10-08",
+        "health_contract_version": 2,
+        "registry_version": 1,
+        "runner_status": "SUCCESS",
+        "technical_run_health": "SUCCESS",
+        "overall_action": "NO_NEW_ACTION",
+        "sources": {
+          "meituan": {
+            "source_status": "success",
+            "source_complete": true,
+            "source_completeness": "COMPLETE",
+            "limitation_state": "NORMAL",
+            "matched_limitation_id": null,
+            "warnings": [],
+            "detail_failed": 0
+          },
+          "tencent": {
+            "source_status": "success",
+            "source_complete": true,
+            "source_completeness": "COMPLETE",
+            "limitation_state": "NORMAL",
+            "matched_limitation_id": null,
+            "warnings": [],
+            "detail_failed": 0
+          }
+        }
+      },
+      "ops_status": "HEALTHY"
+    },
+    {
+      "name": "detail_warning",
+      "run": {
+        "date": "2026-10-08",
+        "status": "DEGRADED",
+        "crawl": {
+          "status": "DEGRADED"
+        },
+        "clean": {
+          "status": "SUCCESS"
+        },
+        "analysis": {
+          "status": "SUCCESS"
+        }
+      },
+      "health": {
+        "date": "2026-10-08",
+        "health_contract_version": 2,
+        "registry_version": 1,
+        "runner_status": "DEGRADED",
+        "technical_run_health": "SUCCESS",
+        "overall_action": "NO_NEW_ACTION",
+        "sources": {
+          "meituan": {
+            "source_status": "partial",
+            "source_complete": false,
+            "source_completeness": "PARTIAL",
+            "limitation_state": "NORMAL",
+            "matched_limitation_id": null,
+            "warnings": [
+              "TOLERATED_DETAIL_GAP"
+            ],
+            "detail_failed": 1
+          },
+          "tencent": {
+            "source_status": "partial",
+            "source_complete": false,
+            "source_completeness": "PARTIAL",
+            "limitation_state": "NORMAL",
+            "matched_limitation_id": null,
+            "warnings": [
+              "TOLERATED_DETAIL_GAP"
+            ],
+            "detail_failed": 3
+          }
+        }
+      },
+      "ops_status": "HEALTHY"
+    },
+    {
+      "name": "mixed",
+      "run": {
+        "date": "2026-10-08",
+        "status": "DEGRADED",
+        "crawl": {
+          "status": "DEGRADED"
+        },
+        "clean": {
+          "status": "SUCCESS"
+        },
+        "analysis": {
+          "status": "SUCCESS"
+        }
+      },
+      "health": {
+        "date": "2026-10-08",
+        "health_contract_version": 2,
+        "registry_version": 1,
+        "runner_status": "DEGRADED",
+        "technical_run_health": "SUCCESS",
+        "overall_action": "ACTION_REQUIRED",
+        "sources": {
+          "feishu": {
+            "source_status": "partial",
+            "source_complete": false,
+            "source_completeness": "PARTIAL",
+            "limitation_state": "NEW_REGRESSION",
+            "matched_limitation_id": null,
+            "warnings": [],
+            "detail_failed": 0
+          },
+          "meituan": {
+            "source_status": "partial",
+            "source_complete": false,
+            "source_completeness": "PARTIAL",
+            "limitation_state": "NORMAL",
+            "matched_limitation_id": null,
+            "warnings": [
+              "TOLERATED_DETAIL_GAP"
+            ],
+            "detail_failed": 1
+          },
+          "tencent": {
+            "source_status": "partial",
+            "source_complete": false,
+            "source_completeness": "PARTIAL",
+            "limitation_state": "NORMAL",
+            "matched_limitation_id": null,
+            "warnings": [
+              "TOLERATED_DETAIL_GAP"
+            ],
+            "detail_failed": 3
+          }
+        }
+      },
+      "ops_status": "ACTION_REQUIRED"
+    },
+    {
+      "name": "severe",
+      "run": {
+        "date": "2026-10-08",
+        "status": "DEGRADED",
+        "crawl": {
+          "status": "DEGRADED"
+        },
+        "clean": {
+          "status": "SUCCESS"
+        },
+        "analysis": {
+          "status": "SUCCESS"
+        }
+      },
+      "health": {
+        "date": "2026-10-08",
+        "health_contract_version": 2,
+        "registry_version": 1,
+        "runner_status": "DEGRADED",
+        "technical_run_health": "SUCCESS",
+        "overall_action": "ACTION_REQUIRED",
+        "sources": {
+          "meituan": {
+            "source_status": "success",
+            "source_complete": true,
+            "source_completeness": "COMPLETE",
+            "limitation_state": "NORMAL",
+            "matched_limitation_id": null,
+            "warnings": [],
+            "detail_failed": 0
+          },
+          "tencent": {
+            "source_status": "partial",
+            "source_complete": false,
+            "source_completeness": "PARTIAL",
+            "limitation_state": "NEW_REGRESSION",
+            "matched_limitation_id": null,
+            "warnings": [],
+            "detail_failed": 39
+          }
+        }
+      },
+      "ops_status": "ACTION_REQUIRED"
+    }
+  ]
+}

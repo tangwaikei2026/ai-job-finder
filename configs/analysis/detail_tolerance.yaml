@@ -1,0 +1,4 @@
+# Uniform operational warning policy; never changes manifest completeness.
+# Denominator: all in-scope jobs, with a detail attempt accounted for per job.
+max_failed: 5
+max_failure_rate: 0.005

@@ -25,6 +25,7 @@ class Health:
 class SourceHealth:
     def __init__(self, manifest: Mapping[str, Any], jobs: Sequence[Mapping[str, Any]]):
         self.manifest = manifest
+        self.jobs = jobs
         self.platforms = {row['platform']: row for row in manifest.get('platforms', [])}
         self.counts = Counter(str(job.get('platform', '')) for job in jobs)
         self.companies: dict[str, set[str]] = {}
@@ -32,6 +33,50 @@ class SourceHealth:
             self.companies.setdefault(str(job.get('platform', '')), set()).add(str(job.get('company', '')))
         self.cities = tuple(sorted(manifest.get('cities', [])))
         self.global_mismatch = manifest.get('job_count') != len(jobs)
+
+    def tolerates_detail_gap(self, platform: str, *, max_failed: int,
+                             max_failure_rate: float) -> bool:
+        """Operational tolerance only; record reliability and coverage stay strict."""
+        row = self.platforms.get(platform, {})
+        if (row.get('status') != 'partial' or row.get('complete') is not False
+                or row.get('stopped_by') != 'detail_errors' or row.get('error') != ''
+                or row.get('failed_companies') != []):
+            return False
+        counters = ('source_total', 'expected_pages', 'pages_fetched', 'records_fetched',
+                    'jobs_mapped', 'jobs_in_scope', 'details_fetched', 'detail_failed',
+                    'duplicate_records', 'outside_city_scope', 'missing_job_id')
+        if any(type(row.get(key)) is not int or row[key] < 0 for key in counters):
+            return False
+        failed, total = row['detail_failed'], row['jobs_in_scope']
+        if not (0 < failed <= max_failed and total > 0 and failed / total <= max_failure_rate):
+            return False
+        if (row['expected_pages'] == 0 or row['pages_fetched'] < row['expected_pages']
+                or row['records_fetched'] != row['source_total'] or row['missing_job_id']
+                or row['jobs_mapped'] + row['duplicate_records'] != row['records_fetched']
+                or row['jobs_mapped'] != total + row['outside_city_scope']
+                or row['details_fetched'] + failed != total):
+            return False
+        metadata = row.get('metadata', {})
+        if (not isinstance(metadata, Mapping) or metadata.get('list_complete') is False
+                or metadata.get('list_error', False) is not False
+                or metadata.get('completeness_reasons')):
+            return False
+        failed_ids = row.get('detail_failed_job_ids')
+        if (not isinstance(failed_ids, list)
+                or any(not isinstance(value, str) or not value for value in failed_ids)
+                or len(failed_ids) != failed or len(set(failed_ids)) != failed):
+            return False
+        jobs = [job for job in self.jobs if job.get('platform') == platform]
+        ids = {str(job.get('job_id')) for job in jobs}
+        if len(ids) != total or not set(failed_ids).issubset(ids):
+            return False
+        for job in jobs:
+            health = self.resolve(platform, str(job.get('company', '')), job)
+            if not health.presence_reliable:
+                return False
+            if str(job.get('job_id')) not in failed_ids and not health.content_reliable:
+                return False
+        return True
 
     def failed_companies(self, platform: str) -> set[str]:
         row = self.platforms.get(platform, {})

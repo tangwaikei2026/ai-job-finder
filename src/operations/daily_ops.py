@@ -450,6 +450,7 @@ class DailyOperations:
         healthy: list[str] = []
         known: list[str] = []
         action: list[str] = []
+        warnings: list[dict[str, Any]] = []
         for platform, value in sorted(sources.items()):
             if not isinstance(value, Mapping):
                 raise DailyOperationsError(f'invalid Daily Health source: {platform}')
@@ -462,6 +463,16 @@ class DailyOperations:
                 action.append(platform)
             else:
                 raise DailyOperationsError(f'invalid limitation_state for {platform}')
+            warning_codes = value.get('warnings')
+            if ((isinstance(warning_codes, list) and 'TOLERATED_DETAIL_GAP' in warning_codes)
+                    or (state == 'NORMAL' and value.get('source_completeness') == 'PARTIAL')):
+                # A historical SQLite view retains PARTIAL even if its optional
+                # health evidence is unavailable. Never describe it as gap-free.
+                count = value.get('detail_failed')
+                warnings.append({
+                    'platform': platform,
+                    'detail_failed': count if type(count) is int and count > 0 else None,
+                })
         return {
             'healthy_count': len(healthy),
             'healthy': healthy,
@@ -469,6 +480,7 @@ class DailyOperations:
             'known_limitations': known,
             'action_required_count': len(action),
             'action_required': action,
+            'warnings': warnings,
         }
 
     @staticmethod
@@ -727,14 +739,37 @@ class DailyOperations:
                 'SELECT * FROM actions WHERE run_id=? ORDER BY action_id DESC LIMIT 1',
                 (row['run_id'],),
             ).fetchone()
-        source_summary = self._source_summary({
+        presentation_sources = {
             source['platform']: {
                 'source_completeness': source['source_completeness'],
                 'limitation_state': source['limitation_state'],
                 'matched_limitation_id': source['matched_limitation_id'],
             }
             for source in sources
-        })
+        }
+        # SQLite remains the owner of operational state. Read only the matching
+        # canonical Health artifact for presentation details that it does not store.
+        try:
+            health = _read_mapping(
+                self.data_dir / 'analysis' / 'health' / f'{row["run_date"]}.json',
+                'canonical Daily Health artifact',
+            )
+        except DailyOperationsError:
+            health = {}
+        if (health.get('date') == row['run_date']
+                and health.get('technical_run_health') == row['technical_run_health']
+                and health.get('overall_action') == row['overall_action']
+                and isinstance(health.get('sources'), Mapping)):
+            for platform, value in presentation_sources.items():
+                evidence = health['sources'].get(platform, {})
+                if (isinstance(evidence, Mapping)
+                        and evidence.get('limitation_state') == value['limitation_state']
+                        and evidence.get('source_completeness') == value['source_completeness']
+                        and isinstance(evidence.get('warnings'), list)
+                        and 'TOLERATED_DETAIL_GAP' in evidence['warnings']):
+                    value.update(warnings=['TOLERATED_DETAIL_GAP'],
+                                 detail_failed=evidence.get('detail_failed'))
+        source_summary = self._source_summary(presentation_sources)
         recovery = RecoveryOutcome().as_dict()
         if action is not None:
             recovery = {

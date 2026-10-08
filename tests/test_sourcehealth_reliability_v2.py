@@ -76,7 +76,7 @@ def test_tencent_2026_09_17_record_unknown_keeps_siblings_and_flows_usable():
     assert all(failed['career_pool'] != pool for pool in ('P1', 'P2', 'REF', 'X'))
 
 
-def test_tencent_detail_anomaly_remains_daily_action_but_data_is_usable():
+def test_tencent_small_detail_gap_is_warning_and_data_is_usable():
     day = '2026-09-17'
     run = json.loads((DATA / 'analysis' / 'runs' / f'{day}.json').read_text())
     manifest = json.loads((DATA / 'raw' / f'{day}_manifest.json').read_text())
@@ -87,8 +87,9 @@ def test_tencent_detail_anomaly_remains_daily_action_but_data_is_usable():
     assert tencent['source_health']['presence_reliable']
     assert tencent['source_health']['content_reliable']
     assert tencent['source_completeness'] == 'PARTIAL'
-    assert tencent['limitation_state'] == 'NEW_REGRESSION'
-    assert health['overall_action'] == 'ACTION_REQUIRED'
+    assert tencent['limitation_state'] == 'NORMAL'
+    assert tencent['warnings'] == ['TOLERATED_DETAIL_GAP']
+    assert health['overall_action'] == 'NO_NEW_ACTION'
 
 
 @pytest.mark.parametrize(('day', 'failed'), [
