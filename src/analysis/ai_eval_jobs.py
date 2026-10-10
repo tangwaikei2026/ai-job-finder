@@ -1099,10 +1099,15 @@ def analyze_jobs(
     input_path: Path,
     config_path: Path,
     generated_at: str | None = None,
+    canonical_selection: Mapping[tuple[str, str], Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    """Legacy exploratory analytics, or presentation of an already selected Canonical pool."""
     eligible = [job for job in jobs if _in_scope(job, scope)]
     selected_raw: list[tuple[Mapping[str, Any], dict[str, Any]]] = []
     for job in eligible:
+        if canonical_selection is not None:
+            selected_raw.append((job, canonical_selection[(_text(job['platform']), _text(job['job_id']))]))
+            continue
         evaluation = classify_body_primary_ai_evaluation(job)
         classification = evaluation["body_primary_ai_evaluation"]
         if classification["career_pool"] != "X":
@@ -1121,7 +1126,7 @@ def analyze_jobs(
             )
 
     excluded_jobs: list[dict[str, Any]] = []
-    for job in jobs:
+    for job in (jobs if canonical_selection is None else []):
         exclusion = explain_job_exclusion(job, scope=scope)
         if exclusion is None:
             continue
@@ -1154,7 +1159,7 @@ def analyze_jobs(
     raw_matches: list[dict[str, Any]] = []
     first_match_by_key: dict[tuple[str, ...], tuple[int, str]] = {}
     for match_number, (job, explanation) in enumerate(selected_raw, start=1):
-        key = _dedupe_key(job)
+        key = (_text(job['platform']), _text(job['job_id'])) if canonical_selection is not None else _dedupe_key(job)
         job_id = _text(job.get("job_id"))
         first_match = first_match_by_key.get(key)
         included_after_deduplication = first_match is None
@@ -1219,7 +1224,8 @@ def analyze_jobs(
     project_experience_matches: dict[str, list[str]] = {}
     matched_jobs: list[dict[str, Any]] = []
     for index, (job, cohort) in enumerate(selected, start=1):
-        explanation = explain_job_selection(job)
+        explanation = (canonical_selection[(_text(job['platform']), _text(job['job_id']))]
+                       if canonical_selection is not None else explain_job_selection(job))
         if explanation is None:  # pragma: no cover - guarded by selected_raw
             raise AssertionError("selected job must have a positive career-pool classification")
         job_key = f"job-{index}"
@@ -1351,6 +1357,7 @@ def analyze_jobs(
 
     return {
         "manifest": {
+            "report_mode": "canonical_candidates" if canonical_selection is not None else "exploratory_noncanonical",
             "generated_at": generated_at
             or datetime.now().astimezone().isoformat(timespec="seconds"),
             "input_file": str(input_path),
@@ -1566,6 +1573,9 @@ def _markdown_company_table(rows: Iterable[Mapping[str, Any]]) -> str:
 
 
 def build_markdown_report(analysis: Mapping[str, Any]) -> str:
+    if analysis["manifest"].get("report_mode") == "canonical_candidates":
+        from src.analysis.canonical_report import render_candidate_report
+        return render_candidate_report(analysis)
     manifest = analysis["manifest"]
     skills = analysis["skills"]
     requirements = analysis["requirements"]
@@ -1601,7 +1611,7 @@ def build_markdown_report(analysis: Mapping[str, Any]) -> str:
     company_table = _markdown_company_table(companies)
     missing_threshold = quality["missing_threshold_fields_in_selected_jobs"]
 
-    return f"""# AI 与 Agent 评测岗位热门技能报告
+    return f"""# AI 与 Agent 评测岗位探索报告（非正式候选）
 
 ## Executive Summary
 
@@ -1611,7 +1621,7 @@ def build_markdown_report(analysis: Mapping[str, Any]) -> str:
 
 ## 分析口径
 
-输入为 `{manifest['input_file']}`，公司范围沿用 `{manifest['config_file']}` 中 `enabled: true` 的平台配置。生产分类入口基于 title、description、requirements 判断角色、AI 关系、层级和岗位池，其中 description 的主要职责证据最强，requirements 只作支持。技能、专业和项目经验读取 `description + requirements`；城市读取 `city_norm`；学历优先读取 `education`，为空时从正文推断；工作经验读取 `experience`。除公司“占全部岗位”外，各分析占比的分母均为 {manifest['selected_job_count']} 个去重后的正例岗位；多城市、多专业和多项目主题可以重复计数，因此相关占比不可相加。公司“占全部岗位”的分母是配置范围内全部 {manifest['eligible_job_count']:,} 条岗位。
+输入为 `{manifest['input_file']}`，公司范围沿用 `{manifest['config_file']}` 中 `enabled: true` 的平台配置。探索分类入口基于 title、description、requirements 判断角色、AI 关系、层级和岗位池，其中 description 的主要职责证据最强，requirements 只作支持。技能、专业和项目经验读取 `description + requirements`；城市读取 `city_norm`；学历优先读取 `education`，为空时从正文推断；工作经验读取 `experience`。除公司“占全部岗位”外，各分析占比的分母均为 {manifest['selected_job_count']} 个去重后的正例岗位；多城市、多专业和多项目主题可以重复计数，因此相关占比不可相加。公司“占全部岗位”的分母是配置范围内全部 {manifest['eligible_job_count']:,} 条岗位。
 
 ### 岗位分层
 
@@ -1708,6 +1718,10 @@ def build_match_audit_markdown(analysis: Mapping[str, Any]) -> str:
         "X 排除。",
         "",
     ]
+    if manifest.get('report_mode') == 'canonical_candidates':
+        sections = ['# Canonical 深圳候选逐条明细', '',
+                    f"真实岗位数：{manifest['selected_job_count']}；展示分组数：{manifest['display_group_count']}。",
+                    '资格、分类及可靠性证据见同日 Canonical；每条身份均保留。', '']
     for row in analysis["raw_matches"]:
         duplicate_note = "保留进入汇总"
         if not row["included_after_content_deduplication"]:
@@ -1750,6 +1764,9 @@ def build_match_audit_markdown(analysis: Mapping[str, Any]) -> str:
 
 def build_exclusion_report_markdown(analysis: Mapping[str, Any]) -> str:
     """Build a compact audit report for every non-selected job."""
+    if analysis['manifest'].get('report_mode') == 'canonical_candidates':
+        return ('# Canonical 候选范围\n\n仅展示同日 Canonical 已确认的深圳 P1/P2。'
+                '未入选记录不由报告重新分类；REF/X、未决及 Market 排除以 Canonical 为准。\n')
     manifest = analysis["manifest"]
     quality = analysis["data_quality"]
     coverage = analysis["structured_field_coverage"]
@@ -1783,7 +1800,7 @@ def build_exclusion_report_markdown(analysis: Mapping[str, Any]) -> str:
 ## 结论
 
 - 输入文件实际包含 **{manifest['input_job_count']:,}** 条岗位；非空 `job_id` 为 {quality['nonempty_job_id_count']:,} 个，唯一 `job_id` 为 {quality['unique_nonempty_job_id_count']:,} 个。
-- 生产分类入口识别 P1/P2/REF 正例 **{manifest['selected_raw_count']:,}** 条，X 或配置范围外排除 **{manifest['excluded_job_count']:,}** 条。随后按规范化后的 title、description、requirements 做内容去重，得到 {manifest['selected_job_count']:,} 条。
+- 探索分类入口识别 P1/P2/REF 正例 **{manifest['selected_raw_count']:,}** 条，X 或配置范围外排除 **{manifest['excluded_job_count']:,}** 条。随后按规范化后的 title、description、requirements 做内容去重，得到 {manifest['selected_job_count']:,} 条。
 - 排除只表示岗位进入 X 或不在配置范围；它不表示岗位与 AI 行业无关。评测工程与边界算法岗可进入 P2，专家/负责人或人员管理岗可进入 REF。
 
 ## 排除原因分布
@@ -1861,24 +1878,37 @@ def run_analysis(
     config_path: Path = DEFAULT_CONFIG,
     output_dir: Path = DEFAULT_OUTPUT_DIR,
     generated_at: str | None = None,
+    canonical_path: Path | None = None,
+    exploratory: bool = False,
 ) -> tuple[Path, Path, dict[str, Any]]:
     input_path = resolve_input_path(
         input_path,
         analysis_date=analysis_date,
     )
     jobs = load_jobs(input_path)
-    scope = load_company_scope(config_path)
-    companies = configured_company_names(config_path, scope)
-    analysis = analyze_jobs(
-        jobs,
-        scope=scope,
-        configured_companies=companies,
-        input_path=input_path,
-        config_path=config_path,
-        generated_at=generated_at,
-    )
+    if exploratory:
+        if canonical_path is not None:
+            raise ValueError('EXPLORATORY_CANONICAL_CONFLICT')
+        scope = load_company_scope(config_path)
+        analysis = analyze_jobs(
+            jobs, scope=scope, configured_companies=configured_company_names(config_path, scope),
+            input_path=input_path, config_path=config_path, generated_at=generated_at,
+        )
+        analysis['manifest']['report_mode'] = 'exploratory_noncanonical'
+        stem = input_path.stem + '_exploratory'
+    else:
+        # Local import keeps Canonical's shared classifier imports acyclic.
+        from src.analysis.canonical_report import analyze_canonical_candidates
+        day = _date_arg(analysis_date or input_path.stem)
+        if input_path.stem != day:
+            raise ValueError('CANONICAL_CLEAN_DATE_MISMATCH')
+        canonical_path = canonical_path or input_path.parent.parent / 'analysis' / 'classification' / f'{day}.jsonl'
+        analysis = analyze_canonical_candidates(
+            jobs, day=day, canonical_path=canonical_path, input_path=input_path,
+            config_path=config_path, generated_at=generated_at,
+        )
+        stem = day
 
-    stem = input_path.stem
     json_path = output_dir / f"{stem}_ai_eval_analysis.json"
     report_path = output_dir / f"{stem}_ai_eval_report.md"
     raw_matches_jsonl_path = output_dir / f"{stem}_ai_eval_hits.jsonl"
@@ -1944,6 +1974,8 @@ def build_parser() -> argparse.ArgumentParser:
         type=_date_arg,
         help="clean snapshot date in YYYY-MM-DD; defaults to today's Asia/Shanghai date",
     )
+    parser.add_argument("--canonical", type=Path, help="Same-date Canonical classification JSONL")
+    parser.add_argument("--exploratory", action="store_true", help="Noncanonical exploration; separate output names")
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument(
@@ -1961,11 +1993,13 @@ def main() -> None:
         analysis_date=args.analysis_date,
         config_path=args.config,
         output_dir=args.output_dir,
+        canonical_path=args.canonical,
+        exploratory=args.exploratory,
     )
     manifest = analysis["manifest"]
     print(
         f"Analyzed {manifest['eligible_job_count']} eligible jobs; "
-        f"selected {manifest['selected_job_count']} deduplicated jobs"
+        f"selected {manifest['selected_job_count']} jobs"
     )
     print(f"Wrote {json_path}")
     print(f"Wrote {report_path}")

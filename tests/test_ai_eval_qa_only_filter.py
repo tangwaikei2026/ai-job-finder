@@ -226,6 +226,7 @@ def test_jobs_deduplicate_only_by_normalized_three_field_content(
 
     _, _, analysis = run_analysis(
         input_path,
+        exploratory=True,
         config_path=CONFIG_PATH,
         output_dir=tmp_path / "output",
     )

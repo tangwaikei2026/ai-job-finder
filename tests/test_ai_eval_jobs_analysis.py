@@ -97,6 +97,7 @@ def test_run_analysis_selects_extracts_and_respects_company_scope(
 
     json_path, report_path, analysis = run_analysis(
         input_path,
+        exploratory=True,
         config_path=config_path,
         output_dir=tmp_path / "output",
         generated_at="2026-08-20T10:00:00+08:00",
@@ -208,6 +209,7 @@ def test_run_analysis_deduplicates_by_content(tmp_path: Path) -> None:
 
     _, _, analysis = run_analysis(
         input_path,
+        exploratory=True,
         config_path=config_path,
         output_dir=tmp_path / "output",
     )
@@ -245,6 +247,7 @@ def test_run_analysis_records_missing_source_fields(tmp_path: Path) -> None:
 
     _, _, analysis = run_analysis(
         input_path,
+        exploratory=True,
         config_path=config_path,
         output_dir=tmp_path / "output",
     )
@@ -291,6 +294,7 @@ def test_education_prefers_structured_value_then_falls_back_to_text(
 
     _, _, analysis = run_analysis(
         input_path,
+        exploratory=True,
         config_path=config_path,
         output_dir=tmp_path / "output",
     )
@@ -414,6 +418,7 @@ def test_run_analysis_accounts_for_each_exclusion_reason(tmp_path: Path) -> None
 
     _, _, analysis = run_analysis(
         input_path,
+        exploratory=True,
         config_path=config_path,
         output_dir=tmp_path / "output",
     )
