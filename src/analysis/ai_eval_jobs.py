@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
+from src.analysis.candidate_city import match_shenzhen_candidate, select_shenzhen_candidates
 from src.analysis.occupational_signals import (
     product_management_evidence, security_specialist_evidence,
 )
@@ -1011,6 +1012,7 @@ def explain_job_selection(job: Mapping[str, Any]) -> dict[str, Any] | None:
         return None
     return {
         **classification,
+        "candidate_city_match": match_shenzhen_candidate(job),
         "cohort": classification["ai_relation"],
         "rule_id": evaluation["rule_id"],
         "reason": evaluation["reason"],
@@ -1262,6 +1264,8 @@ def analyze_jobs(
                 "skill_matches": skills,
                 "requirement_matches": requirements,
                 "city_norm": cities,
+                "location": job.get("location", ""),
+                "candidate_city_match": explanation["candidate_city_match"],
                 "education": _text(job.get("education")),
                 "experience": _text(job.get("experience")),
                 "major_matches": majors,
@@ -1529,6 +1533,7 @@ def analyze_jobs(
         "raw_matches": raw_matches,
         "excluded_jobs": excluded_jobs,
         "matched_jobs": matched_jobs,
+        "shenzhen_candidates": select_shenzhen_candidates(matched_jobs),
     }
 
 
