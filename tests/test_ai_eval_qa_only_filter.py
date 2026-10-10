@@ -149,14 +149,14 @@ def test_production_entrypoint_runs_all_117_frozen_cases() -> None:
         "reason_codes": 0,
     }
     assert report["career_pool_confusion"] == {
-        "P1": {"P1": 66, "P2": 0, "REF": 0, "X": 0},
+        "P1": {"P1": 65, "P2": 0, "REF": 0, "X": 0},
         "P2": {"P1": 0, "P2": 18, "REF": 0, "X": 0},
         "REF": {"P1": 0, "P2": 0, "REF": 12, "X": 0},
-        "X": {"P1": 0, "P2": 0, "REF": 0, "X": 21},
+        "X": {"P1": 0, "P2": 0, "REF": 0, "X": 22},
     }
     assert report["positive_negative_confusion"] == {
-        "positive": {"positive": 96, "negative": 0},
-        "negative": {"positive": 0, "negative": 21},
+        "positive": {"positive": 95, "negative": 0},
+        "negative": {"positive": 0, "negative": 22},
     }
     assert report["failures"] == []
     assert all(

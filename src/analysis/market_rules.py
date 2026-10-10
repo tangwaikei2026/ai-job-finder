@@ -8,6 +8,8 @@ from __future__ import annotations
 import re
 from typing import Any, Mapping
 
+from src.analysis.occupational_signals import product_management_evidence
+
 ROLE_FAMILIES = frozenset({'qa_test', 'quality_engineering', 'evaluation_engineering',
     'algorithm_research', 'development', 'product', 'operations', 'domain_expert'})
 AI_RELATIONS = frozenset({'core_ai_evaluation', 'ai_product_quality', 'ai_for_testing'})
@@ -34,7 +36,7 @@ TEST_METHOD = pattern(r'(?:AI|LLM|大模型|Agent).{0,70}(?:测试提效|提升�
 PRODUCT_OBJECT = pattern(r'(?:AI|人工智能|大模型|LLM|(?<!测试)Agent|智能体)\s*'
     r'(?:(?:原生|Native|软件|等|的|相关|相关的)\s*)?(?:产品|工作台|应用|业务|助手|服务|模块|质量保障|能力及\s*SaaS\s*产品)|'
     r'(?:Prompt|Agent|Chain)(?:[/、](?:Prompt|Agent|Chain))+(?:等)?相关模块|'
-    r'(?:业务质量|产品评测|负责.{0,12}评测能力).{0,30}(?:Agent|AIGC)|智能助手|模型服务|MaaS|大模型相关的评测工作')
+    r'(?:业务质量|产品评测|负责.{0,12}评测能力).{0,30}(?:Agent|AIGC)|智能助手|模型服务|MaaS|大模型相关的评测工作|大模型生产平台(?:的)?(?:质量保障|测试)')
 PRODUCT_TITLE = pattern(r'大模型|LLM|多模态测试|Agent.{0,8}(?:产品|质量)|智能助手|手机助手|MaaS|基模生产平台|AI应用|AI产品')
 QUALITY_TITLE = pattern(r'测试开发|测开|测试专家|测试架构|质量工程|质量保障|质量效能|质量架构|质效|工具质量|Agent质量|可观测性工程师')
 QA_TITLE = pattern(r'测试工程师|软件测试|(?<![A-Za-z])QA(?![A-Za-z])|\bSDET\b|\btest engineer\b')
@@ -118,7 +120,8 @@ def classify(job: Mapping[str, str], *, seniority: str) -> dict[str, Any]:
         validate_market_output(result)
         return result
 
-    if re.search(r'产品.{0,8}(?:经理|负责人|专家)|Product Manager',title,re.I):
+    product_evidence = product_management_evidence(job)
+    if product_evidence or re.search(r'产品.{0,8}(?:经理|负责人|专家)|Product Manager',title,re.I):
         role='product'
     elif re.search(r'运营',title):
         role='operations'
@@ -203,5 +206,8 @@ def classify(job: Mapping[str, str], *, seniority: str) -> dict[str, Any]:
     result['evidence']['title']=[title] if title else []
     result['evidence']['description']=sorted(set(eval_duties+quality_duties+quality_systems+methods+infra))
     result['evidence']['requirements']=[s for s in clauses(req) if QA_REQUIREMENT.search(s) or EVAL_PROFESSION.search(s)]
+    if product_evidence:
+        result['evidence']['description'] = sorted(set(result['evidence']['description'] + [s for s in product_evidence if s in duties]))
+        result['evidence']['requirements'] = sorted(set(result['evidence']['requirements'] + [s for s in product_evidence if s in clauses(req)]))
     validate_market_output(result)
     return result

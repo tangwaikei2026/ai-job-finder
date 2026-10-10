@@ -25,6 +25,9 @@ def _historical_observation(day: str) -> dict:
     jobs = json.loads((DATA / 'clean' / f'{day}.json').read_text(encoding='utf-8'))
     manifest = json.loads((DATA / 'raw' / f'{day}_manifest.json').read_text(encoding='utf-8'))
     classifications = _jsonl(DATA / 'analysis' / 'classification' / f'{day}.jsonl')
+    # Historical rows retain their own contract version after a Fit upgrade.
+    versions = dict(classifications[0]['versions'])
+    assert all(row['versions'] == versions for row in classifications)
     events = _jsonl(DATA / 'analysis' / 'events' / f'{day}.jsonl')
     health = SourceHealth(manifest, jobs)
     classified = {identity(row) for row in classifications}
@@ -35,14 +38,14 @@ def _historical_observation(day: str) -> dict:
         resolved = health.resolve(key[0], str(job.get('company', '')), job)
         if resolved.content_reliable:
             continue
-        row, _ = classify_record(day, job, resolved, VERSIONS)
+        row, _ = classify_record(day, job, resolved, versions)
         if row is not None:
             classifications.append(row)
     return {
         'date': day,
         'classifications': classifications,
         'events': events,
-        'versions': dict(VERSIONS),
+        'versions': versions,
         'health': health,
         'present_keys': {identity(job) for job in jobs},
         'jobs_by_identity': {identity(job): job for job in jobs},

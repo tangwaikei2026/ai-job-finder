@@ -14,6 +14,10 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
+from src.analysis.occupational_signals import (
+    product_management_evidence, security_specialist_evidence,
+)
+
 
 DEFAULT_CLEAN_DIR = Path("data/clean")
 DEFAULT_CONFIG = Path("config.yaml")
@@ -156,11 +160,11 @@ AI_FOR_TESTING_STRONG_PATTERN = re.compile(
 AI_PRODUCT_QUALITY_DUTY_PATTERN = re.compile(
     r"(?is)(?:(?:负责|保障|开展|覆盖|面向|结合).{0,28}"
     r"(?:AI\s*(?:产品|应用|工作台)|大模型产品|大模型业务|模型服务|"
-    r"基础模型生产平台|基模生产平台|Agent\s*(?:产品|服务|平台|运行链路)|"
+    r"基础模型生产平台|基模生产平台|大模型生产平台|Agent\s*(?:产品|服务|平台|运行链路)|"
     r"智能助手|MaaS|AIGC).{0,72}"
     r"(?:测试|质量保障|质量体系|质量|稳定性|可靠性|验收|验证)|"
     r"(?:AI\s*(?:产品|应用|工作台)|大模型产品|大模型业务|模型服务|"
-    r"基础模型生产平台|基模生产平台|Agent\s*(?:产品|服务|平台|运行链路)|"
+    r"基础模型生产平台|基模生产平台|大模型生产平台|Agent\s*(?:产品|服务|平台|运行链路)|"
     r"智能助手|MaaS|AIGC).{0,20}(?:全链路|端到端).{0,20}"
     r"(?:测试|质量|保障|验证)|"
     r"(?:AIGC|大模型|Agent|智能体|算法).{0,28}"
@@ -821,6 +825,9 @@ def _hard_domain_classification(job: Mapping[str, Any]) -> tuple[str | None, lis
         terms = _pattern_evidence(pattern, title)
         if terms:
             return reason_code, terms
+    security_evidence = security_specialist_evidence(classification_input(job))
+    if security_evidence:
+        return "domain_security", security_evidence
     return None, []
 
 
@@ -891,6 +898,9 @@ def classify_body_primary_ai_evaluation(
     job = classification_input(job)
     title = _text(job.get("title"))
     role_family, role_reason, role_terms = _role_classification(title)
+    product_evidence = product_management_evidence(job)
+    if product_evidence:
+        role_family, role_reason, role_terms = "product", "role_product", product_evidence
     if role_family == "qa_test" and MANAGEMENT_DUTY_PATTERN.search(
         _text(job.get("description"))
     ):
@@ -926,6 +936,9 @@ def classify_body_primary_ai_evaluation(
         "ai_primary_duty": ai_evidence,
         "hard_exclusions": hard_exclusion_evidence,
     }
+    if product_evidence:
+        evidence["role"] = {"field": "description", "text": job["description"],
+                            "terms": [s for s in product_evidence if s in job["description"]]}
     if career_pool != "X":
         reason = (
             f"三字段证据判定岗位主职能为 {role_family}；AI 关系为 "

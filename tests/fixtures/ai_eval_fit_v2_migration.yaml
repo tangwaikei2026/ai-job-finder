@@ -1,0 +1,23 @@
+version: fit_v2_regression_migration
+from_version: fit_v1
+to_version: fit_v2
+legacy_fixture: ai_eval_regression_set_v1_117_frozen.yaml
+legacy_fixture_sha256: fde907e4d40eb3d2cb43c64054cc1346e73e10a8b72f16e94535bf38647b075d
+authorization:
+  date: '2026-10-10'
+  source: user-approved Classification / Market / Clean targeted repair batch
+  decision: 安全业务是岗位主体时排除为X；附属权限、数据保护测试不排除。
+  approved_job_id: '2088194556695855104'
+migrations:
+  REG-fced04cbcd0cb744:
+    job_id: '2088194556695855104'
+    content_sha256: fced04cbcd0cb744816c6deb28828c33611fa3ce1ea74eb43126ab8d2b9e5a8d
+    evidence: 负责安全系统的测试工作
+    before:
+      ai_relation: ai_for_testing
+      career_pool: P1
+      reason_codes: []
+    after:
+      ai_relation: none
+      career_pool: X
+      reason_codes: [domain_security]

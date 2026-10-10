@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from collections import Counter
 from pathlib import Path
@@ -24,6 +25,7 @@ from src.analysis.ai_eval_jobs import (
 
 EXPECTED_CASE_COUNT = 117
 EXPECTED_POOL_DISTRIBUTION = {"P1": 66, "P2": 18, "REF": 12, "X": 21}
+FIT_MIGRATION = Path(__file__).resolve().parents[2] / 'tests/fixtures/ai_eval_fit_v2_migration.yaml'
 ASSERTION_FIELDS = (
     "role_family",
     "ai_relation",
@@ -232,8 +234,35 @@ def _actual_labels(case: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, A
     return actual, result
 
 
+def load_fit_migration(path: Path, cases, migration_path: Path = FIT_MIGRATION):
+    """Apply content-bound, approved deltas without rewriting the V1 snapshot."""
+    from tools.market_oracle_baseline import read_yaml
+
+    doc = read_yaml(migration_path)
+    if (doc.get('version') != 'fit_v2_regression_migration'
+            or doc.get('from_version') != 'fit_v1' or doc.get('to_version') != 'fit_v2'
+            or hashlib.sha256(path.read_bytes()).hexdigest() != doc.get('legacy_fixture_sha256')):
+        raise RegressionDataIntegrityError('fit migration source/version mismatch')
+    by_id = {case['case_id']: case for case in cases}
+    replacements = {}
+    for case_id, entry in doc['migrations'].items():
+        case = by_id.get(case_id)
+        if (case is None or entry['job_id'] != case['job_id']
+                or entry['job_id'] != doc['authorization']['approved_job_id']
+                or entry['content_sha256'] != case['content_sha256']
+                or job_content_sha256(case) != case['content_sha256']
+                or entry['evidence'] not in case['description']
+                or set(entry['before']) != set(entry['after'])
+                or not set(entry['after']) <= set(ASSERTION_FIELDS)
+                or any(case['expected_' + key] != value for key, value in entry['before'].items())):
+            raise RegressionDataIntegrityError('fit migration content/expectation mismatch')
+        replacements[case_id] = entry['after']
+    return replacements
+
+
 def run_frozen_regression(path: Path) -> dict[str, Any]:
     cases = load_frozen_regression_cases(path)
+    fit_migrations = load_fit_migration(path, cases)
     field_errors: Counter[str] = Counter()
     pool_confusion: Counter[tuple[str, str]] = Counter()
     binary_confusion: Counter[tuple[str, str]] = Counter()
@@ -248,6 +277,7 @@ def run_frozen_regression(path: Path) -> dict[str, Any]:
             field: case[f"expected_{field}"]
             for field in ASSERTION_FIELDS
         }
+        expected.update(fit_migrations.get(case['case_id'], {}))
         differences = {
             field: {"expected": expected[field], "actual": actual[field]}
             for field in ASSERTION_FIELDS
@@ -296,6 +326,8 @@ def run_frozen_regression(path: Path) -> dict[str, Any]:
     ]
     return {
         "regression_file": str(path),
+        "fit_migration": str(FIT_MIGRATION),
+        "migrated_cases": sorted(fit_migrations),
         "production_entrypoint": (
             "src.analysis.ai_eval_jobs.classify_body_primary_ai_evaluation"
         ),
@@ -398,6 +430,7 @@ def run_split_regression(path: Path, expectations_path: Path, *, suite="both") -
     if suite not in {"both", "market", "fit"}:
         raise ValueError("unknown split suite")
     cases = load_frozen_regression_cases(path)
+    fit_migrations = load_fit_migration(path, cases) if suite != 'market' else {}
     expectations, migrations, oracle = load_market_migration(expectations_path, cases)
     reason_by_case = {}
     for code, ids in expectations["market_reason_cases"].items():
@@ -427,8 +460,9 @@ def run_split_regression(path: Path, expectations_path: Path, *, suite="both") -
         evaluations = [("market", expected, actual_market)] if "market" in reports else []
         if "fit" in reports and market["in_scope"]:
             fit = classify_personal_fit(case, market)
-            evaluations.append(("fit", {"career_pool": case["expected_career_pool"],
-                                        "fit_reason_codes": case["expected_reason_codes"]}, fit))
+            fit_expected = fit_migrations.get(case_id, {})
+            evaluations.append(("fit", {"career_pool": fit_expected.get('career_pool', case["expected_career_pool"]),
+                                        "fit_reason_codes": fit_expected.get('reason_codes', case["expected_reason_codes"])}, fit))
         for name, wanted, actual in evaluations:
             differences = {key: {"expected": value, "actual": actual[key]}
                            for key, value in wanted.items() if actual[key] != value}

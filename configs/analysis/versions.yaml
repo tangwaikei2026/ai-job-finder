@@ -1,5 +1,5 @@
 market_classifier_version: market_v1
-fit_classifier_version: fit_v1
+fit_classifier_version: fit_v2
 skill_ontology_version: skills_v1
 trend:
   version: trend_v2
