@@ -1,29 +1,25 @@
 # Codex 全局执行规则：每个批次都必须遵守
 
-## 项目与当前范围
+## 项目与范围
 
-- 当前项目：`tangwaikei2026/ai-job-finder`
-- 目标：围绕 `src` 建立稳定采集主路径，并逐步平滑去掉旧路径代码。
-- 保留 raw 层现有约束；
-- 明确 clean_mvp 分支允许修改 src/clean、src/analysis、
-     configs/normalization 和对应 tests；
-- clean/analysis 不得修改 raw collector 行为。
+- 当前项目：`tangwaikei2026/ai-job-finder`。
+- 当前结构、生产主链路与证据边界见 [工程工作手册](docs/workbook.md#生产主链路与业务契约)；验证方法见 [测试策略](docs/test_strategy.md)。这些说明不授予额外执行权限。
+- 迁移背景：原目标是围绕 `src` 建立稳定采集主路径、逐步去掉旧路径；当前旧 `src.raw` namespace 已移除，见 `tests/migration/test_migration_contract.py`。
+- 历史分支约定：`clean_mvp` 允许修改 `src/clean`、`src/analysis`、`configs/normalization` 和对应 tests。此处保留该约定，不将其当作当前批次的修改清单或其他分支的新增授权。
+- 每批修改范围以用户当前任务为准，不主动扩大；保留 raw 层现有约束，clean/analysis 不得修改 raw collector 行为。
 
 ## 总原则
 
-1. 每次只执行用户给出的当前批次任务。
-2. 不允许一次性完成后续批次。
-3. 当前批次完成后必须停止，等待用户确认。
-4. 不主动扩大修改范围。
-5. 默认不真实访问招聘网站；只有满足下文 `Explicit Production Execution Exception`
+1. 每次只执行用户给出的当前批次任务，不主动扩大修改范围；批次完成后的停止要求见文末。
+2. 默认不真实访问招聘网站；只有满足下文 `Explicit Production Execution Exception`
    的明确 production execution 才可例外。
-6. 不修改业务过滤逻辑，除非当前批次明确要求。
-7. 不修改 README。
-8. 不修改数据库写入逻辑。
-9. 不修改 diff 逻辑。
-10. 不修改通知逻辑。
-11. 不提交 commit，除非用户明确要求。
-12. 如果发现当前代码结构和任务假设不一致，先说明差异，再给出最小修改方案，不强行大改。
+3. 不修改业务过滤逻辑，除非当前批次明确要求。
+4. 不修改 README。
+5. 不修改数据库写入逻辑。
+6. 不修改 diff 逻辑。
+7. 不修改通知逻辑。
+8. 不提交 commit，除非用户明确要求。
+9. 如果发现当前代码结构和任务假设不一致，先说明差异，再给出最小修改方案，不强行大改。
 
 ## Explicit Production Execution Exception
 
@@ -84,11 +80,9 @@ recovery 时仍须遵守既有 recovery contract 和 policy。
 2. 每个文件为什么要改。
 3. 运行过哪些命令。
 4. 命令结果是否通过。
-5. `git status --short`。
-6. `git diff --stat`。
-7. 关键文件的 `git diff`。
-8. 是否存在风险或未解决问题。
-9. 明确写出：`本批次已完成，已停止，等待人工确认后再继续下一批次。`
+5. 工作区状态、diff 统计及关键文件 diff，命令与展示要求见下文「Diff 输出要求」。
+6. 是否存在风险或未解决问题。
+7. 明确写出：`本批次已完成，已停止，等待人工确认后再继续下一批次。`
 
 ## 每个批次的固定验收命令
 
@@ -127,6 +121,6 @@ git diff -- <file_path>
 
 ## 停止规则
 
-- 完成当前批次后，不继续下一批次。
+- 当前批次完成后必须停止，等待用户确认；不允许一次性完成后续批次。
 - 不说“我接下来会继续做”。
 - 必须停在当前批次验收结果。
