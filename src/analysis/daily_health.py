@@ -431,7 +431,8 @@ def generate_daily_health(
         jobs = load_jobs(data_dir / 'clean' / f'{run_date}.json')
     except (OSError, json.JSONDecodeError, ValueError) as exc:
         raise DailyHealthError(f'MISSING_OR_INVALID_CLEAN_OBSERVATION: {exc}') from exc
-    if 'invocation' in run or 'invocation' in manifest:
+    if ('invocation' in run or 'invocation' in manifest
+            or (data_dir / 'analysis' / 'audit' / f'{run_date}_invocation.json').exists()):
         from src.invocation import validate_analysis, validate_clock
         try:
             validate_clock(run['invocation'])

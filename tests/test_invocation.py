@@ -311,3 +311,26 @@ def test_failed_second_clean_preserves_previous_published_observation(execution)
     e['mutate']=corrupt
     assert e['run']()[0]==1
     assert all(p.read_bytes()==value for p,value in before.items())
+
+
+def test_partial_publication_cannot_fall_back_to_legacy_health(execution):
+    e=execution;assert e['run']()[0]==0
+    data=e['root']/'data'
+    for path in [data/f'raw/{DAY}_manifest.json',data/f'analysis/runs/{DAY}.json']:
+        value=read(path);value.pop('invocation');path.write_text(json.dumps(value))
+    with pytest.raises(DailyHealthError):generate_daily_health(DAY,data_dir=data)
+    with pytest.raises(ValueError,match='INVOCATION_ID_REQUIRED'):
+        replay(DAY,DAY,data_dir=data)
+
+
+def test_partial_publication_cannot_enter_legacy_history_warmup(execution, monkeypatch):
+    e=execution
+    monkeypatch.setattr(sys.modules[__name__],'DAY','2026-10-10')
+    e['finish']='2026-10-10T11:00:00+08:00';assert e['run']()[0]==0
+    path=e['root']/'data/raw/2026-10-10_manifest.json'
+    manifest=read(path);manifest.pop('invocation');path.write_text(json.dumps(manifest))
+    monkeypatch.setattr(sys.modules[__name__],'DAY','2026-10-11')
+    e['finish']='2026-10-11T11:00:00+08:00'
+    code,_,status=e['run']()
+    assert code==1 and status['analysis']['status']=='FAILED'
+    assert not (e['root']/'data/raw/2026-10-11.json').exists()

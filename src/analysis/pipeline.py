@@ -57,7 +57,8 @@ def replay(start, end, *, data_dir=Path('data'), output_dir=None, settings_path=
     current_manifest_path = raw_dir / f'{start}_manifest.json'
     if invocation_id is None and start == end and current_manifest_path.exists():
         current_manifest = json.loads(current_manifest_path.read_text(encoding='utf-8'))
-        if 'invocation' in current_manifest:
+        if ('invocation' in current_manifest
+                or (data_dir / 'analysis' / 'audit' / f'{start}_invocation.json').exists()):
             raise ValueError('INVOCATION_ID_REQUIRED')
     if invocation_id is not None:
         # Gate the incoming Daily observation before any warmup or output writes.
@@ -95,10 +96,11 @@ def replay(start, end, *, data_dir=Path('data'), output_dir=None, settings_path=
         # Exact duplicate identities are one posting; conflicting identities fail.
         jobs = list(indexed.values())
         manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-        if day < start and 'invocation' in manifest:
+        if day < start and ('invocation' in manifest or
+                            (data_dir / 'analysis' / 'audit' / f'{day}_invocation.json').exists()):
             from src.invocation import validate_analysis
             # A partially published modern observation cannot enter warmup.
-            validate_analysis(data_dir, day, manifest['invocation'].get('id', ''))
+            validate_analysis(data_dir, day, manifest.get('invocation', {}).get('id', ''))
         health = SourceHealth(manifest, jobs)
         # Trend-only historical integration reads the canonical event ledger.
         # It never regenerates lifecycle, classification files, or audit bundles.
