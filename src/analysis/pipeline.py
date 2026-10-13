@@ -44,7 +44,7 @@ def _dates(start, end):
 
 
 def replay(start, end, *, data_dir=Path('data'), output_dir=None, settings_path=DEFAULT_VERSION_CONFIG,
-           market_version=None, fit_version=None, trend_only=False):
+           market_version=None, fit_version=None, trend_only=False, invocation_id=None):
     if start > end:
         raise ValueError('from date must be <= to date')
     settings, versions = load_settings(settings_path)
@@ -54,6 +54,20 @@ def replay(start, end, *, data_dir=Path('data'), output_dir=None, settings_path=
     data_dir = Path(data_dir)
     output_dir = Path(output_dir) if output_dir is not None else data_dir / 'analysis'
     clean_dir, raw_dir = data_dir / 'clean', data_dir / 'raw'
+    current_manifest_path = raw_dir / f'{start}_manifest.json'
+    if invocation_id is None and start == end and current_manifest_path.exists():
+        current_manifest = json.loads(current_manifest_path.read_text(encoding='utf-8'))
+        if 'invocation' in current_manifest:
+            raise ValueError('INVOCATION_ID_REQUIRED')
+    if invocation_id is not None:
+        # Gate the incoming Daily observation before any warmup or output writes.
+        # Historical replay has no automatic provenance migration.
+        from src.invocation import validate_clean
+        if output_dir.resolve() != (data_dir / 'analysis').resolve():
+            raise ValueError('INVOCATION_OUTPUT_MUST_MATCH_DATA_ROOT')
+        if start != end or trend_only:
+            raise ValueError('INVOCATION_REQUIRES_SINGLE_DAILY_OBSERVATION')
+        validate_clean(data_dir, start, invocation_id)
     # Refuse configurations that could overwrite the input or legacy data layer.
     if any(output_dir.resolve() == path.resolve() or path.resolve() in output_dir.resolve().parents
            for path in (clean_dir, raw_dir)):
@@ -81,6 +95,10 @@ def replay(start, end, *, data_dir=Path('data'), output_dir=None, settings_path=
         # Exact duplicate identities are one posting; conflicting identities fail.
         jobs = list(indexed.values())
         manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+        if day < start and 'invocation' in manifest:
+            from src.invocation import validate_analysis
+            # A partially published modern observation cannot enter warmup.
+            validate_analysis(data_dir, day, manifest['invocation'].get('id', ''))
         health = SourceHealth(manifest, jobs)
         # Trend-only historical integration reads the canonical event ledger.
         # It never regenerates lifecycle, classification files, or audit bundles.
@@ -153,6 +171,11 @@ def replay(start, end, *, data_dir=Path('data'), output_dir=None, settings_path=
                   trend_data_comparable=trend_comparable)
     if summary and not trend_only:
         write_json_atomic(output_dir / 'audit' / f'{start}_{end}_replay.json', report)
+    if invocation_id is not None and report['historical_replay_verified']:
+        from src.invocation import analysis_proof, validate_clock
+        proof = analysis_proof(data_dir, start, invocation_id)
+        validate_clock(proof['invocation'])
+        write_json_atomic(output_dir / 'audit' / f'{start}_invocation.json', proof)
     return report
 
 
@@ -166,6 +189,7 @@ def main(argv=None):
         else:
             command.add_argument('--from', dest='start', required=True, type=date.fromisoformat)
             command.add_argument('--to', dest='end', required=True, type=date.fromisoformat)
+        command.add_argument('--invocation-id')
         command.add_argument('--data-dir', type=Path, default=Path('data'))
         command.add_argument('--output-dir', type=Path)
         command.add_argument('--settings', type=Path, default=DEFAULT_VERSION_CONFIG)
@@ -177,7 +201,7 @@ def main(argv=None):
     start, end = (str(args.date), str(args.date)) if args.command == 'run' else (str(args.start), str(args.end))
     try:
         result = replay(start, end, data_dir=args.data_dir, output_dir=args.output_dir, settings_path=args.settings,
-                        market_version=args.market_version, fit_version=args.fit_version, trend_only=args.trend_only)
+                        market_version=args.market_version, fit_version=args.fit_version, trend_only=args.trend_only, invocation_id=args.invocation_id)
     except (ValueError, KeyError, TypeError) as exc:
         parser.exit(1, f'{exc}\n')
     print(json.dumps(result, ensure_ascii=False, indent=2))

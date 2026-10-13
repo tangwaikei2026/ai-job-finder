@@ -5,6 +5,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
+from uuid import uuid4
 import subprocess
 import sys
 from collections import Counter
@@ -16,6 +18,10 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from src.invocation import read, validate_context, validate_raw, validate_clean, validate_clock, validate_analysis
+
 DEFAULT_CONFIG = ROOT / "config.yaml"
 MIN_PYTHON = (3, 10)
 CommandRunner = Callable[[Sequence[str], Path], int]
@@ -227,13 +233,15 @@ def _artifact_marker(path: Path) -> tuple[int, int, int] | None:
     return stat.st_ino, stat.st_mtime_ns, stat.st_size
 
 
-def run_daily(
+def _run_daily(
     run_date: str,
     *,
     config_path: Path = DEFAULT_CONFIG,
     root: Path = ROOT,
     command_runner: CommandRunner = _run,
     resume_from: str | None = None,
+    invocation: dict | None = None,
+    staging: Path | None = None,
 ) -> tuple[int, Path, dict[str, Any]]:
     config_path = config_path.resolve()
     fallback_data_dir = root / "data"
@@ -241,6 +249,7 @@ def run_daily(
     python_version = _python_version()
     status: dict[str, Any] = {
         "date": run_date,
+        "invocation": invocation,
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "status": "FAILED",
         "python_executable": sys.executable,
@@ -276,6 +285,8 @@ def run_daily(
 
     try:
         raw_dir, data_dir = _load_config(config_path)
+        if staging is not None:
+            data_dir, raw_dir = staging, staging / "raw"
         status_path = data_dir / "analysis" / "runs" / f"{run_date}.json"
     except (OSError, ValueError, yaml.YAMLError) as error:
         return fail("crawl", str(error))
@@ -295,6 +306,20 @@ def run_daily(
     manifest_path = raw_dir / f"{run_date}_manifest.json"
     clean_path = data_dir / "clean" / f"{run_date}.json"
 
+    try:
+        validate_context(invocation, run_date)
+    except ValueError as error:
+        return fail("crawl", f"resume validation failed: {error}" if resume_from else str(error))
+
+    def gate():
+        validate_clock(invocation)
+        validate_raw(run_date, read(manifest_path), read(raw_path), invocation['id'], config_path)
+        if read(manifest_path)['invocation'] != invocation:
+            raise ValueError('INVOCATION_CONTEXT_MISMATCH')
+
+    _write_json_atomic(status_path, status)
+    crawl_identity = ['--invocation-id', invocation['id'], '--started-at', invocation['started_at'],
+                      '--output-dir', str(raw_dir)]
     if resume_from is None:
         before_raw = _artifact_marker(raw_path)
         before_manifest = _artifact_marker(manifest_path)
@@ -308,7 +333,7 @@ def run_daily(
             run_date,
         ]
         try:
-            initial_return_code = command_runner(crawl_command, root)
+            initial_return_code = command_runner(crawl_command + crawl_identity, root)
         except OSError as error:
             return fail("crawl", f"could not start crawl: {error}")
         status["crawl"]["initial_return_code"] = initial_return_code
@@ -329,6 +354,10 @@ def run_daily(
         except (OSError, ValueError, json.JSONDecodeError) as error:
             return fail("crawl", str(error))
 
+        try:
+            gate()
+        except (OSError, ValueError) as error:
+            return fail('crawl', str(error))
         initial_failed = _failed_platforms(manifest)
         status["crawl"]["initial_failed_platforms"] = initial_failed
         status["crawl"]["initial_platform_errors"] = _platform_errors(manifest)
@@ -347,13 +376,17 @@ def run_daily(
                 "--merge-existing",
             ]
             try:
-                retry_return_codes[platform] = command_runner(retry_command, root)
+                retry_return_codes[platform] = command_runner(retry_command + crawl_identity, root)
             except OSError as error:
                 retry_return_codes[platform] = -1
                 status["crawl"].setdefault("retry_errors", {})[platform] = str(
                     error
                 )
             status["crawl"]["retried_platforms"].append(platform)
+            try:
+                gate()
+            except (OSError, ValueError) as error:
+                return fail('crawl', str(error))
         status["crawl"]["retry_return_codes"] = retry_return_codes
 
         try:
@@ -377,6 +410,10 @@ def run_daily(
         status["crawl"]["reused_artifacts"] = True
         status["crawl"]["retry_skipped"] = True
 
+    try:
+        gate()
+    except (OSError, ValueError) as error:
+        return fail('crawl', f'resume validation failed: {error}' if resume_from else str(error))
     final_failed = _failed_platforms(manifest)
     incomplete = _incomplete_platforms(manifest)
     status["crawl"]["final_failed_platforms"] = final_failed
@@ -408,7 +445,7 @@ def run_daily(
             str(data_dir / "clean"),
         ]
         try:
-            clean_return_code = command_runner(clean_command, root)
+            clean_return_code = command_runner(clean_command + ["--invocation-id", invocation["id"]], root)
         except OSError as error:
             return fail("clean", f"could not start clean: {error}")
         status["clean"]["return_code"] = clean_return_code
@@ -422,6 +459,12 @@ def run_daily(
             return fail("clean", str(error))
         status["clean"]["status"] = "SUCCESS"
 
+    try:
+        gate()
+        validate_clean(data_dir, run_date, invocation['id'])
+    except (OSError, ValueError) as error:
+        return fail('clean', str(error))
+
     analysis_command = [
         sys.executable,
         "-m",
@@ -433,7 +476,7 @@ def run_daily(
         str(data_dir),
     ]
     try:
-        analysis_return_code = command_runner(analysis_command, root)
+        analysis_return_code = command_runner(analysis_command + ["--invocation-id", invocation["id"]], root)
     except OSError as error:
         return fail("analysis", f"could not start analysis: {error}")
     status["analysis"]["return_code"] = analysis_return_code
@@ -447,10 +490,101 @@ def run_daily(
     missing_outputs = [str(path) for path in required_outputs if not path.exists()]
     if missing_outputs:
         return fail("analysis", f"analysis artifacts not found: {missing_outputs}")
+    try:
+        gate()
+        validate_clean(data_dir, run_date, invocation['id'])
+        validate_analysis(data_dir, run_date, invocation['id'])
+    except (OSError, ValueError) as error:
+        return fail('analysis', str(error))
+    status["provenance"] = read(data_dir / "analysis" / "audit" / f"{run_date}_invocation.json")
     status["analysis"]["status"] = "SUCCESS"
     status["status"] = "DEGRADED" if status["crawl"]["status"] == "DEGRADED" else "SUCCESS"
     _write_json_atomic(status_path, status)
     return 0, status_path, status
+
+
+
+def _publish(staging: Path, destination: Path, run_date: str) -> None:
+    """Publish only this completed attempt; keep backups and roll back IO errors."""
+    files = [p for p in staging.rglob('*') if p.is_file() and not p.is_symlink()
+             and p.relative_to(staging).parts[0] in {'raw', 'clean', 'analysis'}]
+    files.sort(key=lambda p: (p.parent.name == 'runs', str(p)))
+    backups = staging.parent / 'publication-backup'
+    replaced = []
+    try:
+        for source in files:
+            relative = source.relative_to(staging)
+            target = destination / relative
+            backup = backups / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            existed = target.exists()
+            if existed:
+                backup.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(target, backup)
+            temporary = target.with_name(target.name + '.invocation-tmp')
+            shutil.copy2(source, temporary)
+            os.replace(temporary, target)
+            replaced.append((target, backup, existed))
+    except OSError:
+        for target, backup, existed in reversed(replaced):
+            if existed:
+                os.replace(backup, target)
+            else:
+                target.unlink(missing_ok=True)
+        raise
+
+
+def run_daily(run_date: str, *, config_path: Path = DEFAULT_CONFIG, root: Path = ROOT,
+              command_runner: CommandRunner = _run, resume_from: str | None = None):
+    """Stage each fresh invocation separately; recovery continues its proven origin."""
+    invocation = dict(id=str(uuid4()), run_date=run_date,
+                      started_at=datetime.now().astimezone().isoformat(timespec='seconds'))
+    try:
+        _, data_dir = _load_config(config_path.resolve())
+    except (OSError, ValueError, yaml.YAMLError):
+        return _run_daily(run_date, config_path=config_path, root=root,
+                          command_runner=command_runner, resume_from=resume_from,
+                          invocation=invocation)
+    final_status = data_dir / 'analysis' / 'runs' / f'{run_date}.json'
+    if resume_from is not None:
+        try:
+            prior = read(final_status)
+            invocation = prior['invocation']
+            validate_context(invocation, run_date)
+        except (OSError, ValueError, KeyError, TypeError):
+            # Do not infer provenance for legacy or unknown recovery inputs.
+            invocation = None
+    staging = data_dir / 'analysis' / 'invocations' / (
+        invocation['id'] if invocation else str(uuid4())) / 'data'
+    staging.mkdir(parents=True, exist_ok=resume_from is not None)
+    # Existing history is read-only input, not stamped with the new identity.
+    for folder in ('raw', 'clean', 'analysis/classification', 'analysis/events',
+                   'analysis/trends/snapshots', 'analysis/audit'):
+        target_dir = staging / folder
+        target_dir.mkdir(parents=True, exist_ok=True)
+        for source in (data_dir / folder).glob('*.json*'):
+            if source.name.startswith(run_date):
+                continue
+            target = target_dir / source.name
+            if not target.exists():
+                target.symlink_to(source.resolve())
+    code, path, status = _run_daily(
+        run_date, config_path=config_path, root=root, command_runner=command_runner,
+        resume_from=resume_from, invocation=invocation, staging=staging)
+    if code == 0:
+        try:
+            validate_clock(invocation)
+            validate_analysis(staging, run_date, invocation['id'])
+            _publish(staging, data_dir, run_date)
+        except (OSError, ValueError) as error:
+            code = 1
+            status['status'] = status['analysis']['status'] = 'FAILED'
+            status['analysis']['error'] = f'publication failed: {error}'
+            _write_json_atomic(path, status)
+    # Latest attempt status remains the existing wrapper/Ops interface. Failed
+    # attempts never publish Raw/Clean/Analysis over a previous observation.
+    _write_json_atomic(final_status, status)
+    return code, final_status, status
 
 
 def _date_arg(value: str) -> str:

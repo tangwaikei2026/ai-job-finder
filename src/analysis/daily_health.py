@@ -129,11 +129,26 @@ def _validate_run(run_date: str, run_status: Any) -> Mapping[str, Any]:
     return run
 
 
-def _validate_manifest(run_date: str, value: Any) -> tuple[Mapping[str, Any], list[Mapping[str, Any]]]:
+def _validate_manifest(run_date: str, value: Any, run=None) -> tuple[Mapping[str, Any], list[Mapping[str, Any]]]:
     manifest = _mapping(value, 'MALFORMED_COLLECTION_MANIFEST')
     if 'date' in manifest and manifest['date'] != run_date:
         _fail('MANIFEST_DATE_MISMATCH')
-    _validate_artifact_date(manifest.get('generated_at'), run_date, 'MANIFEST_DATE_MISMATCH')
+    if 'invocation' in manifest or (run and 'invocation' in run):
+        from src.invocation import validate_manifest, digest
+        if not run or run.get('invocation') != manifest.get('invocation'):
+            _fail('INVOCATION_CONTEXT_MISMATCH')
+        try:
+            validate_manifest(run_date, manifest, run['invocation']['id'])
+            evidence = run.get('provenance', {})
+            if (evidence.get('manifest_sha256') != digest(manifest)
+                    or not manifest.get('raw_sha256')
+                    or evidence.get('raw_sha256') != manifest['raw_sha256']):
+                _fail('INVOCATION_PROVENANCE_MISMATCH')
+        except (ValueError, KeyError, TypeError) as exc:
+            raise DailyHealthError(str(exc)) from exc
+    else:
+        # Legacy observations receive no cross-day exemption.
+        _validate_artifact_date(manifest.get('generated_at'), run_date, 'MANIFEST_DATE_MISMATCH')
     job_count = manifest.get('job_count')
     if isinstance(job_count, bool) or not isinstance(job_count, int) or job_count < 0:
         _fail('INVALID_MANIFEST_JOB_COUNT')
@@ -333,7 +348,11 @@ def build_daily_health(
     except (TypeError, ValueError) as exc:
         raise DailyHealthError('INVALID_HEALTH_DATE') from exc
     run = _validate_run(run_date, run_status)
-    manifest, rows = _validate_manifest(run_date, manifest_value)
+    manifest, rows = _validate_manifest(run_date, manifest_value, run)
+    if 'invocation' in run:
+        from src.invocation import digest
+        if run.get('provenance', {}).get('clean_sha256') != digest(jobs):
+            _fail('CLEAN_PROVENANCE_MISMATCH')
     validated_jobs = _validate_jobs(jobs, {str(row['platform']) for row in rows})
     try:
         registry = load_known_limitations(registry_path)
@@ -412,6 +431,13 @@ def generate_daily_health(
         jobs = load_jobs(data_dir / 'clean' / f'{run_date}.json')
     except (OSError, json.JSONDecodeError, ValueError) as exc:
         raise DailyHealthError(f'MISSING_OR_INVALID_CLEAN_OBSERVATION: {exc}') from exc
+    if 'invocation' in run or 'invocation' in manifest:
+        from src.invocation import validate_analysis, validate_clock
+        try:
+            validate_clock(run['invocation'])
+            validate_analysis(data_dir, run_date, run.get('invocation', {}).get('id', ''))
+        except (OSError, ValueError, TypeError, KeyError) as exc:
+            raise DailyHealthError(str(exc)) from exc
     semantic = build_daily_health(
         run_date, run, manifest, jobs, registry_path=registry_path,
     )

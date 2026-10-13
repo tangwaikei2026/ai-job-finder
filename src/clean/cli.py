@@ -34,6 +34,7 @@ def build_parser() -> argparse.ArgumentParser:
         "clean-jobs",
         help="normalize job cities and summarize them by company",
     )
+    clean_parser.add_argument("--invocation-id")
     clean_parser.add_argument("--input", type=Path, required=True)
     clean_parser.add_argument("--date", type=_date)
     clean_parser.add_argument(
@@ -71,6 +72,8 @@ def main() -> None:
             args.input,
             output_path=output,
             report_path=report_output,
+            run_date=args.date,
+            invocation_id=args.invocation_id,
         )
         print(f"Cleaned {report['manifest']['job_count']} jobs")
         print(f"Wrote {output}")

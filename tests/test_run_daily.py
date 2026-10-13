@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import hashlib
+from datetime import datetime
 import sys
 from pathlib import Path
 
@@ -9,9 +11,25 @@ import yaml
 
 import tools.run_daily as daily_runner
 from tools.run_daily import run_daily
+from src.invocation import digest, clean_proof, analysis_proof
+import src.invocation as invocation_module
 
 
 DATE = "2026-09-11"
+CONTEXT = dict(id='11111111-1111-4111-8111-111111111111', run_date=DATE,
+               started_at=f'{DATE}T10:00:00+08:00')
+
+
+@pytest.fixture(autouse=True)
+def fixed_clock(monkeypatch):
+    class Clock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            value = datetime.fromisoformat(f'{DATE}T10:00:00+08:00')
+            return value if tz is None else value.astimezone(tz)
+    monkeypatch.setattr(daily_runner, 'datetime', Clock)
+    monkeypatch.setattr(invocation_module, 'datetime', Clock)
+
 
 
 def _raw_rows(statuses):
@@ -20,6 +38,7 @@ def _raw_rows(statuses):
             "platform": platform,
             "job_id": f"{platform}-1",
             "title": "Title",
+            "scraped_at": f"{DATE} 10:00:00",
             "company": "Company",
         }
         for platform, status in statuses.items()
@@ -40,15 +59,22 @@ def _clean_rows(rows):
     ]
 
 
-def _manifest(statuses, config_path: Path):
+def _manifest(statuses, config_path: Path, invocation=None):
     rows = _raw_rows(statuses)
     return {
         "config": str(config_path.resolve()),
+        "date": DATE,
+        "generated_at": f"{DATE} 10:00:00",
+        "invocation": invocation or CONTEXT,
+        "raw_sha256": digest(rows),
+        "config_sha256": hashlib.sha256(config_path.read_bytes()).hexdigest(),
         "job_count": len(rows),
         "complete": all(status == "success" for status in statuses.values()),
         "platforms": [
             {
                 "platform": platform,
+                "started_at": f"{DATE} 10:00:00",
+                "finished_at": f"{DATE} 10:00:00",
                 "status": status,
                 "complete": status == "success",
                 "jobs_in_scope": 0 if status == "error" else 1,
@@ -73,6 +99,12 @@ def _seed_observation(raw_dir: Path, config: Path, statuses) -> None:
         raw_dir / f"{DATE}_manifest.json",
         json.dumps(_manifest(statuses, config)),
     )
+
+    stage = raw_dir.parent / 'analysis' / 'invocations' / CONTEXT['id'] / 'data'
+    for p in raw_dir.glob(f'{DATE}*.json'):
+        _replace(stage / 'raw' / p.name, p.read_text())
+    _replace(raw_dir.parent / 'analysis' / 'runs' / f'{DATE}.json',
+             json.dumps({'date': DATE, 'invocation': CONTEXT, 'status': 'FAILED'}))
 
 
 def _scenario(
@@ -102,18 +134,27 @@ def _scenario(
         _seed_observation(raw_dir, config, initial)
         if resume_from == "analysis" and seed_clean:
             clean = data_dir / "clean" / f"{DATE}.json"
-            _replace(clean, json.dumps(_clean_rows(_raw_rows(initial))))
+            rows = _clean_rows(_raw_rows(initial))
+            _replace(clean, json.dumps(rows))
+            stage = data_dir / 'analysis' / 'invocations' / CONTEXT['id'] / 'data'
+            _replace(stage / 'clean' / clean.name, json.dumps(rows))
+            _replace(stage / 'clean' / f'{DATE}_report.json', json.dumps({
+                'manifest': {'generated_at': f'{DATE}T10:00:00+08:00'},
+                'provenance': clean_proof(_manifest(initial, config), rows)}))
 
     def runner(command, cwd):
         command = list(command)
         calls.append(command)
         if command[1:3] == ["-m", "src.main"]:
-            raw_dir.mkdir(parents=True, exist_ok=True)
-            raw_path = raw_dir / f"{DATE}.json"
-            manifest_path = raw_dir / f"{DATE}_manifest.json"
+            output = Path(command[command.index("--output-dir") + 1])
+            output.mkdir(parents=True, exist_ok=True)
+            context = dict(id=command[command.index("--invocation-id")+1],
+                           run_date=DATE, started_at=command[command.index("--started-at")+1])
+            raw_path = output / f"{DATE}.json"
+            manifest_path = output / f"{DATE}_manifest.json"
             if "--platform" not in command:
                 _replace(raw_path, json.dumps(_raw_rows(initial)))
-                _replace(manifest_path, json.dumps(_manifest(initial, config)))
+                _replace(manifest_path, json.dumps(_manifest(initial, config, context)))
                 return 0 if all(value == "success" for value in initial.values()) else 1
             platform = command[command.index("--platform") + 1]
             outcome = retry.get(platform, "error")
@@ -121,26 +162,36 @@ def _scenario(
                 final = dict(initial)
                 final[platform] = "success"
                 _replace(raw_path, json.dumps(_raw_rows(final)))
-                _replace(manifest_path, json.dumps(_manifest(final, config)))
+                _replace(manifest_path, json.dumps(_manifest(final, config, context)))
                 return 0
             return 1
         if command[1:4] == ["-m", "src.clean.cli", "clean-jobs"]:
             if clean_code == 0:
-                clean = data_dir / "clean" / f"{DATE}.json"
-                raw_rows = json.loads((raw_dir / f"{DATE}.json").read_text())
-                _replace(clean, json.dumps(_clean_rows(raw_rows)))
+                raw_path = Path(command[command.index('--input')+1])
+                clean = Path(command[command.index('--output-dir')+1]) / f'{DATE}.json'
+                raw_rows = json.loads(raw_path.read_text())
+                rows = _clean_rows(raw_rows)
+                _replace(clean, json.dumps(rows))
+                m = json.loads(raw_path.with_name(f'{DATE}_manifest.json').read_text())
+                _replace(clean.with_name(f'{DATE}_report.json'), json.dumps({
+                    'manifest': {'generated_at': f'{DATE}T10:00:00+08:00'},
+                    'provenance': clean_proof(m, rows)}))
             return clean_code
         if command[1:5] == ["-m", "src.analysis.pipeline", "run", "--date"]:
             if analysis_code == 0:
-                analysis = data_dir / "analysis"
+                current = Path(command[command.index("--data-dir")+1])
+                analysis = current / "analysis"
                 for relative in (
                     f"classification/{DATE}.jsonl",
                     f"events/{DATE}.jsonl",
                     f"trends/snapshots/{DATE}.json",
+                    f"audit/{DATE}_bundle.json",
                 ):
                     path = analysis / relative
                     path.parent.mkdir(parents=True, exist_ok=True)
                     path.write_text("{}\n")
+                _replace(analysis / 'audit' / f'{DATE}_invocation.json', json.dumps(
+                    analysis_proof(current, DATE, command[command.index('--invocation-id')+1])))
             return analysis_code
         raise AssertionError(command)
 
@@ -286,9 +337,10 @@ def test_custom_data_root_is_used_for_every_stage(tmp_path):
     assert status_path == data_root / "analysis" / "runs" / f"{DATE}.json"
     clean_call = next(call for call in calls if "src.clean.cli" in call)
     analysis_call = next(call for call in calls if "src.analysis.pipeline" in call)
-    assert clean_call[clean_call.index("--input") + 1] == str(data_root / "raw" / f"{DATE}.json")
-    assert clean_call[clean_call.index("--output-dir") + 1] == str(data_root / "clean")
-    assert analysis_call[analysis_call.index("--data-dir") + 1] == str(data_root)
+    staging = data_root / "analysis" / "invocations" / status["invocation"]["id"] / "data"
+    assert clean_call[clean_call.index("--input") + 1] == str(staging / "raw" / f"{DATE}.json")
+    assert clean_call[clean_call.index("--output-dir") + 1] == str(staging / "clean")
+    assert analysis_call[analysis_call.index("--data-dir") + 1] == str(staging)
 
 
 def test_all_python_stages_use_runner_sys_executable(tmp_path):

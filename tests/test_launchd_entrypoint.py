@@ -39,8 +39,8 @@ def test_command_supplies_runtime_local_date_to_official_wrapper():
     command = build_command(runtime_now)
 
     assert command == [
-        str(PRODUCTION_ROOT / 'venv' / 'bin' / 'python'),
-        str(PRODUCTION_ROOT / 'tools' / 'run_daily_with_health.py'),
+        str(ROOT / 'venv' / 'bin' / 'python'),
+        str(ROOT / 'tools' / 'run_daily_with_health.py'),
         '--date',
         '2026-09-16',
     ]

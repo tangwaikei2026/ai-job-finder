@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import hashlib
 import logging
 import sys
 from datetime import datetime
@@ -10,6 +11,7 @@ from typing import Any
 
 import yaml
 
+from src.invocation import digest, read, validate_context, validate_raw
 from src.collectors import COLLECTOR_REGISTRY
 from src.models import (
     CollectionManifest,
@@ -145,6 +147,9 @@ def collect_all(
 def main() -> None:
     parser = argparse.ArgumentParser(description="Collect unfiltered raw job listings")
     parser.add_argument("--config", default="config.yaml")
+    parser.add_argument("--invocation-id")
+    parser.add_argument("--started-at")
+    parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--platform", choices=sorted(COLLECTOR_REGISTRY))
     parser.add_argument("--date", help="Output date in YYYY-MM-DD format")
     parser.add_argument(
@@ -156,14 +161,24 @@ def main() -> None:
 
     config_path = Path(args.config).resolve()
     config = load_config(config_path)
+    config_fingerprint = hashlib.sha256(config_path.read_bytes()).hexdigest()
 
     output_date = args.date or datetime.now().strftime("%Y-%m-%d")
-    output_dir = Path(config.get("output_dir", "data/raw"))
+    output_dir = args.output_dir or Path(config.get("output_dir", "data/raw"))
     if not output_dir.is_absolute():
         output_dir = config_path.parent / output_dir
 
     jobs_path = output_dir / f"{output_date}.json"
     manifest_path = output_dir / f"{output_date}_manifest.json"
+    context = None
+    if args.invocation_id or args.started_at:
+        context = dict(id=args.invocation_id, run_date=output_date, started_at=args.started_at)
+        validate_context(context, output_date, args.invocation_id)
+        if args.merge_existing:
+            previous = read(manifest_path)
+            validate_raw(output_date, previous, read(jobs_path), args.invocation_id, config_path)
+            if previous['invocation'] != context:
+                raise ValueError('INVOCATION_CONTEXT_MISMATCH')
     jobs, manifests = collect_all(config, args.platform)
 
     if args.merge_existing:
@@ -211,10 +226,16 @@ def main() -> None:
             "refusing to overwrite existing raw output after total failure"
         )
 
-    write_json_atomic(jobs_path, [job.to_dict() for job in jobs])
+    raw_rows = [job.to_dict() for job in jobs]
+    provenance = ({'date': output_date, 'invocation': context,
+                   'raw_sha256': digest(raw_rows),
+                   'config_sha256': config_fingerprint}
+                  if context is not None else {})
+    write_json_atomic(jobs_path, raw_rows)
     write_json_atomic(
         manifest_path,
         {
+            **provenance,
             "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "config": str(config_path),
             "cities": config.get("cities", []),

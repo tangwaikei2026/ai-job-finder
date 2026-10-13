@@ -282,8 +282,20 @@ def run_clean_jobs(
     output_path: Path,
     report_path: Path | None = None,
     generated_at: str | None = None,
+    run_date: str | None = None,
+    invocation_id: str | None = None,
 ) -> dict[str, Any]:
     jobs = load_jobs(input_path)
+    source_manifest = None
+    manifest_path = input_path.with_name(f'{run_date}_manifest.json')
+    if invocation_id is None and manifest_path.exists():
+        from src.invocation import read
+        if 'invocation' in read(manifest_path):
+            raise ValueError('INVOCATION_ID_REQUIRED')
+    if invocation_id is not None:
+        from src.invocation import read, validate_raw
+        source_manifest = read(input_path.with_name(f'{run_date}_manifest.json'))
+        validate_raw(run_date, source_manifest, jobs, invocation_id)
     clean_jobs = clean_job_locations(jobs)
     report_path = report_path or _default_report_path(output_path)
     report = _build_report(
@@ -293,6 +305,9 @@ def run_clean_jobs(
         report_path=report_path,
         generated_at=generated_at,
     )
+    if source_manifest is not None:
+        from src.invocation import clean_proof
+        report['provenance'] = clean_proof(source_manifest, clean_jobs)
     _write_json_atomic(output_path, clean_jobs)
     _write_json_atomic(report_path, report)
     return report
