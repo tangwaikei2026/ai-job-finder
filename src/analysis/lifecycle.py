@@ -76,7 +76,9 @@ class Lifecycle:
                 self.state[key] = old
             else:
                 previous_sha = old.reliable_sha
-                if old.missing:
+                # Audit-only MISSING is not evidence of absence. The existing
+                # streak counts only reliable, scope-compatible missing runs.
+                if old.missing and old.missing_streak > 0:
                     emit(key, old, 'REAPPEARED', reliability.presence_reliable and not scope_changed,
                          previous_sha, sha, ['PREVIOUSLY_MISSING'])
                 if sha is not None and previous_sha is not None and sha != previous_sha:
