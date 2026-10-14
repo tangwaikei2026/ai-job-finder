@@ -3,9 +3,9 @@ from __future__ import annotations
 import logging
 import math
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
 from datetime import datetime, timezone
-from threading import Lock
+from threading import Lock, Event
 from typing import Any
 
 import httpx
@@ -21,6 +21,9 @@ class MeituanRawCollector(RawCollector):
     platform = "meituan"
 
     def collect(self) -> CollectionResult:
+        # Optional worker hooks; pure request/parse unit tests use the same loop.
+        emit = getattr(self, "worker_emit", lambda *args, **kwargs: None)
+        stop = getattr(self, "worker_stop", Event())
         started = time.monotonic()
         wall_started = time.time()
         cfg = self.platform_config
@@ -70,6 +73,11 @@ class MeituanRawCollector(RawCollector):
             )
 
         def fetch_detail(item: dict[str, Any]) -> dict[str, Any]:
+            if stop.is_set():
+                raise InterruptedError("worker stopping")
+            emit("attempt", job_id=str(item["jobUnionId"]))
+            if stop.is_set():
+                raise InterruptedError("worker stopping")
             with progress_lock:
                 progress["detail_started"] += 1
             return self._fetch_detail(item)
@@ -78,6 +86,8 @@ class MeituanRawCollector(RawCollector):
 
         try:
             while True:
+                if stop.is_set():
+                    raise InterruptedError("worker stopping")
                 payload = self.request_json(
                     "POST",
                     str(cfg["list_api"]),
@@ -151,6 +161,8 @@ class MeituanRawCollector(RawCollector):
                     detail_targets.append((item, job))
 
                 success()
+                emit("list", manifest=manifest.to_dict(),
+                     jobs=[job.to_dict() for job in jobs_by_id.values()])
                 observe("list_progress")
 
                 if (
@@ -169,38 +181,55 @@ class MeituanRawCollector(RawCollector):
             phase = "detail"
             phase_started = time.monotonic()
             observe("detail_enter")
+            emit("list_end", manifest=manifest.to_dict())
             workers = max(1, int(cfg.get("detail_workers", 4)))
             with ThreadPoolExecutor(max_workers=workers) as executor:
-                future_map = {
-                    executor.submit(fetch_detail, item): job
-                    for item, job in detail_targets
-                }
-                progress["detail_submitted"] = len(future_map)
-                for future in as_completed(future_map):
-                    job = future_map[future]
-                    try:
-                        self._apply_detail(job, future.result())
-                        manifest.details_fetched += 1
-                        progress["detail_succeeded"] += 1
-                        success()
-                    except Exception as exc:
-                        # Fixed type buckets only: no messages, URLs, headers or response bodies.
-                        error_type = next((kind.__name__ for kind in (
-                            httpx.TimeoutException, TimeoutError, httpx.HTTPStatusError,
-                            httpx.RequestError, ValueError, TypeError, KeyError, RuntimeError,
-                        ) if isinstance(exc, kind)), "Exception")
-                        counts = manifest.metadata.setdefault("detail_error_types", {})
-                        counts[error_type] = counts.get(error_type, 0) + 1
-                        fields = request_error_fields(exc)
-                        logger.warning(
-                            "[meituan] detail_failed stage=detail error_type=%s error_category=%s",
-                            fields["error_type"], fields["error_category"], extra=fields,
-                        )
-                        manifest.detail_failed += 1
-                        progress["detail_failed"] += 1
-                        manifest.detail_failed_job_ids.append(job.job_id)
-                    if (manifest.details_fetched + manifest.detail_failed) % 50 == 0:
-                        observe("detail_progress")
+                targets = iter(detail_targets)
+                future_map = {}
+
+                def submit() -> None:
+                    if stop.is_set():
+                        return
+                    target = next(targets, None)
+                    if target is not None:
+                        item, job = target
+                        future_map[executor.submit(fetch_detail, item)] = job
+                        progress["detail_submitted"] += 1
+
+                for _ in range(workers):
+                    submit()
+                while future_map:
+                    if stop.is_set():
+                        raise InterruptedError("worker stopping")
+                    done, _ = wait(future_map, timeout=0.1, return_when=FIRST_COMPLETED)
+                    for future in done:
+                        job = future_map.pop(future)
+                        try:
+                            self._apply_detail(job, future.result())
+                            manifest.details_fetched += 1
+                            progress["detail_succeeded"] += 1
+                            success()
+                            emit("success", job=job.to_dict())
+                        except Exception as exc:
+                            # Fixed type buckets only: no messages, URLs, headers or response bodies.
+                            error_type = next((kind.__name__ for kind in (
+                                httpx.TimeoutException, TimeoutError, httpx.HTTPStatusError,
+                                httpx.RequestError, ValueError, TypeError, KeyError, RuntimeError,
+                            ) if isinstance(exc, kind)), "Exception")
+                            counts = manifest.metadata.setdefault("detail_error_types", {})
+                            counts[error_type] = counts.get(error_type, 0) + 1
+                            fields = request_error_fields(exc)
+                            logger.warning(
+                                "[meituan] detail_failed stage=detail error_type=%s error_category=%s",
+                                fields["error_type"], fields["error_category"], extra=fields,
+                            )
+                            manifest.detail_failed += 1
+                            progress["detail_failed"] += 1
+                            manifest.detail_failed_job_ids.append(job.job_id)
+                            emit("failure", job_id=job.job_id)
+                        if (manifest.details_fetched + manifest.detail_failed) % 50 == 0:
+                            observe("detail_progress")
+                        submit()
 
             manifest.jobs_in_scope = len(jobs_by_id)
             manifest.complete = manifest.complete and manifest.detail_failed == 0

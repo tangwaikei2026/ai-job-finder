@@ -132,6 +132,8 @@ platforms:
     detail_url: "https://zhaopin.meituan.com/web/position/detail?jobUnionId={job_id}&highlightType=social"
     page_size: 50
     detail_workers: 4
+    worker_budget_seconds: 1800
+    worker_term_grace_seconds: 10
 
   kuaishou:
     enabled: true

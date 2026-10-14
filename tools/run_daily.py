@@ -20,6 +20,9 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+from src.collectors.meituan_worker import (
+    command_environment, retry_exhausted, verify_worker_cleanup, WorkerBlocked,
+)
 from src.invocation import read, validate_context, validate_raw, validate_clean, validate_clock, validate_analysis
 
 DEFAULT_CONFIG = ROOT / "config.yaml"
@@ -28,7 +31,8 @@ CommandRunner = Callable[[Sequence[str], Path], int]
 
 
 def _run(command: Sequence[str], cwd: Path) -> int:
-    return subprocess.run(list(command), cwd=cwd, check=False).returncode
+    return subprocess.run(list(command), cwd=cwd, check=False,
+                          env=command_environment(list(command))).returncode
 
 
 def _write_json_atomic(path: Path, value: Any) -> None:
@@ -337,6 +341,10 @@ def _run_daily(
         except OSError as error:
             return fail("crawl", f"could not start crawl: {error}")
         status["crawl"]["initial_return_code"] = initial_return_code
+        try:
+            verify_worker_cleanup(raw_dir)
+        except WorkerBlocked as error:
+            return fail('crawl', 'BLOCKED: ' + str(error))
         raw_replaced = before_raw != _artifact_marker(raw_path)
         manifest_replaced = before_manifest != _artifact_marker(manifest_path)
         if not raw_replaced or not manifest_replaced:
@@ -358,11 +366,19 @@ def _run_daily(
             gate()
         except (OSError, ValueError) as error:
             return fail('crawl', str(error))
+        if any(row.get('platform') == 'meituan' and
+               row.get('metadata', {}).get('worker', {}).get('exit_reason') == 'BLOCKED'
+               for row in manifest['platforms']):
+            return fail('crawl', 'BLOCKED: Meituan worker isolation or cleanup unproven')
         initial_failed = _failed_platforms(manifest)
         status["crawl"]["initial_failed_platforms"] = initial_failed
         status["crawl"]["initial_platform_errors"] = _platform_errors(manifest)
         retry_return_codes: dict[str, int] = {}
         for platform in initial_failed:
+            row = next(row for row in manifest['platforms'] if row['platform'] == platform)
+            if retry_exhausted(row):
+                status['crawl'].setdefault('retry_budget_exhausted', []).append(platform)
+                continue
             retry_command = [
                 sys.executable,
                 "-m",
@@ -383,6 +399,11 @@ def _run_daily(
                     error
                 )
             status["crawl"]["retried_platforms"].append(platform)
+            if platform == 'meituan':
+                try:
+                    verify_worker_cleanup(raw_dir)
+                except WorkerBlocked as error:
+                    return fail('crawl', 'BLOCKED: ' + str(error))
             try:
                 gate()
             except (OSError, ValueError) as error:

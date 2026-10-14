@@ -7,6 +7,7 @@ from src.collectors.jd import JDRawCollector
 from src.collectors.kuaishou import KuaishouRawCollector
 from src.collectors.liepin import LiepinRawCollector
 from src.collectors.meituan import MeituanRawCollector
+from src.collectors.meituan_worker import MeituanWorkerCollector
 from src.collectors.netease import NeteaseRawCollector
 from src.collectors.quark import QuarkRawCollector
 from src.collectors.tencent import TencentRawCollector
@@ -24,7 +25,7 @@ COLLECTOR_REGISTRY = {
     "jd": JDRawCollector,
     "didi": DidiRawCollector,
     "bytedance": ByteDanceRawCollector,
-    "meituan": MeituanRawCollector,
+    "meituan": MeituanWorkerCollector,
     "kuaishou": KuaishouRawCollector,
     "liepin": LiepinRawCollector,
     "xiaohongshu": XiaohongshuRawCollector,
