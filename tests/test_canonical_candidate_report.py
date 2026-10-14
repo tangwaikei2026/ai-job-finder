@@ -7,6 +7,7 @@ import pytest
 from src.analysis import ai_eval_jobs as report
 from src.analysis.classification import classify_record
 from src.analysis.source_health import Health
+from tests.test_invocation import execution  # noqa: F401
 
 DAY = '2026-10-09'
 VERSIONS = dict(market='market_v1', fit='fit_v2', skills='skills_v1')
@@ -143,3 +144,165 @@ def test_exploration_is_explicit_and_namespaced(tmp_path):
     assert '_exploratory_ai_eval_' in path.name
     assert result['manifest']['report_mode'] == 'exploratory_noncanonical'
     assert not (tmp_path / 'output' / f'{DAY}_ai_eval_analysis.json').exists()
+
+
+@pytest.fixture
+def published_candidates(execution, monkeypatch):
+    """Two Shenzhen candidates with a consistent modern publication proof."""
+    from dataclasses import fields
+    from src import main as collector
+    from src.invocation import read, validate_analysis
+    from src.models import CollectionManifest, RawJobPosting
+    from tests.test_invocation import DAY as day
+
+    e = execution
+    # Match the synthetic postings to the declared source scope before any
+    # manifest/config digest is produced. Only this test's temporary config changes.
+    e['config'].write_text(
+        'output_dir: data/raw\ncities: [深圳]\nplatforms:\n'
+        '  tencent:\n    enabled: true\n    name: tencent\n'
+    )
+    raw_fields = {field.name for field in fields(RawJobPosting)}
+
+    def collect(_config, selected=None):
+        assert selected is None
+        assert _config['cities'] == ['深圳']
+        assert _config['platforms']['tencent']['enabled'] is True
+        begin = e['now']
+        e['now'] = e['finish']
+        rows = [RawJobPosting(**{
+            key: value for key, value in job(str(index), platform='tencent',
+                scraped_at=e['finish']).items() if key in raw_fields
+        }) for index in (1, 2)]
+        assert all(posting.location == '深圳' for posting in rows)
+        manifest = CollectionManifest(
+            platform='tencent', name='tencent', status='success', complete=True,
+            source_total=2, expected_pages=1, pages_fetched=1, records_fetched=2,
+            jobs_mapped=2, jobs_in_scope=2, details_fetched=2,
+            stopped_by='source_total_reached', started_at=begin, finished_at=e['finish'],
+        )
+        return rows, [manifest]
+
+    monkeypatch.setattr(collector, 'collect_all', collect)
+    assert e['run']()[0] == 0
+    data = e['root'] / 'data'
+    status = read(data / 'analysis' / 'runs' / f'{day}.json')
+    validate_analysis(data, day, status['invocation']['id'])
+    assert read(data / 'raw' / f'{day}_manifest.json')['cities'] == ['深圳']
+    canonical_path = data / 'analysis' / 'classification' / f'{day}.jsonl'
+    rows = [json.loads(line) for line in canonical_path.read_text().splitlines()]
+    assert len(rows) == 2 and all(row['career_pool'] in {'P1', 'P2'} for row in rows)
+    return dict(execution=e, data=data, day=day, invocation=status['invocation']['id'],
+                source=data / 'clean' / f'{day}.json', canonical=canonical_path)
+
+
+def test_proven_modern_candidate_report_remains_usable(published_candidates, tmp_path):
+    p = published_candidates
+    result = report.run_analysis(p['source'], output_dir=tmp_path / 'report')[2]
+    assert result['manifest']['selected_job_count'] == 2
+    assert {(row['platform'], row['job_id']) for row in result['matched_jobs']} == {
+        ('tencent', '1'), ('tencent', '2'),
+    }
+
+
+# Contract basis: Canonical authority plus the existing analysis_proof artifact
+# digest. A damaged *modern published* observation is not a valid empty legacy
+# Canonical input. Keep all prior legacy/empty/carried-forward tests unchanged.
+@pytest.mark.parametrize('damage', [
+    'truncated_classification', 'emptied_classification', 'stale_same_day_proof',
+    'missing_proof', 'tampered_proof',
+])
+def test_modern_report_rejects_inconsistent_publication_and_preserves_output(
+    published_candidates, tmp_path, damage, record_property,
+):
+    from src.invocation import read, validate_analysis
+
+    p = published_candidates
+    output = tmp_path / 'report'
+    report.run_analysis(p['source'], output_dir=output)
+    before = {path.name: path.read_bytes() for path in output.iterdir()}
+    proof_path = p['data'] / 'analysis' / 'audit' / f"{p['day']}_invocation.json"
+    if damage == 'truncated_classification':
+        p['canonical'].write_text(p['canonical'].read_text().splitlines()[0] + '\n')
+    elif damage == 'emptied_classification':
+        p['canonical'].write_text('')
+    elif damage == 'stale_same_day_proof':
+        # Generate a second proven same-day publication, then pair its complete
+        # clean/classification with the previous invocation's stale proof. This
+        # tests proof/observation mismatch, not mixed classification rows.
+        from src import main as collector
+        from unittest.mock import patch
+        collect = collector.collect_all
+        def changed_source(config, selected=None):
+            jobs, manifests = collect(config, selected)
+            jobs[0].url = 'https://example.test/second-invocation'
+            return jobs, manifests
+        prior_proof = proof_path.read_bytes()
+        with patch.object(collector, 'collect_all', changed_source):
+            assert p['execution']['run']()[0] == 0
+        current = read(proof_path)
+        assert current['invocation']['id'] != p['invocation']
+        validate_analysis(p['data'], p['day'], current['invocation']['id'])
+        # Simulate a partial same-date publication: keep the new classification
+        # and clean, but restore the previous invocation's published proof.
+        proof_path.write_bytes(prior_proof)
+    elif damage == 'missing_proof':
+        proof_path.unlink()
+    else:
+        value = read(proof_path)
+        value['artifacts'][f"classification/{p['day']}.jsonl"] = '0' * 64
+        proof_path.write_text(json.dumps(value))
+
+    expected_id = read(p['data'] / 'raw' / f"{p['day']}_manifest.json")['invocation']['id']
+    proof_error = (pytest.raises(FileNotFoundError) if damage == 'missing_proof'
+                   else pytest.raises(ValueError, match='ANALYSIS_PROVENANCE_MISMATCH'))
+    with proof_error:
+        validate_analysis(p['data'], p['day'], expected_id)
+    error, result = None, None
+    try:
+        result = report.run_analysis(p['source'], output_dir=output)[2]
+    except (ValueError, OSError) as exc:
+        error = str(exc)
+    after = {path.name: path.read_bytes() for path in output.iterdir()}
+    changed = sorted(name for name in before.keys() | after.keys()
+                     if before.get(name) != after.get(name))
+    record_property('damage', damage)
+    record_property('report_error', error or 'NONE')
+    record_property('selected_jobs', None if result is None else result['manifest']['selected_job_count'])
+    record_property('changed_outputs', json.dumps(changed))
+    assert error is not None and not changed, (
+        f'Damaged modern publication accepted: damage={damage}, error={error!r}, '
+        f'selected={None if result is None else result["manifest"]["selected_job_count"]}, '
+        f'changed={changed}'
+    )
+
+
+def test_proven_modern_publication_without_market_rows_yields_zero_report(
+    published_candidates, tmp_path, monkeypatch,
+):
+    """Nonempty, proven clean with no market classifications yields zero candidates.
+
+    This is distinct from erasing classifications in a nonzero publication.
+    """
+    from src import main as collector
+    from src.invocation import read, validate_analysis
+
+    p = published_candidates
+    collect = collector.collect_all
+
+    def non_market_source(config, selected=None):
+        jobs, manifests = collect(config, selected)
+        for posting in jobs:
+            posting.title = '行政助理'
+            posting.description = '负责日常行政事务和办公用品采购'
+            posting.requirements = '熟练使用办公软件'
+        return jobs, manifests
+
+    monkeypatch.setattr(collector, 'collect_all', non_market_source)
+    assert p['execution']['run']()[0] == 0
+    identifier = read(p['data'] / 'raw' / f"{p['day']}_manifest.json")['invocation']['id']
+    validate_analysis(p['data'], p['day'], identifier)
+    assert len(read(p['source'])) == 2
+    assert p['canonical'].read_text() == ''
+    result = report.run_analysis(p['source'], output_dir=tmp_path / 'report')[2]
+    assert result['manifest']['selected_job_count'] == 0

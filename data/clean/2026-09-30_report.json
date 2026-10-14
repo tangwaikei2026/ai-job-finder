@@ -1,0 +1,15 @@
+{
+  "manifest": {
+    "generated_at": "2026-09-30T23:09:25+08:00",
+    "input_file": "/Users/waikei/Developer/ai-job-finder/data/raw/2026-09-30.json",
+    "output_file": "/Users/waikei/Developer/ai-job-finder/data/clean/2026-09-30.json",
+    "report_file": "/Users/waikei/Developer/ai-job-finder/data/clean/2026-09-30_report.json",
+    "job_count": 0,
+    "city_count": 0,
+    "province_only_count": 0
+  },
+  "company_city": {},
+  "company_province": {},
+  "company_education": {},
+  "company_experience": {}
+}

@@ -8,6 +8,7 @@ import pytest
 import yaml
 
 from tools.run_daily_with_health import run_daily_with_health
+from tests.test_invocation import execution  # noqa: F401
 
 
 DAY = '2026-09-14'
@@ -317,3 +318,121 @@ def test_clean_failure_is_recovered_once_then_ops_runs_after_health(tmp_path):
         'result': 'SUCCESS',
         'attempt_count': 1,
     }
+
+
+# Exercise the existing Runner and stage entrypoints over temporary offline data.
+
+
+@pytest.mark.parametrize('phase', ['clean', 'analysis'])
+@pytest.mark.parametrize('previous_published', [False, True])
+def test_offline_staged_failure_recovers_once_without_recrawl(
+    execution, monkeypatch, phase, previous_published, record_property,
+):
+    """A transient downstream failure with valid staging can resume once.
+
+    The existing contract preserves invocation identity and skips Crawl. The
+    outcome assertions alone do not prove which files the Ops precheck read;
+    prior published data is a separate control, not staging provenance evidence.
+    """
+    import tools.run_daily as daily
+    import src.operations.daily_ops as ops_module
+    from src.invocation import read, validate_raw, validate_clean, validate_analysis
+    from src.operations.daily_ops import DailyOperations
+    from src.operations.notifications import NotificationService
+    from tests.test_invocation import DAY as day
+
+    e = execution
+    data = e['root'] / 'data'
+    # Record the actual Ops precheck inputs without substituting validators.
+    # Successful recovery with old output alone cannot establish that this
+    # precheck read the failed invocation's staging rather than the old output.
+    precheck_inputs = []
+    validate_observation = ops_module._validate_existing_observation
+    validate_clean_artifact = ops_module._validate_clean_artifact
+
+    def observed_raw(raw_path, manifest_path, config_path):
+        precheck_inputs.append(dict(stage='raw', path=str(raw_path),
+                                    manifest_path=str(manifest_path)))
+        return validate_observation(raw_path, manifest_path, config_path)
+
+    def observed_clean(clean_path, manifest, raw_rows):
+        precheck_inputs.append(dict(stage='clean', path=str(clean_path),
+                                    invocation=manifest.get('invocation')))
+        return validate_clean_artifact(clean_path, manifest, raw_rows)
+
+    monkeypatch.setattr(ops_module, '_validate_existing_observation', observed_raw)
+    monkeypatch.setattr(ops_module, '_validate_clean_artifact', observed_clean)
+    published_before = {}
+    if previous_published:
+        code, _, prior = e['run']()
+        assert code == 0
+        published_before = {
+            p: p.read_bytes()
+            for folder in ('raw', 'clean', 'analysis/classification',
+                           'analysis/events', 'analysis/trends/snapshots', 'analysis/audit')
+            for p in (data / folder).glob('*') if p.is_file()
+        }
+
+    # Inject a transient stage launch failure once; all successful stages call
+    # the existing real entrypoints with only the collector boundary mocked.
+    stage_calls, invocations, resume_calls = [], [], []
+    failed_once = False
+    failing_module = 'src.clean.cli' if phase == 'clean' else 'src.analysis.pipeline'
+
+    def command_runner(command, root):
+        nonlocal failed_once
+        stage_calls.append(list(command))
+        if command[2] == failing_module and not failed_once:
+            failed_once = True
+            return 1
+        return e['runner'](command, root)
+
+    def real_runner(run_date, *, config_path, root, resume_from):
+        resume_calls.append(resume_from)
+        result = daily.run_daily(
+            run_date, config_path=config_path, root=root,
+            resume_from=resume_from, command_runner=command_runner,
+        )
+        status = result[2]
+        invocations.append(status['invocation']['id'])
+        if resume_from is None:
+            assert result[0] == 1 and status[phase]['status'] == 'FAILED'
+            staging = data / 'analysis' / 'invocations' / invocations[-1] / 'data'
+            validate_raw(day, read(staging / 'raw' / f'{day}_manifest.json'),
+                         read(staging / 'raw' / f'{day}.json'), invocations[-1], config_path)
+            if phase == 'analysis':
+                validate_clean(staging, day, invocations[-1])
+            assert all(p.read_bytes() == content for p, content in published_before.items())
+            if not previous_published:
+                assert not (data / 'raw' / f'{day}.json').exists()
+            else:
+                assert prior['invocation']['id'] != invocations[-1]
+        return result
+
+    # No external delivery; Ops and actual Daily Health still run normally.
+    monkeypatch.setattr(NotificationService, 'send_pending', lambda self: [])
+    e['now'] = f'{day}T10:00:00+08:00'
+    code, summary = run_daily_with_health(
+        day, root=e['root'], config_path=e['config'], runner=real_runner,
+    )
+    recovery = summary.get('automatic_recovery', {})
+    record_property('recovery', json.dumps(recovery, sort_keys=True))
+    record_property('failed_phase', phase)
+    record_property('previous_published', previous_published)
+    record_property('resume_calls', json.dumps(resume_calls))
+    record_property('ops_precheck_inputs', json.dumps(precheck_inputs, sort_keys=True))
+    record_property('failed_invocation', invocations[0])
+    assert sum(command[2] == 'src.main' for command in stage_calls) == 1
+    assert code == 0 and recovery.get('result') == 'SUCCESS', (
+        f'Valid {phase} staging did not recover: code={code}, recovery={recovery}'
+    )
+    assert resume_calls == [None, phase]
+    assert invocations == [invocations[0], invocations[0]]
+    validate_analysis(data, day, invocations[0])
+    assert read(data / 'analysis' / 'health' / f'{day}.json')['technical_run_health'] == 'SUCCESS'
+
+    # A repeated Ops check must not trigger a second downstream attempt.
+    operations = DailyOperations(data_dir=data, root=e['root'], config_path=e['config'])
+    latest_run = read(data / 'analysis' / 'runs' / f'{day}.json')
+    operations.attempt_recovery(day, latest_run, runner=real_runner)
+    assert resume_calls == [None, phase]

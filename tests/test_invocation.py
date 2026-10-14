@@ -334,3 +334,92 @@ def test_partial_publication_cannot_enter_legacy_history_warmup(execution, monke
     code,_,status=e['run']()
     assert code==1 and status['analysis']['status']=='FAILED'
     assert not (e['root']/'data/raw/2026-10-11.json').exists()
+
+
+# Contract basis: validate_clean binds raw/clean to one invocation; the existing
+# single-day and history-warmup gates must not be bypassed by a date range.
+# These are modern inputs, not an attempt to retrofit proof onto legacy data.
+@pytest.mark.parametrize('damage', ['missing_clean_proof', 'mixed_invocation', 'tampered_clean'])
+@pytest.mark.parametrize('damaged_day', ['2026-10-10', '2026-10-11'])
+def test_multiday_replay_rejects_unproven_inputs_and_preserves_affected_publications(
+    execution, monkeypatch, damage, damaged_day, record_property,
+):
+    """Reject invalid modern proof without changing sources or dependent outputs.
+
+    An earlier valid date may finish; diagnostics and staging may be created.
+    Neither unchanged bytes nor a successful replay establishes input trust.
+    """
+    e = execution
+    data = e['root'] / 'data'
+    old_reports = {}
+    identifiers = {}
+    for day in ('2026-10-10', '2026-10-11'):
+        monkeypatch.setattr(sys.modules[__name__], 'DAY', day)
+        e['finish'] = f'{day}T11:00:00+08:00'
+        code, _, first = e['run']()
+        assert code == 0
+        old_reports[day] = (data / 'clean' / f'{day}_report.json').read_bytes()
+        code, _, second = e['run']()
+        assert code == 0
+        assert first['invocation']['id'] != second['invocation']['id']
+        identifiers[day] = second['invocation']['id']
+        validate_analysis(data, day, identifiers[day])
+
+    report_path = data / 'clean' / f'{damaged_day}_report.json'
+    if damage == 'missing_clean_proof':
+        value = read(report_path)
+        value.pop('provenance')
+        report_path.write_text(json.dumps(value))
+    elif damage == 'mixed_invocation':
+        report_path.write_bytes(old_reports[damaged_day])
+    else:
+        path = data / 'clean' / f'{damaged_day}.json'
+        rows = read(path)
+        rows[0]['description'] += '\nUNPROVEN_REPLAY_CONTENT'
+        path.write_text(json.dumps(rows))
+
+    # An existing production validator establishes invalidity independently of
+    # replay's current behavior and without prescribing a new classifier rule.
+    with pytest.raises(ValueError, match='CLEAN_PROVENANCE_MISMATCH'):
+        validate_clean(data, damaged_day, identifiers[damaged_day])
+    # Source data is immutable input to replay (the existing historical replay
+    # contract). Preserve the dated published observation for the invalid date
+    # and later dates whose lifecycle/trends would depend on it. Do not require
+    # transaction-wide rollback of an earlier valid date, staging work, new logs,
+    # or every file under analysis; no such directory-wide contract is frozen.
+    source_paths = [p for folder in ('raw', 'clean')
+                    for p in (data / folder).glob('*.json') if p.is_file()]
+    affected_paths = []
+    for day in ('2026-10-10', '2026-10-11'):
+        if day < damaged_day:
+            continue
+        affected_paths.extend(data / 'analysis' / relative for relative in (
+            f'classification/{day}.jsonl', f'events/{day}.jsonl',
+            f'trends/snapshots/{day}.json', f'audit/{day}_bundle.json',
+            f'audit/{day}_invocation.json', f'runs/{day}.json',
+        ))
+    protected_paths = source_paths + affected_paths
+    assert all(path.is_file() for path in protected_paths)
+    # This pair depends on the invalid date in either parameterized case. A
+    # comparison is a formal trend artifact even if it did not exist before;
+    # creating one from untrusted input must also be detected.
+    protected_paths.append(data / 'analysis' / 'trends' / 'comparisons' /
+                           '2026-10-10_2026-10-11.json')
+    before = {path.relative_to(data): path.read_bytes() if path.is_file() else None
+              for path in protected_paths}
+    error = None
+    try:
+        replay('2026-10-10', '2026-10-11', data_dir=data)
+    except (ValueError, OSError) as exc:
+        error = str(exc)
+    after = {path.relative_to(data): path.read_bytes() if path.is_file() else None
+             for path in protected_paths}
+    changed = sorted(str(path) for path in before if before[path] != after[path])
+    record_property('damage', f'{damaged_day}: {damage}')
+    record_property('replay_error', error or 'NONE')
+    record_property('changed_protected_artifacts', json.dumps(changed))
+    record_property('protected_artifacts', json.dumps(sorted(str(path) for path in before)))
+    assert error is not None and not changed, (
+        f'Unproven modern input was accepted or an affected publication was replaced: '
+        f'error={error!r}, changed={changed}'
+    )
