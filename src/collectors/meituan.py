@@ -1,14 +1,20 @@
 from __future__ import annotations
 
+import logging
 import math
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime, timezone
+from threading import Lock
 from typing import Any
 
 import httpx
 
-from src.base import RawCollector
+from src.base import RawCollector, request_error_fields
 from src.models import CollectionManifest, CollectionResult, RawJobPosting
+
+
+logger = logging.getLogger(__name__)
 
 
 class MeituanRawCollector(RawCollector):
@@ -16,6 +22,7 @@ class MeituanRawCollector(RawCollector):
 
     def collect(self) -> CollectionResult:
         started = time.monotonic()
+        wall_started = time.time()
         cfg = self.platform_config
         page_size = max(1, int(cfg.get("page_size", 50)))
         manifest = CollectionManifest(
@@ -27,12 +34,54 @@ class MeituanRawCollector(RawCollector):
         seen_page_ids: set[tuple[str, ...]] = set()
         detail_targets: list[tuple[dict[str, Any], RawJobPosting]] = []
         page = 1
+        phase = "list"
+        phase_started = started
+        progress_lock = Lock()
+        progress = {
+            "list_complete": False, "detail_targets": 0, "detail_submitted": 0,
+            "detail_started": 0, "detail_succeeded": 0, "detail_failed": 0,
+            "list_seconds": 0.0, "detail_seconds": 0.0,
+            "last_success_at": None, "last_success_elapsed_seconds": None,
+        }
+        manifest.metadata["progress"] = progress
+
+        def success() -> None:
+            progress["last_success_at"] = datetime.now(timezone.utc).isoformat()
+            progress["last_success_elapsed_seconds"] = round(time.monotonic() - started, 3)
+
+        def observe(event: str) -> None:
+            with progress_lock:
+                progress["detail_targets"] = len(detail_targets)
+                progress["detail_not_started"] = len(detail_targets) - progress["detail_started"]
+                progress["detail_in_flight"] = (
+                    progress["detail_started"] - progress["detail_succeeded"] - progress["detail_failed"]
+                )
+                progress["detail_unfinished"] = (
+                    len(detail_targets) - progress["detail_succeeded"] - progress["detail_failed"]
+                )
+                snapshot = dict(progress)
+            logger.info(
+                "[meituan] event=%s phase=%s status=%s elapsed_seconds=%.3f "
+                "wall_seconds=%.3f pages=%d progress=%s",
+                event, phase, manifest.status, time.monotonic() - started,
+                time.time() - wall_started, manifest.pages_fetched, snapshot,
+                extra={"collection_event": event, "collection_phase": phase,
+                       "collection_progress": snapshot},
+            )
+
+        def fetch_detail(item: dict[str, Any]) -> dict[str, Any]:
+            with progress_lock:
+                progress["detail_started"] += 1
+            return self._fetch_detail(item)
+
+        observe("enter")
 
         try:
             while True:
                 payload = self.request_json(
                     "POST",
                     str(cfg["list_api"]),
+                    request_stage="list",
                     json={
                         "page": {"pageNo": page, "pageSize": page_size},
                         "jobShareType": "1",
@@ -101,6 +150,9 @@ class MeituanRawCollector(RawCollector):
                     jobs_by_id[job.job_id] = job
                     detail_targets.append((item, job))
 
+                success()
+                observe("list_progress")
+
                 if (
                     manifest.records_fetched >= manifest.source_total
                     or page >= manifest.expected_pages
@@ -112,17 +164,25 @@ class MeituanRawCollector(RawCollector):
                     break
                 page += 1
 
+            progress["list_complete"] = manifest.complete
+            progress["list_seconds"] = round(time.monotonic() - phase_started, 3)
+            phase = "detail"
+            phase_started = time.monotonic()
+            observe("detail_enter")
             workers = max(1, int(cfg.get("detail_workers", 4)))
             with ThreadPoolExecutor(max_workers=workers) as executor:
                 future_map = {
-                    executor.submit(self._fetch_detail, item): job
+                    executor.submit(fetch_detail, item): job
                     for item, job in detail_targets
                 }
+                progress["detail_submitted"] = len(future_map)
                 for future in as_completed(future_map):
                     job = future_map[future]
                     try:
                         self._apply_detail(job, future.result())
                         manifest.details_fetched += 1
+                        progress["detail_succeeded"] += 1
+                        success()
                     except Exception as exc:
                         # Fixed type buckets only: no messages, URLs, headers or response bodies.
                         error_type = next((kind.__name__ for kind in (
@@ -131,8 +191,16 @@ class MeituanRawCollector(RawCollector):
                         ) if isinstance(exc, kind)), "Exception")
                         counts = manifest.metadata.setdefault("detail_error_types", {})
                         counts[error_type] = counts.get(error_type, 0) + 1
+                        fields = request_error_fields(exc)
+                        logger.warning(
+                            "[meituan] detail_failed stage=detail error_type=%s error_category=%s",
+                            fields["error_type"], fields["error_category"], extra=fields,
+                        )
                         manifest.detail_failed += 1
+                        progress["detail_failed"] += 1
                         manifest.detail_failed_job_ids.append(job.job_id)
+                    if (manifest.details_fetched + manifest.detail_failed) % 50 == 0:
+                        observe("detail_progress")
 
             manifest.jobs_in_scope = len(jobs_by_id)
             manifest.complete = manifest.complete and manifest.detail_failed == 0
@@ -143,8 +211,17 @@ class MeituanRawCollector(RawCollector):
             manifest.status = "error"
             manifest.complete = False
             manifest.stopped_by = "error"
-            manifest.error = str(exc)
+            fields = request_error_fields(exc)
+            manifest.metadata["collection_error"] = {"stage": phase, **fields}
+            manifest.error = (
+                f"stage={phase} error_type={fields['error_type']} "
+                f"error_category={fields['error_category']}"
+            )
+            logger.warning("[meituan] collection_failed %s", manifest.error,
+                           extra={"request_stage": phase, **fields})
         finally:
+            progress[f"{phase}_seconds"] = round(time.monotonic() - phase_started, 3)
+            observe("exit")
             self.finish_manifest(manifest, started)
 
         return CollectionResult(list(jobs_by_id.values()), manifest)
@@ -170,6 +247,7 @@ class MeituanRawCollector(RawCollector):
         payload = self.request_json(
             "POST",
             str(self.platform_config["detail_api"]),
+            request_stage="detail",
             json={"jobUnionId": job_id, "jobShareType": "1"},
             headers={
                 "Content-Type": "application/json",

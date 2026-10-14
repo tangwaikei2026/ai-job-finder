@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import random
+import ssl
 import time
 from abc import ABC, abstractmethod
 from datetime import datetime
@@ -12,6 +13,38 @@ import httpx
 from src.models import CollectionManifest, CollectionResult
 
 logger = logging.getLogger(__name__)
+
+
+def request_error_fields(exc: BaseException) -> dict[str, str]:
+    """Fixed labels only; never expose messages, URLs or user-defined type names."""
+    kinds = (
+        httpx.ConnectTimeout, httpx.ReadTimeout, httpx.WriteTimeout, httpx.PoolTimeout,
+        httpx.TimeoutException, TimeoutError, ssl.SSLEOFError, ssl.SSLError,
+        httpx.ConnectError, httpx.RemoteProtocolError, httpx.HTTPStatusError,
+        httpx.RequestError, ValueError, TypeError, KeyError, RuntimeError,
+    )
+    error_type = next((kind.__name__ for kind in kinds if isinstance(exc, kind)), "Exception")
+    category = "Other"
+    if isinstance(exc, (httpx.TimeoutException, TimeoutError)):
+        category = "Timeout"
+    elif isinstance(exc, httpx.HTTPStatusError):
+        category = "HTTPStatusError"
+    elif isinstance(exc, httpx.ConnectError):
+        category = "ConnectError"
+    elif isinstance(exc, httpx.RemoteProtocolError):
+        category = "RemoteProtocolError"
+    elif isinstance(exc, (ValueError, TypeError, KeyError)):
+        category = "ParseError"
+    cause = exc
+    # TLS may be wrapped by httpx/httpcore. Bound traversal, including cycles.
+    for _ in range(8):
+        if isinstance(cause, ssl.SSLError):
+            category = "TLS"
+            break
+        cause = cause.__cause__ or cause.__context__
+        if cause is None:
+            break
+    return {"error_type": error_type, "error_category": category}
 
 
 class RawCollector(ABC):
@@ -52,7 +85,11 @@ class RawCollector(ABC):
         if self._owns_client:
             self.client.close()
 
-    def request(self, method: str, url: str, **kwargs: Any) -> httpx.Response:
+    def request(
+        self, method: str, url: str, *, request_stage: str = "unspecified",
+        **kwargs: Any,
+    ) -> httpx.Response:
+        stage = request_stage if request_stage in {"list", "detail"} else "unspecified"
         last_error: Exception | None = None
         for attempt in range(1, self.max_retries + 1):
             try:
@@ -61,17 +98,20 @@ class RawCollector(ABC):
                 return response
             except Exception as exc:
                 last_error = exc
-                if attempt >= self.max_retries:
-                    break
-                wait = min(2 ** (attempt - 1), 4) + random.uniform(0, 0.25)
+                final = attempt >= self.max_retries
+                wait = 0.0 if final else min(2 ** (attempt - 1), 4) + random.uniform(0, 0.25)
+                fields = request_error_fields(exc)
                 logger.warning(
-                    "[%s] request failed (%d/%d): %s; retrying in %.1fs",
-                    self.platform,
-                    attempt,
-                    self.max_retries,
-                    exc,
-                    wait,
+                    "[%s] request_failed stage=%s attempt=%d max_attempts=%d "
+                    "error_type=%s error_category=%s final=%s retry_in_seconds=%.2f",
+                    self.platform, stage, attempt, self.max_retries,
+                    fields["error_type"], fields["error_category"], final, wait,
+                    extra={"request_stage": stage, "request_attempt": attempt,
+                           "request_max_attempts": self.max_retries,
+                           "request_final": final, **fields},
                 )
+                if final:
+                    break
                 time.sleep(wait)
         assert last_error is not None
         raise last_error
