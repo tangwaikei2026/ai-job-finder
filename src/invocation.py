@@ -19,6 +19,20 @@ def read(path: Path):
     return json.loads(path.read_text(encoding='utf-8'))
 
 
+def has_invocation_evidence(data_dir, run_date, manifest):
+    """Use Daily Health's markers; a surviving Run forbids legacy fallback.
+
+    Marker presence only selects proof validation, never establishes trust.
+    Legacy observations need neither a Run nor modern publication proofs.
+    """
+    analysis = Path(data_dir) / 'analysis'
+    if ('invocation' in manifest
+            or (analysis / 'audit' / f'{run_date}_invocation.json').exists()):
+        return True
+    run_path = analysis / 'runs' / f'{run_date}.json'
+    return run_path.exists() and 'invocation' in read(run_path)
+
+
 def timestamp(value, timezone):
     if not isinstance(value, str) or len(value) < 19 or value[10] not in {'T', ' '}:
         raise ValueError('MANIFEST_DATE_MISMATCH: timestamp needs date and time')

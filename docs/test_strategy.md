@@ -195,3 +195,75 @@ git diff --stat master
 - 编译及 pytest：本批为文档整理，按用户要求检查一致性、范围和 diff；未执行 `compileall` 或 pytest，不声称回归通过，也不把本批验收方式扩展成永久豁免。
 - 完整 diff 与命令输出保留在本批会话工具记录；未提交前可用上述 diff 命令复核。
 - 验收结果：`git diff --check` 通过；范围检查仅三份允许文档；生产授权／调度条款、仓库实现约束、固定验收和 diff 要求与 HEAD 原文相同，其他限制及停止要求保留；本地链接、锚点、代码围栏检查通过。最终 status 为三份文档修改及 44 个既有未跟踪数据路径，暂存区为空。
+
+## 9. 2026-10-14 增量测试映射与验收
+
+基线为 taxonomy `ec33299422992028afca6acb6d88d1aef4527333`，远程查询一致。第 7、8 节是保留的 2026-10-13 计划与验收，不再表示新增测试尚未落盘；本节记录当前 HEAD 事实。入口清单与权限边界见 [workbook 增量登记](workbook.md#2026-10-14-增量状态与执行入口登记)，不重复专项设计。
+
+| 受影响契约／代码证据 | 当前测试映射 | 本批执行证据 |
+|---|---|---|
+| Meituan Worker 隔离、共享 retry deadline、退出门禁：`meituan_worker.py`、registry、`run_daily.py` | `tests/test_meituan_worker.py`、`test_meituan_worker_pipeline.py`；诊断 `test_meituan_diagnostics.py` | 全量中通过；真实子进程配模拟请求、临时 staging；不代表生产超时恢复成功 |
+| reliable absence：`lifecycle.py::Lifecycle.observe` | `tests/test_lifecycle_reliable_absence.py` 的可靠／不可靠缺失与返回、正文变更、warmup；`test_meituan_worker_lifecycle_integration.py::test_worker_absence_recovery_integrates_with_lifecycle_and_trend` | 全量中通过；合成事件与 Trend-only 对照，不追溯证明历史事件正确 |
+| 多日期现代输入证明及受影响发布保护：`pipeline.py::replay`、`invocation.py::validate_clean` | `tests/test_invocation.py::test_multiday_replay_rejects_unproven_inputs_and_preserves_affected_publications`：两日 × 缺 proof／混 invocation／篡改 Clean | **FAIL，6 项**：损坏输入已由 validate_clean 独立确认无效，但 replay 未报错，生成 comparison；篡改正文还改写受影响 events/audit/trends。均为临时数据，旧待办未关闭 |
+| clean/analysis 恢复、原 invocation、不 recrawl：wrapper、`DailyOperations._validate_recovery_inputs`、Runner | `tests/test_daily_orchestration.py::test_offline_staged_failure_recovers_once_without_recrawl`：两阶段 × 有无旧发布，记录 precheck 路径 | **PARTIAL，2 passed / 2 failed**：无旧发布两项为 `SKIPPED_INVALID_RAW`；有旧发布控制组通过，但不证明 Ops 预检了 staging。旧待办未关闭 |
+| Canonical 整批发布证明：`canonical_report.py`、`ai_eval_jobs.py::run_analysis` | `tests/test_canonical_candidate_report.py::test_modern_report_rejects_inconsistent_publication_and_preserves_output`；`test_proven_modern_candidate_report_remains_usable`；`test_proven_modern_publication_without_market_rows_yields_zero_report` | **PARTIAL**：五种损坏拒绝用例均 FAIL（截断、清空、旧同日 proof、缺失／篡改 proof）；正常现代报告与合法零候选控制通过。部分 proof 损坏输出字节未变仍不能证明拒绝，旧待办未关闭 |
+| 调度静态契约及报告／维护消费者（未变化，不重审规则） | `tests/test_launchd_entrypoint.py`、`test_workflow_contract.py`、`test_run_weekly_report.py`、`test_market_report_v1.py`、`test_backfill_history.py`、`test_sourcehealth_v2_backfill.py` | 全量中通过；覆盖代码／配置与临时离线输入，不证明 scheduler 安装或生产运行 |
+
+专项背景复用 [Worker](meituan_worker_boundary.md)、[Lifecycle](lifecycle_reliable_absence.md)、[诊断](meituan_failure_diagnostics.md)。历史分支的成功数为文档报告证据；本批实际全量不以它们替代。测试中 mock collector 边界、通知外发，仅在 pytest 临时目录调用真实离线阶段；未执行独立生产 Crawl、Daily Runner、Replay、Backfill、通知或调度。
+
+实际命令与结果（项目 venv Python 3.12，pytest 9.1.1；缓存定向 `/tmp`）：
+
+- `PYTHONPYCACHEPREFIX=/tmp/ai-job-finder-doc-audit-pycache venv/bin/python -m compileall -q src tests`：PASS，退出 0。
+- `PYTHONPYCACHEPREFIX=/tmp/ai-job-finder-doc-audit-pycache venv/bin/pytest -q -p no:cacheprovider`：收集失败，退出 2，34 个 `ModuleNotFoundError: src`；没有执行测试，不算业务失败或通过。
+- 因上述收集路径问题，改用 `PYTHONPYCACHEPREFIX=/tmp/ai-job-finder-doc-audit-pycache venv/bin/python -m pytest -q -p no:cacheprovider`：退出 1，**830 passed / 13 failed，28.65 秒**。只执行一次实际全量，不重复已执行用例；无需再次跑 `pytest tests -q`。
+- 完整输出在 `/tmp/ai-job-finder-doc-audit-pytest.txt`、`/tmp/ai-job-finder-doc-audit-pytest-module.txt`（本机临时证据，不是仓库可持久复核链接）；代码／断言证据以上述受版本管理的文件为准。
+- `git diff --check`、内存 Markdown 本地链接／锚点／围栏检查、白名单与暂存区检查：PASS。仅 workbook、本文修改，未修改 AGENTS、代码、测试、配置、workflow、数据；2026-10-13 历史章节保留。
+- Git 核查执行 `git status --short`、`git branch --show-current`、`git rev-parse HEAD`、`git remote -v`、`git ls-remote origin refs/heads/taxonomy`、`git log --oneline -12`、`git diff master...HEAD --stat`、`git diff dcefcb8..HEAD --stat` 及相关代码／测试 diff；静态入口通过 `rg --files`、`rg -n`、`cat`、`sed` 核对，无历史数据正文读取。
+- 收尾执行 `git status --short`、`git diff --stat`、`git diff -- docs/workbook.md docs/test_strategy.md`；未 commit、push、merge 或部署。
+
+本批 **RESULT：PARTIAL**：文档补齐与范围检查通过，三项旧代码缺口已有当前 HEAD 离线失败证据，未实施非白名单修复。生产入口与实际部署验证 **NOT_RUN / UNKNOWN**，不影响其权限限制，也不冒充生产 PASS。待人工确认后才能开启其他批次。
+
+## 10. 2026-10-15 集成候选离线验收
+
+本节追加当前状态，不改写第 7–9 节历史计划、失败或验收事实。基线 `origin/taxonomy` 为 `ec33299422992028afca6acb6d88d1aef4527333`，集成代码 HEAD `2c1dc1ae2ed83c39bff7d1e24347c06347ec2802`；五组来源及集成 SHA 见 [workbook 当前状态](workbook.md#2026-10-15-集成候选验收状态)。测试断言、fixture 和冻结业务规则未修改。
+
+| 契约与测试映射（保留第 9 节目标名称） | 本次实际结果与证据 |
+|---|---|
+| `test_canonical_candidate_report.py::test_modern_report_rejects_inconsistent_publication_and_preserves_output` | **5 passed**；五种损坏均拒绝，JUnit `changed_outputs=[]`。合法现代／零候选／legacy／探索控制随相关回归通过。 |
+| `test_invocation.py::test_multiday_replay_rejects_unproven_inputs_and_preserves_affected_publications` | **6 passed**；均报 `CLEAN_PROVENANCE_MISMATCH`，`changed_protected_artifacts=[]`；合法 Replay、legacy、单日门禁及 trend-only 随相关回归通过。 |
+| `test_daily_orchestration.py::test_offline_staged_failure_recovers_once_without_recrawl` | **4 passed**（含原 2 项失败）；Clean／Analysis × 有／无旧发布均从失败 Invocation staging 预检，JUnit 记录一次恢复及 `[null, phase]` 调用；原断言验证同一 Invocation、一次 Crawl 与无重复恢复。 |
+
+使用原 checkout 的 `/Users/waikei/Developer/ai-job-finder/venv/bin/python`（Python 3.12.14、pytest 9.1.1），工作目录为隔离 worktree，设置 `PYTHONPYCACHEPREFIX=/tmp/unified-integration-pycache`。先分别执行上述三个完整 node ID：`python -m pytest tests/<上述文件及符号> -q -p no:cacheprovider -o junit_family=xunit1 --junitxml=/tmp/unified-integration-<组名>.xml`；依次为 5、6、4 passed，均退出 0。
+
+- 相关回归：23 个测试文件，覆盖 Invocation、SourceHealth、Market、Lifecycle、Trend、Ops、Runner、Health 与 Report，**435 passed / 0 failed / 0 skipped**；具体参数列表保存在 `/tmp/unified-integration-related-command.json`。
+- 全量命令：`python -m pytest -q -p no:cacheprovider -o junit_family=xunit1 --junitxml=/tmp/unified-integration-full.xml`，**843 passed / 0 failed / 0 skipped，28.97 秒**，退出 0；没有通过修改、跳过或弱化测试消除失败。
+- 编译：`python -m compileall -q src tests`，退出 0。`git diff --check`、提交白名单／数据排除及本地 Markdown 链接／锚点检查通过。
+- 冻结输入：从原 checkout 只读复制测试必需的 18 个被忽略的 Analysis 文件（7 日 classification/events、3 个 snapshots、1 个 run）；逐项比较来源与副本 SHA-256，并在测试后复核。清单 `/tmp/unified-integration-frozen.sha256` 的 SHA-256 为 `82fdf785088d723f76fca8fc4d5066dc5f5a7461f72d7cd2680d9151c722d0e9`；未重新生成期望值，数据不进入提交。
+- 实际输出与 JUnit 在 `/tmp/unified-integration-{canonical,replay,daily-ops,related,full}.{txt,xml}`；本机临时证据不作为仓库持久产物。仅运行 mock／fixture／临时目录中的离线阶段；真实 Crawl、生产 Replay／Backfill、通知、调度及部署验证 **NOT_RUN**，生产成功 **UNKNOWN**。
+
+当前集成离线门禁 **PASS**，原 13 项缺口在本候选中关闭；这不回写历史测试结果，也不表示生产已部署或运行成功。文档同步状态 **DOC_IMPACT: UPDATED**（workbook 与本文）。
+
+## 11. 2026-10-15 Modern → Legacy 降级风险验证
+
+基线为 PR #1 HEAD `118c348921ca5053e4a5aa142010ff22544eb128`，执行位置为新隔离 worktree `modern-legacy-proof/ai-job-finder`。现有 `execution`／`published_candidates` fixture 先生成合法完整的现代发布并通过 `validate_analysis`，再仅删除 Raw manifest invocation 与 Analysis proof，保留成功 Run invocation 及其他产物；Canonical 另截断分类结果。真实 Legacy 对照由原 Legacy fixture 构造，而非删除现代标记伪装。
+
+| 测试映射 | 修复前／修复后证据 |
+|---|---|
+| `test_canonical_candidate_report.py::test_modern_report_rejects_inconsistent_publication_and_preserves_output[missing_manifest_invocation_and_proof]` | 修复前 FAIL：未拒绝、接受 1/2 候选，覆盖 analysis JSON、hits JSONL、hits Markdown、report Markdown 四文件；修复后 PASS：缺 proof 拒绝，`changed_outputs=[]`。 |
+| `test_invocation.py::test_multiday_replay_rejects_unproven_inputs_and_preserves_affected_publications` 的新增双标记缺失参数 × 首日／次日 | 修复前 2 FAIL：均未拒绝且生成 comparison；修复后 2 PASS：缺 manifest invocation 拒绝，`changed_protected_artifacts=[]`，包含不存在的 proof／comparison 不得新建。原六项断言保留。 |
+| `test_invocation.py::test_run_only_modern_evidence_blocks_other_replay_paths` | 单日、预热、trend-only 共 3 PASS；单日要求 invocation ID，后两者拒绝缺 proof；所有文件前后字节与存在性一致。 |
+| `test_canonical_candidate_report.py::test_legacy_report_with_run_without_invocation_remains_usable`；`test_invocation.py::test_legacy_replay_with_run_without_invocation_remains_usable` | 共 3 PASS；Legacy Run 无 invocation，不要求现代 proof；保留稀疏 Canonical、正常 Replay、trend-only 兼容。原无 Run 的 Legacy 用例继续通过。 |
+
+命令均在隔离 worktree 执行，Python 为 `/Users/waikei/Developer/ai-job-finder/venv/bin/python`，设置 `PYTHONPYCACHEPREFIX=/tmp/modern-legacy-pycache`：
+
+- 先只增测试：`python -m pytest tests/test_canonical_candidate_report.py tests/test_invocation.py -q -p no:cacheprovider -k missing_manifest_invocation_and_proof -o junit_family=xunit1 --junitxml=/tmp/modern-legacy-reproduction.xml`，**3 failed / 58 deselected**，确认可复现后才修改实现；原失败现场保存在该 JUnit。
+- 最终专项：`python -m pytest tests/test_canonical_candidate_report.py tests/test_invocation.py tests/test_daily_orchestration.py -q -p no:cacheprovider -o junit_family=xunit1 --junitxml=/tmp/modern-legacy-targeted.xml`，**84 passed / 0 failed / 0 skipped**，包含原 13 项失败对应回归（恢复组另含 2 项既有成功控制）。
+- 全量：`python -m pytest -q -p no:cacheprovider -o junit_family=xunit1 --junitxml=/tmp/modern-legacy-full.xml`，**852 passed / 0 failed / 0 skipped，30.59 秒**，退出 0。
+- 编译：`python -m compileall -q src tests`，退出 0；`git diff --check` 与修改范围检查通过。
+- 冻结输入沿用第 10 节 18 文件清单 `/tmp/unified-integration-frozen.sha256`，复制前校验来源、复制后与测试后校验副本 SHA-256；没有重生成期望值或将数据加入 diff。
+
+`DOC_IMPACT: UPDATED`：同步本文与 workbook 中的证明识别契约及证据状态。仅离线 fixture、mock collector 与临时目录；未修改生产数据、调度或通知，未 commit、push、merge、生产运行或部署。原 PR 分支未改；修复留在新 worktree 等待人工审核。全标记均不存在的输入不在本次 Run 存留风险的证据范围内，本次不扩展 Legacy 迁移规则。
+
+### 集成到 PR #1 的状态更新
+
+上述七文件补丁作为独立提交 `fb481f3a66df142419b0b3ebe00685a656c9ff75`，从预期 PR HEAD `118c348921ca5053e4a5aa142010ff22544eb128` 普通 cherry-pick 到 `integration/unified-view-reliability`，应用后 HEAD 为 `dc83685084064b3d1811e252cccad9d53c13708c`。原六个集成提交的 SHA 与顺序均保留。集成后原 13 项回归节点 **18 passed**，新风险及 Legacy 路径控制 **6 passed**，全量 **852 passed / 0 failed / 0 skipped**；编译检查、`git diff --check` 和 18 项冻结输入 SHA-256 核对通过。PR 文件总数应为 9，精确白名单见本批验收请求。本次授权含普通 push 和 PR 描述更新；不含 merge、force push、部署或生产运行。
