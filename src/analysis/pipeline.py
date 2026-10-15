@@ -83,6 +83,19 @@ def replay(start, end, *, data_dir=Path('data'), output_dir=None, settings_path=
     for day in sorted(available | wanted):
         clean_path = clean_dir / f'{day}.json'
         manifest_path = raw_dir / f'{day}_manifest.json'
+        manifest = (json.loads(manifest_path.read_text(encoding='utf-8'))
+                    if manifest_path.exists() else {})
+        if ('invocation' in manifest or
+                (data_dir / 'analysis' / 'audit' / f'{day}_invocation.json').exists()):
+            from src.invocation import validate_clean, validate_analysis
+            expected_id = manifest.get('invocation', {}).get('id', '')
+            # Warmup and trend-only consume an existing published observation.
+            # Target recomputation needs proven inputs, not prior analysis outputs.
+            # Gate before missing-input skips or any dependent state/output changes.
+            if day < start or trend_only:
+                validate_analysis(data_dir, day, expected_id)
+            else:
+                validate_clean(data_dir, day, expected_id)
         missing = [str(path) for path in (clean_path, manifest_path) if not path.exists()]
         events_path = data_dir / 'analysis' / 'events' / f'{day}.jsonl'
         if trend_only and clean_path.exists() and not events_path.exists():
@@ -95,12 +108,6 @@ def replay(start, end, *, data_dir=Path('data'), output_dir=None, settings_path=
         indexed = index_jobs(jobs)
         # Exact duplicate identities are one posting; conflicting identities fail.
         jobs = list(indexed.values())
-        manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-        if day < start and ('invocation' in manifest or
-                            (data_dir / 'analysis' / 'audit' / f'{day}_invocation.json').exists()):
-            from src.invocation import validate_analysis
-            # A partially published modern observation cannot enter warmup.
-            validate_analysis(data_dir, day, manifest.get('invocation', {}).get('id', ''))
         health = SourceHealth(manifest, jobs)
         # Trend-only historical integration reads the canonical event ledger.
         # It never regenerates lifecycle, classification files, or audit bundles.
