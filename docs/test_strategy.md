@@ -222,3 +222,23 @@ git diff --stat master
 - 收尾执行 `git status --short`、`git diff --stat`、`git diff -- docs/workbook.md docs/test_strategy.md`；未 commit、push、merge 或部署。
 
 本批 **RESULT：PARTIAL**：文档补齐与范围检查通过，三项旧代码缺口已有当前 HEAD 离线失败证据，未实施非白名单修复。生产入口与实际部署验证 **NOT_RUN / UNKNOWN**，不影响其权限限制，也不冒充生产 PASS。待人工确认后才能开启其他批次。
+
+## 10. 2026-10-15 集成候选离线验收
+
+本节追加当前状态，不改写第 7–9 节历史计划、失败或验收事实。基线 `origin/taxonomy` 为 `ec33299422992028afca6acb6d88d1aef4527333`，集成代码 HEAD `2c1dc1ae2ed83c39bff7d1e24347c06347ec2802`；五组来源及集成 SHA 见 [workbook 当前状态](workbook.md#2026-10-15-集成候选验收状态)。测试断言、fixture 和冻结业务规则未修改。
+
+| 契约与测试映射（保留第 9 节目标名称） | 本次实际结果与证据 |
+|---|---|
+| `test_canonical_candidate_report.py::test_modern_report_rejects_inconsistent_publication_and_preserves_output` | **5 passed**；五种损坏均拒绝，JUnit `changed_outputs=[]`。合法现代／零候选／legacy／探索控制随相关回归通过。 |
+| `test_invocation.py::test_multiday_replay_rejects_unproven_inputs_and_preserves_affected_publications` | **6 passed**；均报 `CLEAN_PROVENANCE_MISMATCH`，`changed_protected_artifacts=[]`；合法 Replay、legacy、单日门禁及 trend-only 随相关回归通过。 |
+| `test_daily_orchestration.py::test_offline_staged_failure_recovers_once_without_recrawl` | **4 passed**（含原 2 项失败）；Clean／Analysis × 有／无旧发布均从失败 Invocation staging 预检，JUnit 记录一次恢复及 `[null, phase]` 调用；原断言验证同一 Invocation、一次 Crawl 与无重复恢复。 |
+
+使用原 checkout 的 `/Users/waikei/Developer/ai-job-finder/venv/bin/python`（Python 3.12.14、pytest 9.1.1），工作目录为隔离 worktree，设置 `PYTHONPYCACHEPREFIX=/tmp/unified-integration-pycache`。先分别执行上述三个完整 node ID：`python -m pytest tests/<上述文件及符号> -q -p no:cacheprovider -o junit_family=xunit1 --junitxml=/tmp/unified-integration-<组名>.xml`；依次为 5、6、4 passed，均退出 0。
+
+- 相关回归：23 个测试文件，覆盖 Invocation、SourceHealth、Market、Lifecycle、Trend、Ops、Runner、Health 与 Report，**435 passed / 0 failed / 0 skipped**；具体参数列表保存在 `/tmp/unified-integration-related-command.json`。
+- 全量命令：`python -m pytest -q -p no:cacheprovider -o junit_family=xunit1 --junitxml=/tmp/unified-integration-full.xml`，**843 passed / 0 failed / 0 skipped，28.97 秒**，退出 0；没有通过修改、跳过或弱化测试消除失败。
+- 编译：`python -m compileall -q src tests`，退出 0。`git diff --check`、提交白名单／数据排除及本地 Markdown 链接／锚点检查通过。
+- 冻结输入：从原 checkout 只读复制测试必需的 18 个被忽略的 Analysis 文件（7 日 classification/events、3 个 snapshots、1 个 run）；逐项比较来源与副本 SHA-256，并在测试后复核。清单 `/tmp/unified-integration-frozen.sha256` 的 SHA-256 为 `82fdf785088d723f76fca8fc4d5066dc5f5a7461f72d7cd2680d9151c722d0e9`；未重新生成期望值，数据不进入提交。
+- 实际输出与 JUnit 在 `/tmp/unified-integration-{canonical,replay,daily-ops,related,full}.{txt,xml}`；本机临时证据不作为仓库持久产物。仅运行 mock／fixture／临时目录中的离线阶段；真实 Crawl、生产 Replay／Backfill、通知、调度及部署验证 **NOT_RUN**，生产成功 **UNKNOWN**。
+
+当前集成离线门禁 **PASS**，原 13 项缺口在本候选中关闭；这不回写历史测试结果，也不表示生产已部署或运行成功。文档同步状态 **DOC_IMPACT: UPDATED**（workbook 与本文）。

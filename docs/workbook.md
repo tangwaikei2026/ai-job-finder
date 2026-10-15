@@ -111,6 +111,20 @@ Lifecycle 在 `c83a03b` 将 REAPPEARED 条件改为 `old.missing and old.missing
 
 本批仅修改 workbook 的入口／增量登记及 test_strategy 的测试映射／实际证据。未触发生产入口、通知、调度、历史 backfill 或招聘网站；发现的代码缺口仅记录，非白名单实施停止。当前结果与验收见下方测试策略新记录；不启动历史第二批计划。
 
+### 2026-10-15 集成候选验收状态
+
+集成分支为 `integration/unified-view-reliability`，从已核实的 `origin/taxonomy` `ec33299422992028afca6acb6d88d1aef4527333` 创建；五组变更整合后的代码 HEAD 为 `2c1dc1ae2ed83c39bff7d1e24347c06347ec2802`。本地 taxonomy 另有数据提交 `561cc56`，未纳入集成。2026-10-13/14 的审计、失败证据及入口登记保留；以下是本次实际离线验证后的当前状态。
+
+| 已验收修复 | 集成提交（来源提交） | 当前状态与最小影响 |
+|---|---|---|
+| Canonical 整批证明 | `4c4c275`（`ca03675`） | 原 5 项拒绝／输出保留测试 **5 passed**；`canonical_report.analyze_canonical_candidates` 在正式报告写入前复用 `validate_analysis`，保留合法零候选、legacy 与探索隔离行为。 |
+| 多日期 Replay 输入证明 | `71257b9`（`a7aa646`） | 原 6 项 **6 passed**；`pipeline.replay` 对现代目标重算使用 `validate_clean`，预热／trend-only 使用 `validate_analysis`，受影响产物字节保持不变。 |
+| Daily Operations 恢复来源 | `b02c202`（`ee6129b`） | 原无旧发布 2 项 **2 passed**，完整四组 **4 passed**；`DailyOperations._validate_recovery_inputs` 校验同一 Invocation staging 的 Raw／Clean，沿用一次受控恢复，不重新 Crawl。 |
+
+文档提交 `3a01b43` 来自干净提交 `2f40f09`（两份文档与 `08c1dc5` 内容一致），治理提交 `2c1dc1a` 来自 `b6bdab8`；均独立 cherry-pick，不纳入数据父提交或其他分支历史。三个修复文件保持已验收内容，未增加业务逻辑。
+
+当前原 13 项失败全部通过；相关 Invocation／SourceHealth／Market／Lifecycle／Trend／Ops／Report 回归 **435 passed**，全量 **843 passed / 0 failed / 0 skipped**，compileall、diff 范围及 Markdown 引用检查通过。冻结输入仅在隔离环境按 SHA-256 校验复制，未进入提交。详细命令、测试映射和证据边界见 [本次集成验证](test_strategy.md#10-2026-10-15-集成候选离线验收)。本次仅建立本地候选，不代表已部署；真实 Crawl、生产 Replay／Backfill、恢复运行、通知及调度验证均 **NOT_RUN**，实际部署与生产运行成功仍 **UNKNOWN**。未 push、merge 或部署。
+
 ## 场景：接入一个未知招聘平台
 
 做法：
