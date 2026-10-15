@@ -66,6 +66,51 @@ launchd adapter → run_daily_with_health → run_daily
 
 第二批仅拟在现有 `test_invocation.py`、`test_daily_orchestration.py`、`test_canonical_candidate_report.py` 补离线边界测试，需另行确认；不得因本文自动启动。若测试暴露缺陷，记录失败，不顺便修改生产代码或弱化断言。
 
+### 2026-10-14 增量状态与执行入口登记
+
+代码基线：`ec33299422992028afca6acb6d88d1aef4527333`（taxonomy）。本批 `git ls-remote origin refs/heads/taxonomy` 与本地 HEAD 一致；开工工作区干净，`master...HEAD` 与 `dcefcb8..HEAD` 的统计已核对。旧统一视图在 `b77e0fc` 落盘；以其记载的 `dcefcb8` 为代码基线核查增量，不读取新增历史 Raw/Clean 正文。上述 2026-10-13 记录保留，以下状态取代其“尚无新增测试”的当前解释，不改变历史事实。
+
+登记范围为 `tools/`、`ops/launchd/`、`.github/workflows/`、`src/` 的 `main`、`__main__`、参数解析与调用点静态检索。下表代码路径均相对仓库根；证据为所列文件的 `main` 或明确符号及配置。所有行均为**静态确认**，本批入口执行 **NOT_RUN**；实际部署与生产成功均 **UNKNOWN**，唯一例外是 GitHub 的历史用户确认（近期触发、最近采集失败，仍无独立日志核验）。仓库 plist 存在不证明 launchd 已加载；未读取本机安装状态，不启停调度。
+
+| 分类／触发者 | 正式入口与调用节点（代码证据） | 输入 → 产物／副作用 | 适用保护与验证边界 |
+|---|---|---|---|
+| 生产定时／launchd Daily | `ops/launchd/com.waikei.ai-job-finder.daily.plist` → `run_daily_launchd.py::main/build_command` → wrapper | 主机本地 10:00；固定 root/venv、运行日、邮件环境 → 日志轮转、`caffeinate -i`、完整 Daily | 获准 scheduler 才可执行；wrapper 锁与 invocation 门禁；部署／成功 UNKNOWN |
+| 生产定时／launchd Wake Guard | `ops/launchd/com.waikei.ai-job-finder.wake-guard.plist` → `run_wake_guard.py::main/build_command` | 本地 09:55 → `caffeinate -i -t 600` 与共享 launchd 日志 | 仅有限防 idle sleep；不调用 Daily、不抓取，不证明机器会被唤醒；部署／成功 UNKNOWN |
+| 生产定时或 GitHub 手动 dispatch | `.github/workflows/daily-scrape.yml` → `python -m src.main` | UTC 01:00/09:00、config → Raw/manifest、上传 `data/raw/` | raw-only，不具有 wrapper/全链路保证；历史用户确认失败，根因 UNKNOWN |
+| 独立手动／操作者 | `tools/run_daily_with_health.py::run_daily_with_health/_run_locked` → Runner → Health → Ops → Notifications | config/运行日、既有 Ops 状态 → runs、health、ops DB/latest、通知队列及可能外发 | 项目锁；有限下游恢复、不重抓；真实执行需明确授权，本批禁用 |
+| 独立手动／操作者或 wrapper | `tools/run_daily.py::run_daily/_run_daily/_publish` → main → clean CLI → pipeline | config、日期、resume → invocation staging、Worker sidecar、正式 Raw/Clean/Analysis、run 状态 | invocation/摘要/日期、失败保留、发布校验回滚；直接调用不等于 wrapper 锁／Health／通知 |
+| 独立手动／操作者或 Runner | `src.main::main/collect_all` → collector registry | config、platform、可选 invocation/merge → Raw/manifest；真实网络 | 全失败旧产物保护、不完整 merge 拒绝；直接入口可无 invocation，不得推定 staging 保护；本批禁用 |
+| 独立手动／操作者或 Runner | `src.clean.cli::main` 的 `clean-jobs` → `run_clean_jobs` | Raw、日期／可选 invocation → Clean/report | 正式 invocation 不改原始字段；独立输出默认 data/clean，不能视为 Runner 发布事务 |
+| 独立手动／操作者或 Runner | `src.analysis.pipeline::main/replay` 的 run/replay → SourceHealth、Classification、Lifecycle、Trends、Audit | Clean/manifest、历史预热、版本 → classification/events/trends/audit；默认 data/analysis | 来源重叠拒绝、单日 invocation 门禁；trend-only 只读事件账本写趋势；多日缺口见下表，本批不执行历史 Replay |
+| 独立手动／操作者 | `src.analysis.ai_eval_jobs::main/run_analysis` → `canonical_report.analyze_canonical_candidates` | 同日 Clean/Canonical/config → analysis JSON、候选／排除 JSONL 与 Markdown | Canonical 权威、探索独立命名；不是 Daily 自动节点；整批证明缺口未关闭 |
+| 独立手动／操作者 | `tools/run_weekly_report.py::run_weekly_report` → `compare_trends` → `generate_market_report.py` | 两端点 snapshot → comparison JSON、周报 Markdown | 日期顺序与端点校验；未发现每周 scheduler 调用，名称不代表自动周任务 |
+| 独立手动／操作者或周报 | `tools/generate_market_report.py::main` → render_snapshot/render_comparison | Trend snapshot/comparison → reports Markdown | artifact_type 检查，保留不可比标记；不重新分类、不采集 |
+| 历史维护／操作者 | `tools/backfill_history.py::run_backfill` → staged replay、Health、Ops、报告 | 保存的 raw/manifest/clean → 缺失派生产物、历史 Ops DB 行、backfill audit | 不调用 collector；保留已有产物；dry-run 与正式写入区分，本批均不执行 |
+| 历史维护／操作者 | `tools/sourcehealth_v2_backfill.py::run_v2_backfill/coverage_audit` → staged replay、Trend/report | 冻结历史输入 → V2 派生产物替换、审计；coverage-only 输出检查结果 | 校验后替换；不写 Raw/Clean/Health/Ops；本批不执行 |
+| 历史维护／操作者 | `src.operations.daily_ops::main/rebuild_daily_operations` | canonical run/health/manifest → Ops DB/latest | 重建运营解释，不能当作 Crawl 或通知发送入口；本批不执行 |
+| 诊断／操作者 | `tools/opsctl.py::main` → status/history/incidents/incident/recover/notify handlers | Ops DB／事件／邮件配置 → 状态或交接文本；notify 可入队、更新 delivery、外发 | recover 仅支持 dry-run 检视，不执行恢复；notify dry-run 仅渲染，正常模式本批禁止 |
+| 诊断／操作者或 wrapper | `src.analysis.daily_health::main/generate_daily_health` | run/manifest/registry → health JSON | 已完成观测解释；不把 partial 升级 complete、不采集 |
+| 诊断／操作者 | `src.clean.cli::main` 的 audit → `src.clean.audit.run_audit` | Raw → data/audit JSON/Markdown | 本地审计，有输出副作用，不是定时节点 |
+| 诊断／操作者 | `src.audit.enum_audit::main/run_enum_audit`；`src.audit.missing_evidence::main/run_missing_evidence` | Clean、规范配置 → enum health/full JSON、例外 CSV；缺失证据 CSV/report | 仅审计／复核产物，不改 Clean、不采集 |
+| 诊断／操作者 | `src.analysis.ai_eval_regression::main`；`tools/market_oracle_baseline.py::main/save_result` | frozen regression/Oracle → stdout；新目录 baseline JSON/CSV/Markdown | 冻结输入、baseline 既有文件冲突保护；不是正式资格发布或自动任务 |
+| 历史维护／操作者（历史 freeze 工具） | `tools/market_v1_regression.py::main`；`tools/trend_v1_validation.py::main` | Oracle／历史证据 → 离线 replay、验证产物；freeze 标志还可改 versions 配置 | 有真实写入与测试子进程，非只读诊断；旧 freeze 授权不能据名称推定，本批不执行 |
+| 诊断／操作者（网络工具） | `tools/tencent_detail_diagnostic.py::main/diagnose_detail` → Tencent collector | config/post-id → 真实详情请求、stdout 脱敏证据 | “read-only”不代表离线；不属于正式 production wrapper，本批及默认审计禁止执行 |
+
+简洁调用关系：Daily plist → launchd adapter（运行期间防睡眠）→ wrapper → Runner → main/collectors → clean → pipeline → 校验发布 → Health → Ops/Notifications。Wake Guard 是平行的限时电源断言；GitHub 直接走 main → Raw；周报走 snapshots → comparison → Markdown；候选报告走 Clean + Canonical → 报告；两种 backfill 从保存输入走 staged 派生。内部 `_publish`、`DailyOperations.attempt_recovery` 等只作为下游；`meituan_worker.py` 的 exec/IPC 子进程是 collector 内部实现，不登记为独立 scheduler；测试 fixture、测试辅助 main 不作为业务入口。静态检索未发现其他业务 scheduler；实际仓库外任务 UNKNOWN。
+
+增量专项复用：[Worker 隔离边界](meituan_worker_boundary.md)、[Lifecycle reliable absence](lifecycle_reliable_absence.md)、[美团失败诊断](meituan_failure_diagnostics.md)。诊断文档的 BLOCKED_BY_DECISION 是该批历史状态；当前 `48bea53` 已实现 Worker，不能沿用“未实现”作为当前事实，也不能推断已部署。Runner 的 `command_environment` 传 invocation 专属上下文，`retry_exhausted` 复用绝对预算，`verify_worker_cleanup` 在首次与 retry 后门禁；sidecar 位于 staging data 之外，不随正式发布复制。注册表仅美团换 Worker，其他 adapter 不变。中断仍为 error/complete=false，可靠性不自动提升。
+
+Lifecycle 在 `c83a03b` 将 REAPPEARED 条件改为 `old.missing and old.missing_streak > 0`，只认可靠且范围兼容的缺失；`5ad3f33` 补 Worker → Lifecycle/Trend 合成贯通。当前文档引用此已落地变更，不另行设计、不追改历史事件；trend-only 仍消费原事件账本。专项文档历史 805/824 passed 属于对应分支当时报告，不能替代当前 HEAD 回归。
+
+| 2026-10-13 待办 | 当前增量状态与证据 |
+|---|---|
+| 多日期 replay 门禁 | 新增 `tests/test_invocation.py::test_multiday_replay_rejects_unproven_inputs_and_preserves_affected_publications`（两日 × 三种损坏）；pipeline 本次无修改，单日／warmup 门禁仍限原范围。不得因测试存在关闭。当前执行结果见 test_strategy。 |
+| 恢复输入位置 | 新增 `tests/test_daily_orchestration.py::test_offline_staged_failure_recovers_once_without_recrawl`（clean/analysis × 有无旧发布），记录 Ops 实际 precheck 路径；DailyOperations 本次无修改，旧正式输入预检缺口仍保留。成功恢复控制组也不能证明预检读 staging。 |
+| 报告整批证明 | 新增 `tests/test_canonical_candidate_report.py` 五种损坏拒绝／旧输出保留，以及正常现代报告、合法零候选控制；报告实现本次无修改，仍未调用整批 validate_analysis。合法空分类不得等同被清空的非零发布。 |
+| GitHub 定时 raw 路径 | workflow 无增量，保留用户确认及 UNKNOWN 根因；未修复、启停、迁移或补跑。 |
+
+本批仅修改 workbook 的入口／增量登记及 test_strategy 的测试映射／实际证据。未触发生产入口、通知、调度、历史 backfill 或招聘网站；发现的代码缺口仅记录，非白名单实施停止。当前结果与验收见下方测试策略新记录；不启动历史第二批计划。
+
 ## 场景：接入一个未知招聘平台
 
 做法：
