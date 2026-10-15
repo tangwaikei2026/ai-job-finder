@@ -133,6 +133,10 @@ Lifecycle 在 `c83a03b` 将 REAPPEARED 条件改为 `old.missing and old.missing
 
 修复后新增 9 项（3 项风险、3 项其他 Replay 路径、3 项 Legacy 对照）通过，原 13 项失败对应回归全部通过；三文件专项 **84 passed**，全量 **852 passed / 0 failed / 0 skipped**。不可信输入拒绝后旧报告、受影响分析产物与源输入字节保持不变，且不新增 comparison。详细命令和证据见 [本次测试记录](test_strategy.md#11-2026-10-15-modern--legacy-降级风险验证)。冻结测试输入仍以原 SHA-256 清单校验，仅复制到隔离 worktree，未进入 diff。未 commit、push、merge、生产执行或部署；生产验证仍 **NOT_RUN**。本次状态不改写此前历史验收结论。`DOC_IMPACT: UPDATED`。
 
+#### 集成到 PR #1 的状态更新
+
+上述隔离验收补丁已作为独立提交 `fb481f3a66df142419b0b3ebe00685a656c9ff75` 创建，并以普通 cherry-pick 应用到原集成分支，当前 PR 候选 HEAD 为 `dc83685084064b3d1811e252cccad9d53c13708c`。原六个提交顺序保留。集成 worktree 的原 13 项回归节点为 **18 passed**（含参数化展开及既有成功控制），新增单日／预热／trend-only 与 Legacy 对照 **6 passed**，全量再次为 **852 passed / 0 failed / 0 skipped**；compileall 和冻结输入 SHA-256 校验通过。本批按授权准备普通推送并同步 PR 描述；未合并、部署或执行生产链路。
+
 ## 场景：接入一个未知招聘平台
 
 做法：

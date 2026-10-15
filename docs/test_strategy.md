@@ -263,3 +263,7 @@ git diff --stat master
 - 冻结输入沿用第 10 节 18 文件清单 `/tmp/unified-integration-frozen.sha256`，复制前校验来源、复制后与测试后校验副本 SHA-256；没有重生成期望值或将数据加入 diff。
 
 `DOC_IMPACT: UPDATED`：同步本文与 workbook 中的证明识别契约及证据状态。仅离线 fixture、mock collector 与临时目录；未修改生产数据、调度或通知，未 commit、push、merge、生产运行或部署。原 PR 分支未改；修复留在新 worktree 等待人工审核。全标记均不存在的输入不在本次 Run 存留风险的证据范围内，本次不扩展 Legacy 迁移规则。
+
+### 集成到 PR #1 的状态更新
+
+上述七文件补丁作为独立提交 `fb481f3a66df142419b0b3ebe00685a656c9ff75`，从预期 PR HEAD `118c348921ca5053e4a5aa142010ff22544eb128` 普通 cherry-pick 到 `integration/unified-view-reliability`，应用后 HEAD 为 `dc83685084064b3d1811e252cccad9d53c13708c`。原六个集成提交的 SHA 与顺序均保留。集成后原 13 项回归节点 **18 passed**，新风险及 Legacy 路径控制 **6 passed**，全量 **852 passed / 0 failed / 0 skipped**；编译检查、`git diff --check` 和 18 项冻结输入 SHA-256 核对通过。PR 文件总数应为 9，精确白名单见本批验收请求。本次授权含普通 push 和 PR 描述更新；不含 merge、force push、部署或生产运行。
