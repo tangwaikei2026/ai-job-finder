@@ -12,6 +12,7 @@ from src.analysis.candidate_city import select_shenzhen_candidates
 from src.analysis.classification import CLASSIFICATION_STATUSES
 from src.analysis.lifecycle import identity, index_jobs
 from src.analysis.market_rules import validate_market_output
+from src.invocation import read, validate_analysis
 
 
 def analyze_canonical_candidates(jobs, *, day, canonical_path, input_path,
@@ -21,6 +22,23 @@ def analyze_canonical_candidates(jobs, *, day, canonical_path, input_path,
         raise ValueError('CANONICAL_DATE_MISMATCH')
     if not canonical_path.is_file():
         raise ValueError(f'CANONICAL_MISSING: {canonical_path}')
+    data_dir = Path(input_path).parent.parent
+    manifest_path = data_dir / 'raw' / f'{day}_manifest.json'
+    manifest = read(manifest_path) if manifest_path.exists() else {}
+    if not isinstance(manifest, dict):
+        raise ValueError('MANIFEST_INVALID')
+    # Match the pipeline's modern-observation markers, including a surviving
+    # proof when the manifest's invocation is missing. Legacy stays row-validated.
+    if ('invocation' in manifest
+            or (data_dir / 'analysis' / 'audit' / f'{day}_invocation.json').exists()):
+        # validate_analysis binds these exact files, not an arbitrary CLI override.
+        if (Path(input_path).resolve() != (data_dir / 'clean' / f'{day}.json').resolve()
+                or canonical_path.resolve() !=
+                (data_dir / 'analysis' / 'classification' / f'{day}.jsonl').resolve()):
+            raise ValueError('CANONICAL_PUBLICATION_PATH_MISMATCH')
+        context = manifest.get('invocation')
+        expected_id = context.get('id', '') if isinstance(context, dict) else ''
+        validate_analysis(data_dir, day, expected_id)
     rows = [json.loads(line) for line in canonical_path.read_text(encoding='utf-8').splitlines()
             if line.strip()]
     indexed = index_jobs(jobs)
