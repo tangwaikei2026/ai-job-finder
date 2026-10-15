@@ -195,3 +195,30 @@ git diff --stat master
 - 编译及 pytest：本批为文档整理，按用户要求检查一致性、范围和 diff；未执行 `compileall` 或 pytest，不声称回归通过，也不把本批验收方式扩展成永久豁免。
 - 完整 diff 与命令输出保留在本批会话工具记录；未提交前可用上述 diff 命令复核。
 - 验收结果：`git diff --check` 通过；范围检查仅三份允许文档；生产授权／调度条款、仓库实现约束、固定验收和 diff 要求与 HEAD 原文相同，其他限制及停止要求保留；本地链接、锚点、代码围栏检查通过。最终 status 为三份文档修改及 44 个既有未跟踪数据路径，暂存区为空。
+
+## 9. 2026-10-14 增量测试映射与验收
+
+基线为 taxonomy `ec33299422992028afca6acb6d88d1aef4527333`，远程查询一致。第 7、8 节是保留的 2026-10-13 计划与验收，不再表示新增测试尚未落盘；本节记录当前 HEAD 事实。入口清单与权限边界见 [workbook 增量登记](workbook.md#2026-10-14-增量状态与执行入口登记)，不重复专项设计。
+
+| 受影响契约／代码证据 | 当前测试映射 | 本批执行证据 |
+|---|---|---|
+| Meituan Worker 隔离、共享 retry deadline、退出门禁：`meituan_worker.py`、registry、`run_daily.py` | `tests/test_meituan_worker.py`、`test_meituan_worker_pipeline.py`；诊断 `test_meituan_diagnostics.py` | 全量中通过；真实子进程配模拟请求、临时 staging；不代表生产超时恢复成功 |
+| reliable absence：`lifecycle.py::Lifecycle.observe` | `tests/test_lifecycle_reliable_absence.py` 的可靠／不可靠缺失与返回、正文变更、warmup；`test_meituan_worker_lifecycle_integration.py::test_worker_absence_recovery_integrates_with_lifecycle_and_trend` | 全量中通过；合成事件与 Trend-only 对照，不追溯证明历史事件正确 |
+| 多日期现代输入证明及受影响发布保护：`pipeline.py::replay`、`invocation.py::validate_clean` | `tests/test_invocation.py::test_multiday_replay_rejects_unproven_inputs_and_preserves_affected_publications`：两日 × 缺 proof／混 invocation／篡改 Clean | **FAIL，6 项**：损坏输入已由 validate_clean 独立确认无效，但 replay 未报错，生成 comparison；篡改正文还改写受影响 events/audit/trends。均为临时数据，旧待办未关闭 |
+| clean/analysis 恢复、原 invocation、不 recrawl：wrapper、`DailyOperations._validate_recovery_inputs`、Runner | `tests/test_daily_orchestration.py::test_offline_staged_failure_recovers_once_without_recrawl`：两阶段 × 有无旧发布，记录 precheck 路径 | **PARTIAL，2 passed / 2 failed**：无旧发布两项为 `SKIPPED_INVALID_RAW`；有旧发布控制组通过，但不证明 Ops 预检了 staging。旧待办未关闭 |
+| Canonical 整批发布证明：`canonical_report.py`、`ai_eval_jobs.py::run_analysis` | `tests/test_canonical_candidate_report.py::test_modern_report_rejects_inconsistent_publication_and_preserves_output`；`test_proven_modern_candidate_report_remains_usable`；`test_proven_modern_publication_without_market_rows_yields_zero_report` | **PARTIAL**：五种损坏拒绝用例均 FAIL（截断、清空、旧同日 proof、缺失／篡改 proof）；正常现代报告与合法零候选控制通过。部分 proof 损坏输出字节未变仍不能证明拒绝，旧待办未关闭 |
+| 调度静态契约及报告／维护消费者（未变化，不重审规则） | `tests/test_launchd_entrypoint.py`、`test_workflow_contract.py`、`test_run_weekly_report.py`、`test_market_report_v1.py`、`test_backfill_history.py`、`test_sourcehealth_v2_backfill.py` | 全量中通过；覆盖代码／配置与临时离线输入，不证明 scheduler 安装或生产运行 |
+
+专项背景复用 [Worker](meituan_worker_boundary.md)、[Lifecycle](lifecycle_reliable_absence.md)、[诊断](meituan_failure_diagnostics.md)。历史分支的成功数为文档报告证据；本批实际全量不以它们替代。测试中 mock collector 边界、通知外发，仅在 pytest 临时目录调用真实离线阶段；未执行独立生产 Crawl、Daily Runner、Replay、Backfill、通知或调度。
+
+实际命令与结果（项目 venv Python 3.12，pytest 9.1.1；缓存定向 `/tmp`）：
+
+- `PYTHONPYCACHEPREFIX=/tmp/ai-job-finder-doc-audit-pycache venv/bin/python -m compileall -q src tests`：PASS，退出 0。
+- `PYTHONPYCACHEPREFIX=/tmp/ai-job-finder-doc-audit-pycache venv/bin/pytest -q -p no:cacheprovider`：收集失败，退出 2，34 个 `ModuleNotFoundError: src`；没有执行测试，不算业务失败或通过。
+- 因上述收集路径问题，改用 `PYTHONPYCACHEPREFIX=/tmp/ai-job-finder-doc-audit-pycache venv/bin/python -m pytest -q -p no:cacheprovider`：退出 1，**830 passed / 13 failed，28.65 秒**。只执行一次实际全量，不重复已执行用例；无需再次跑 `pytest tests -q`。
+- 完整输出在 `/tmp/ai-job-finder-doc-audit-pytest.txt`、`/tmp/ai-job-finder-doc-audit-pytest-module.txt`（本机临时证据，不是仓库可持久复核链接）；代码／断言证据以上述受版本管理的文件为准。
+- `git diff --check`、内存 Markdown 本地链接／锚点／围栏检查、白名单与暂存区检查：PASS。仅 workbook、本文修改，未修改 AGENTS、代码、测试、配置、workflow、数据；2026-10-13 历史章节保留。
+- Git 核查执行 `git status --short`、`git branch --show-current`、`git rev-parse HEAD`、`git remote -v`、`git ls-remote origin refs/heads/taxonomy`、`git log --oneline -12`、`git diff master...HEAD --stat`、`git diff dcefcb8..HEAD --stat` 及相关代码／测试 diff；静态入口通过 `rg --files`、`rg -n`、`cat`、`sed` 核对，无历史数据正文读取。
+- 收尾执行 `git status --short`、`git diff --stat`、`git diff -- docs/workbook.md docs/test_strategy.md`；未 commit、push、merge 或部署。
+
+本批 **RESULT：PARTIAL**：文档补齐与范围检查通过，三项旧代码缺口已有当前 HEAD 离线失败证据，未实施非白名单修复。生产入口与实际部署验证 **NOT_RUN / UNKNOWN**，不影响其权限限制，也不冒充生产 PASS。待人工确认后才能开启其他批次。
