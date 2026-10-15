@@ -21,6 +21,7 @@ from tools.run_daily import (
     _validate_existing_observation,
 )
 from src.operations.presentation import human_outcome
+from src.invocation import validate_context, validate_clock, validate_raw, validate_clean
 
 
 SCHEMA_VERSION = 2
@@ -254,18 +255,38 @@ class DailyOperations:
         return None
 
     def _validate_recovery_inputs(
-        self, run_date: str, recovery_type: str
+        self, run_date: str, recovery_type: str, *, run: Mapping[str, Any]
     ) -> tuple[bool, dict[str, str]]:
         results: dict[str, str] = {}
         try:
             raw_dir, data_dir = _load_config(self.config_path)
             if data_dir.resolve() != self.data_dir:
                 raise ValueError('configured data root does not match run artifact root')
+            modern = 'invocation' in run
+            if modern:
+                context = run['invocation']
+                validate_context(context, run_date)
+                validate_clock(context)
+                # Runner resumes from the persisted failed run, not a supplied path.
+                persisted = self._canonical_run(run_date)
+                if (run.get('date') != run_date or persisted.get('date') != run_date
+                        or persisted.get('invocation') != context
+                        or self._recovery_type(persisted) != recovery_type):
+                    raise ValueError('INVOCATION_CONTEXT_MISMATCH')
+                data_dir = self.data_dir / 'analysis' / 'invocations' / context['id'] / 'data'
+                raw_dir = data_dir / 'raw'
             raw_rows, manifest = _validate_existing_observation(
                 raw_dir / f'{run_date}.json',
                 raw_dir / f'{run_date}_manifest.json',
                 self.config_path,
             )
+            if modern:
+                validate_raw(run_date, manifest, raw_rows, context['id'], self.config_path)
+                if manifest['invocation'] != context:
+                    raise ValueError('INVOCATION_CONTEXT_MISMATCH')
+            elif ('invocation' in manifest
+                  or (data_dir / 'analysis' / 'audit' / f'{run_date}_invocation.json').exists()):
+                raise ValueError('INVOCATION_PROOF_MISSING')
             results['raw_manifest'] = 'PASS'
         except Exception as exc:
             results['raw_manifest'] = f'FAIL: {_compact(exc)}'
@@ -273,10 +294,12 @@ class DailyOperations:
         if recovery_type == 'analysis':
             try:
                 _validate_clean_artifact(
-                    self.data_dir / 'clean' / f'{run_date}.json',
+                    data_dir / 'clean' / f'{run_date}.json',
                     manifest,
                     raw_rows,
                 )
+                if modern:
+                    validate_clean(data_dir, run_date, context['id'])
                 results['clean'] = 'PASS'
             except Exception as exc:
                 results['clean'] = f'FAIL: {_compact(exc)}'
@@ -323,7 +346,7 @@ class DailyOperations:
                 validator_results=validators,
                 error=error,
             )
-        valid, validator_results = self._validate_recovery_inputs(run_date, recovery_type)
+        valid, validator_results = self._validate_recovery_inputs(run_date, recovery_type, run=run)
         if not valid:
             invalid = 'RAW' if validator_results.get('raw_manifest') != 'PASS' else 'CLEAN'
             return RecoveryOutcome(
@@ -855,7 +878,7 @@ class DailyOperations:
             ).fetchone()
         if action is not None and int(action['attempt_count']) >= MAX_RECOVERY_ATTEMPTS:
             return RecoveryCandidate(run_date, recovery_type, False, 'ATTEMPT_LIMIT_REACHED')
-        valid, validators = self._validate_recovery_inputs(run_date, recovery_type)
+        valid, validators = self._validate_recovery_inputs(run_date, recovery_type, run=run)
         if not valid:
             reason = (
                 'CANONICAL_RAW_INVALID'
