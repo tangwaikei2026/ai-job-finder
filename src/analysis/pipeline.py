@@ -19,6 +19,7 @@ from src.analysis.classification import classify_record
 from src.analysis.lifecycle import Lifecycle, identity, index_jobs
 from src.analysis.source_health import SourceHealth
 from src.analysis.trends import aggregate_trends, compare_trends, trend_snapshot
+from src.invocation import has_invocation_evidence
 from src.models import write_json_atomic
 
 DEFAULT_VERSION_CONFIG = Path(__file__).resolve().parents[2] / 'configs/analysis/versions.yaml'
@@ -57,8 +58,7 @@ def replay(start, end, *, data_dir=Path('data'), output_dir=None, settings_path=
     current_manifest_path = raw_dir / f'{start}_manifest.json'
     if invocation_id is None and start == end and current_manifest_path.exists():
         current_manifest = json.loads(current_manifest_path.read_text(encoding='utf-8'))
-        if ('invocation' in current_manifest
-                or (data_dir / 'analysis' / 'audit' / f'{start}_invocation.json').exists()):
+        if has_invocation_evidence(data_dir, start, current_manifest):
             raise ValueError('INVOCATION_ID_REQUIRED')
     if invocation_id is not None:
         # Gate the incoming Daily observation before any warmup or output writes.
@@ -85,8 +85,7 @@ def replay(start, end, *, data_dir=Path('data'), output_dir=None, settings_path=
         manifest_path = raw_dir / f'{day}_manifest.json'
         manifest = (json.loads(manifest_path.read_text(encoding='utf-8'))
                     if manifest_path.exists() else {})
-        if ('invocation' in manifest or
-                (data_dir / 'analysis' / 'audit' / f'{day}_invocation.json').exists()):
+        if has_invocation_evidence(data_dir, day, manifest):
             from src.invocation import validate_clean, validate_analysis
             expected_id = manifest.get('invocation', {}).get('id', '')
             # Warmup and trend-only consume an existing published observation.

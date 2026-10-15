@@ -242,3 +242,24 @@ git diff --stat master
 - 实际输出与 JUnit 在 `/tmp/unified-integration-{canonical,replay,daily-ops,related,full}.{txt,xml}`；本机临时证据不作为仓库持久产物。仅运行 mock／fixture／临时目录中的离线阶段；真实 Crawl、生产 Replay／Backfill、通知、调度及部署验证 **NOT_RUN**，生产成功 **UNKNOWN**。
 
 当前集成离线门禁 **PASS**，原 13 项缺口在本候选中关闭；这不回写历史测试结果，也不表示生产已部署或运行成功。文档同步状态 **DOC_IMPACT: UPDATED**（workbook 与本文）。
+
+## 11. 2026-10-15 Modern → Legacy 降级风险验证
+
+基线为 PR #1 HEAD `118c348921ca5053e4a5aa142010ff22544eb128`，执行位置为新隔离 worktree `modern-legacy-proof/ai-job-finder`。现有 `execution`／`published_candidates` fixture 先生成合法完整的现代发布并通过 `validate_analysis`，再仅删除 Raw manifest invocation 与 Analysis proof，保留成功 Run invocation 及其他产物；Canonical 另截断分类结果。真实 Legacy 对照由原 Legacy fixture 构造，而非删除现代标记伪装。
+
+| 测试映射 | 修复前／修复后证据 |
+|---|---|
+| `test_canonical_candidate_report.py::test_modern_report_rejects_inconsistent_publication_and_preserves_output[missing_manifest_invocation_and_proof]` | 修复前 FAIL：未拒绝、接受 1/2 候选，覆盖 analysis JSON、hits JSONL、hits Markdown、report Markdown 四文件；修复后 PASS：缺 proof 拒绝，`changed_outputs=[]`。 |
+| `test_invocation.py::test_multiday_replay_rejects_unproven_inputs_and_preserves_affected_publications` 的新增双标记缺失参数 × 首日／次日 | 修复前 2 FAIL：均未拒绝且生成 comparison；修复后 2 PASS：缺 manifest invocation 拒绝，`changed_protected_artifacts=[]`，包含不存在的 proof／comparison 不得新建。原六项断言保留。 |
+| `test_invocation.py::test_run_only_modern_evidence_blocks_other_replay_paths` | 单日、预热、trend-only 共 3 PASS；单日要求 invocation ID，后两者拒绝缺 proof；所有文件前后字节与存在性一致。 |
+| `test_canonical_candidate_report.py::test_legacy_report_with_run_without_invocation_remains_usable`；`test_invocation.py::test_legacy_replay_with_run_without_invocation_remains_usable` | 共 3 PASS；Legacy Run 无 invocation，不要求现代 proof；保留稀疏 Canonical、正常 Replay、trend-only 兼容。原无 Run 的 Legacy 用例继续通过。 |
+
+命令均在隔离 worktree 执行，Python 为 `/Users/waikei/Developer/ai-job-finder/venv/bin/python`，设置 `PYTHONPYCACHEPREFIX=/tmp/modern-legacy-pycache`：
+
+- 先只增测试：`python -m pytest tests/test_canonical_candidate_report.py tests/test_invocation.py -q -p no:cacheprovider -k missing_manifest_invocation_and_proof -o junit_family=xunit1 --junitxml=/tmp/modern-legacy-reproduction.xml`，**3 failed / 58 deselected**，确认可复现后才修改实现；原失败现场保存在该 JUnit。
+- 最终专项：`python -m pytest tests/test_canonical_candidate_report.py tests/test_invocation.py tests/test_daily_orchestration.py -q -p no:cacheprovider -o junit_family=xunit1 --junitxml=/tmp/modern-legacy-targeted.xml`，**84 passed / 0 failed / 0 skipped**，包含原 13 项失败对应回归（恢复组另含 2 项既有成功控制）。
+- 全量：`python -m pytest -q -p no:cacheprovider -o junit_family=xunit1 --junitxml=/tmp/modern-legacy-full.xml`，**852 passed / 0 failed / 0 skipped，30.59 秒**，退出 0。
+- 编译：`python -m compileall -q src tests`，退出 0；`git diff --check` 与修改范围检查通过。
+- 冻结输入沿用第 10 节 18 文件清单 `/tmp/unified-integration-frozen.sha256`，复制前校验来源、复制后与测试后校验副本 SHA-256；没有重生成期望值或将数据加入 diff。
+
+`DOC_IMPACT: UPDATED`：同步本文与 workbook 中的证明识别契约及证据状态。仅离线 fixture、mock collector 与临时目录；未修改生产数据、调度或通知，未 commit、push、merge、生产运行或部署。原 PR 分支未改；修复留在新 worktree 等待人工审核。全标记均不存在的输入不在本次 Run 存留风险的证据范围内，本次不扩展 Legacy 迁移规则。

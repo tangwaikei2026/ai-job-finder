@@ -336,10 +336,59 @@ def test_partial_publication_cannot_enter_legacy_history_warmup(execution, monke
     assert not (e['root']/'data/raw/2026-10-11.json').exists()
 
 
+@pytest.mark.parametrize('mode', ['single_day', 'warmup', 'trend_only'])
+def test_run_only_modern_evidence_blocks_other_replay_paths(execution, mode, record_property):
+    e = execution
+    assert e['run']()[0] == 0
+    data = e['root'] / 'data'
+    status = read(data / 'analysis' / 'runs' / f'{DAY}.json')
+    validate_analysis(data, DAY, status['invocation']['id'])
+    path = data / 'raw' / f'{DAY}_manifest.json'
+    manifest = read(path)
+    manifest.pop('invocation')
+    path.write_text(json.dumps(manifest))
+    (data / 'analysis' / 'audit' / f'{DAY}_invocation.json').unlink()
+    before = {p.relative_to(data): p.read_bytes() for p in data.rglob('*') if p.is_file()}
+    if mode == 'single_day':
+        with pytest.raises(ValueError, match='INVOCATION_ID_REQUIRED'):
+            replay(DAY, DAY, data_dir=data)
+    else:
+        with pytest.raises(FileNotFoundError):
+            replay('2026-10-12' if mode == 'warmup' else DAY, '2026-10-13',
+                   data_dir=data, trend_only=mode == 'trend_only')
+    after = {p.relative_to(data): p.read_bytes() for p in data.rglob('*') if p.is_file()}
+    changed = sorted(str(p) for p in before.keys() | after.keys()
+                     if before.get(p) != after.get(p))
+    record_property('changed_protected_artifacts', json.dumps(changed))
+    assert not changed
+
+
+@pytest.mark.parametrize('trend_only', [False, True])
+def test_legacy_replay_with_run_without_invocation_remains_usable(tmp_path, trend_only):
+    from tests.test_daily_health import run_status
+    from tests.test_market_pipeline import job, write_day
+
+    for day in ('2026-09-01', '2026-09-02'):
+        write_day(tmp_path, day, [job()])
+        run_path = tmp_path / 'analysis' / 'runs' / f'{day}.json'
+        run_path.parent.mkdir(parents=True, exist_ok=True)
+        run_path.write_text(json.dumps(run_status(day=day)))
+        assert 'invocation' not in read(run_path)
+    # Generate the Legacy event ledger required by trend-only, without migrating
+    # old observations to invocation proofs or stripping markers from modern data.
+    replay('2026-09-01', '2026-09-02', data_dir=tmp_path)
+    result = replay('2026-09-01', '2026-09-02', data_dir=tmp_path, trend_only=trend_only)
+    assert len(result['observations']) == 2
+    assert (tmp_path / 'analysis/trends/comparisons/2026-09-01_2026-09-02.json').is_file()
+
+
 # Contract basis: validate_clean binds raw/clean to one invocation; the existing
 # single-day and history-warmup gates must not be bypassed by a date range.
 # These are modern inputs, not an attempt to retrofit proof onto legacy data.
-@pytest.mark.parametrize('damage', ['missing_clean_proof', 'mixed_invocation', 'tampered_clean'])
+@pytest.mark.parametrize('damage', [
+    'missing_clean_proof', 'mixed_invocation', 'tampered_clean',
+    'missing_manifest_invocation_and_proof',
+])
 @pytest.mark.parametrize('damaged_day', ['2026-10-10', '2026-10-11'])
 def test_multiday_replay_rejects_unproven_inputs_and_preserves_affected_publications(
     execution, monkeypatch, damage, damaged_day, record_property,
@@ -372,6 +421,15 @@ def test_multiday_replay_rejects_unproven_inputs_and_preserves_affected_publicat
         report_path.write_text(json.dumps(value))
     elif damage == 'mixed_invocation':
         report_path.write_bytes(old_reports[damaged_day])
+    elif damage == 'missing_manifest_invocation_and_proof':
+        manifest_path = data / 'raw' / f'{damaged_day}_manifest.json'
+        value = read(manifest_path)
+        value.pop('invocation')
+        manifest_path.write_text(json.dumps(value))
+        (data / 'analysis' / 'audit' / f'{damaged_day}_invocation.json').unlink()
+        status = read(data / 'analysis' / 'runs' / f'{damaged_day}.json')
+        assert status['invocation']['id'] == identifiers[damaged_day]
+        assert status['status'] == 'SUCCESS'
     else:
         path = data / 'clean' / f'{damaged_day}.json'
         rows = read(path)
@@ -380,7 +438,10 @@ def test_multiday_replay_rejects_unproven_inputs_and_preserves_affected_publicat
 
     # An existing production validator establishes invalidity independently of
     # replay's current behavior and without prescribing a new classifier rule.
-    with pytest.raises(ValueError, match='CLEAN_PROVENANCE_MISMATCH'):
+    expected_error = ('INVOCATION_PROOF_MISSING'
+                      if damage == 'missing_manifest_invocation_and_proof'
+                      else 'CLEAN_PROVENANCE_MISMATCH')
+    with pytest.raises(ValueError, match=expected_error):
         validate_clean(data, damaged_day, identifiers[damaged_day])
     # Source data is immutable input to replay (the existing historical replay
     # contract). Preserve the dated published observation for the invalid date
@@ -399,7 +460,9 @@ def test_multiday_replay_rejects_unproven_inputs_and_preserves_affected_publicat
             f'audit/{day}_invocation.json', f'runs/{day}.json',
         ))
     protected_paths = source_paths + affected_paths
-    assert all(path.is_file() for path in protected_paths)
+    assert all(path.is_file() for path in protected_paths
+               if damage != 'missing_manifest_invocation_and_proof'
+               or path.name != f'{damaged_day}_invocation.json')
     # This pair depends on the invalid date in either parameterized case. A
     # comparison is a formal trend artifact even if it did not exist before;
     # creating one from untrusted input must also be detected.

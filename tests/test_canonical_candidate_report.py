@@ -205,12 +205,26 @@ def test_proven_modern_candidate_report_remains_usable(published_candidates, tmp
     }
 
 
+def test_legacy_report_with_run_without_invocation_remains_usable(tmp_path):
+    from tests.test_daily_health import run_status
+
+    a, b = job(), job('2')
+    # Legacy Canonical need not include every Clean identity or carry proof.
+    source, _ = setup(tmp_path, [a, b], [canonical(a)])
+    run_path = tmp_path / 'analysis' / 'runs' / f'{DAY}.json'
+    run_path.parent.mkdir()
+    run_path.write_text(json.dumps(run_status(day=DAY)))
+    assert 'invocation' not in json.loads(run_path.read_text())
+    assert run(tmp_path, source)[2]['manifest']['selected_job_count'] == 1
+
+
 # Contract basis: Canonical authority plus the existing analysis_proof artifact
 # digest. A damaged *modern published* observation is not a valid empty legacy
 # Canonical input. Keep all prior legacy/empty/carried-forward tests unchanged.
 @pytest.mark.parametrize('damage', [
     'truncated_classification', 'emptied_classification', 'stale_same_day_proof',
     'missing_proof', 'tampered_proof',
+    'missing_manifest_invocation_and_proof',
 ])
 def test_modern_report_rejects_inconsistent_publication_and_preserves_output(
     published_candidates, tmp_path, damage, record_property,
@@ -248,13 +262,25 @@ def test_modern_report_rejects_inconsistent_publication_and_preserves_output(
         proof_path.write_bytes(prior_proof)
     elif damage == 'missing_proof':
         proof_path.unlink()
+    elif damage == 'missing_manifest_invocation_and_proof':
+        manifest_path = p['data'] / 'raw' / f"{p['day']}_manifest.json"
+        manifest = read(manifest_path)
+        manifest.pop('invocation')
+        manifest_path.write_text(json.dumps(manifest))
+        proof_path.unlink()
+        p['canonical'].write_text(p['canonical'].read_text().splitlines()[0] + '\n')
+        status = read(p['data'] / 'analysis' / 'runs' / f"{p['day']}.json")
+        assert status['invocation']['id'] == p['invocation']
+        assert status['status'] == 'SUCCESS'
     else:
         value = read(proof_path)
         value['artifacts'][f"classification/{p['day']}.jsonl"] = '0' * 64
         proof_path.write_text(json.dumps(value))
 
-    expected_id = read(p['data'] / 'raw' / f"{p['day']}_manifest.json")['invocation']['id']
-    proof_error = (pytest.raises(FileNotFoundError) if damage == 'missing_proof'
+    expected_id = read(p['data'] / 'raw' / f"{p['day']}_manifest.json").get(
+        'invocation', {}).get('id', p['invocation'])
+    proof_error = (pytest.raises(FileNotFoundError) if damage in {
+        'missing_proof', 'missing_manifest_invocation_and_proof'}
                    else pytest.raises(ValueError, match='ANALYSIS_PROVENANCE_MISMATCH'))
     with proof_error:
         validate_analysis(p['data'], p['day'], expected_id)

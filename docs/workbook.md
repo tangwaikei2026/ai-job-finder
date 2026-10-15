@@ -125,6 +125,14 @@ Lifecycle 在 `c83a03b` 将 REAPPEARED 条件改为 `old.missing and old.missing
 
 当前原 13 项失败全部通过；相关 Invocation／SourceHealth／Market／Lifecycle／Trend／Ops／Report 回归 **435 passed**，全量 **843 passed / 0 failed / 0 skipped**，compileall、diff 范围及 Markdown 引用检查通过。冻结输入仅在隔离环境按 SHA-256 校验复制，未进入提交。详细命令、测试映射和证据边界见 [本次集成验证](test_strategy.md#10-2026-10-15-集成候选离线验收)。本次仅建立本地候选，不代表已部署；真实 Crawl、生产 Replay／Backfill、恢复运行、通知及调度验证均 **NOT_RUN**，实际部署与生产运行成功仍 **UNKNOWN**。未 push、merge 或部署。
 
+### 2026-10-15 Modern → Legacy 降级修复离线验收
+
+基于 PR #1 HEAD `118c348921ca5053e4a5aa142010ff22544eb128` 的新隔离 worktree；原 PR 分支保持不变。先用完整现代发布 fixture 删除 Raw manifest 的 invocation 与 Analysis proof，保留成功 Run 的 invocation：Canonical 截断分类后错误接受 1/2 候选并覆盖四个旧报告；多日 Replay 在首日／次日损坏时均未拒绝，并生成 comparison。三个新增风险用例在修复前均失败；这只是临时离线复现，不代表生产数据已发生污染。
+
+根因为现代观察识别漏掉 Run invocation。`src/invocation.py::has_invocation_evidence` 复用 Daily Health 已有的三标记识别规则：Manifest invocation、Analysis proof 或 Run invocation 任一存在即进入现代证明门禁；标记本身不建立可信性。Canonical 与 Replay 的单日、目标重算、预热及 trend-only 使用该识别，继续调用原 `validate_clean`／`validate_analysis`。未改变分类、SourceHealth、时间窗口、合法 Legacy 规则或发布／数据库／通知逻辑；无 invocation 的真实 Legacy Run 保持兼容，不要求补现代证明。
+
+修复后新增 9 项（3 项风险、3 项其他 Replay 路径、3 项 Legacy 对照）通过，原 13 项失败对应回归全部通过；三文件专项 **84 passed**，全量 **852 passed / 0 failed / 0 skipped**。不可信输入拒绝后旧报告、受影响分析产物与源输入字节保持不变，且不新增 comparison。详细命令和证据见 [本次测试记录](test_strategy.md#11-2026-10-15-modern--legacy-降级风险验证)。冻结测试输入仍以原 SHA-256 清单校验，仅复制到隔离 worktree，未进入 diff。未 commit、push、merge、生产执行或部署；生产验证仍 **NOT_RUN**。本次状态不改写此前历史验收结论。`DOC_IMPACT: UPDATED`。
+
 ## 场景：接入一个未知招聘平台
 
 做法：
