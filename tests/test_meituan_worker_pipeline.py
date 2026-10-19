@@ -3,8 +3,10 @@ from datetime import datetime
 import json
 import os
 from pathlib import Path
+import signal
 import sys
 import time
+from types import SimpleNamespace
 
 import pytest
 import yaml
@@ -20,6 +22,31 @@ import tools.run_daily as daily
 from test_meituan_worker import command, CONFIG
 
 
+class ControlledWorkerClock:
+    """Keep the worker's budget clock fixed until a verified test boundary."""
+
+    def __init__(self):
+        self.start = time.monotonic()
+        self.offset = None
+
+    def monotonic(self):
+        if self.offset is None:
+            # A broken child must fail the test instead of leaving a frozen clock forever.
+            return self.start if time.monotonic() - self.start < 10 else self.start + 1
+        return time.monotonic() + self.offset
+
+    def expire(self, deadline):
+        assert self.offset is None and deadline > self.start
+        self.offset = deadline + .01 - time.monotonic()
+
+
+def control_worker_clock(monkeypatch):
+    clock = ControlledWorkerClock()
+    monkeypatch.setattr(worker, 'time', SimpleNamespace(
+        monotonic=clock.monotonic, time=time.time, sleep=time.sleep))
+    return clock
+
+
 @pytest.fixture
 def execution(tmp_path, monkeypatch):
     day = datetime.now().astimezone().date().isoformat()
@@ -28,15 +55,19 @@ def execution(tmp_path, monkeypatch):
         max_retries=1, platforms=dict(meituan=dict(CONFIG, enabled=True, worker_budget_seconds=.65),
                                     next=dict(enabled=True)))))
     calls = []
-    state = dict(mode='hang', next_delay=0)
+    state = dict(mode='hang', before_next=None)
     actual = worker.supervise
     def supervise(pc, cc, budget):
-        return actual(pc, cc, budget, command_factory=command(state['mode']))
+        state['budget_deadline'] = budget.state['deadline']
+        result = actual(pc, cc, budget, command_factory=command(state['mode']))
+        state['worker_audit'] = result.manifest.metadata['worker']
+        return result
     monkeypatch.setattr(worker, 'supervise', supervise)
     class Next:
         def __init__(self, *args): pass
         def collect(self):
-            time.sleep(state['next_delay'])
+            if state['before_next'] is not None:
+                state['before_next']()
             job = RawJobPosting(platform='next', job_id='1', title='大模型测试工程师',
                                 company='Next', location='北京', description='负责大模型评测质量与测试',
                                 requirements='Python')
@@ -122,16 +153,71 @@ def test_publication_failure_preserves_existing_observation_and_worker_evidence(
     with pytest.raises(ProcessLookupError): os.kill(audit['pid'], 0)
 
 
-def test_expiry_during_next_platform_does_not_start_retry(execution):
+def assert_expired_retry_preserves_pipeline(execution, code, status):
     e = execution
-    e['state'].update(mode='crash', next_delay=.8)
-    code, _, status = daily.run_daily(e['day'], config_path=e['config'], root=e['root'],
-                                      command_runner=e['runner'])
     assert code == 0 and status['status'] == 'DEGRADED'
     assert status['crawl']['retry_budget_exhausted'] == ['meituan']
     assert status['crawl']['retried_platforms'] == []
+    assert status['crawl']['retry_return_codes'] == {}
     assert [c[2] for c in e['calls']] == ['src.main', 'src.clean.cli', 'src.analysis.pipeline']
-    manifest = read(e['root']/'data/raw'/f"{e['day']}_manifest.json")
-    audit = next(row for row in manifest['platforms'] if row['platform'] == 'meituan')['metadata']['worker']
-    assert audit['budget_exhausted'] is False  # Deadline expired only after this observation.
-    assert audit['exit_confirmed'] and audit['returncode'] == 7
+    assert status['clean']['status'] == status['analysis']['status'] == 'SUCCESS'
+    data = e['root']/'data'
+    manifest, _ = validate_clean(data, e['day'], status['invocation']['id'])
+    validate_analysis(data, e['day'], status['invocation']['id'])
+    row = next(row for row in manifest['platforms'] if row['platform'] == 'meituan')
+    assert row['status'] == 'error' and row['complete'] is False
+    audit = row['metadata']['worker']
+    assert audit['exit_confirmed'] and audit['remaining_descendants'] == []
+    with pytest.raises(ProcessLookupError):
+        os.kill(audit['pid'], 0)
+    evidence = data/'analysis/invocations'/status['invocation']['id']/'meituan-worker'
+    budget = read(evidence/'budget.json')
+    assert len(list(evidence.glob('*-launch.json'))) == 1
+    assert len(list(evidence.glob('*-result.json'))) == 1
+    assert audit['budget_start'] == budget['start']
+    assert audit['budget_deadline'] == budget['deadline']
+    assert budget['deadline'] - budget['start'] == pytest.approx(.65)
+    assert budget['identity']['invocation']['id'] == status['invocation']['id']
+    assert not (data/'meituan-worker').exists()
+    _, health = generate_daily_health(e['day'], data_dir=data)
+    assert health['sources']['meituan']['source_completeness'] != 'COMPLETE'
+    return audit
+
+
+def test_crash_before_expiry_then_next_platform_expires_retry(execution, monkeypatch):
+    e = execution
+    clock = control_worker_clock(monkeypatch)
+    def expire_after_worker_exit():
+        audit = e['state']['worker_audit']
+        e['state']['exit_seen_before_next'] = audit['exit_confirmed'] and audit['returncode'] == 7
+        clock.expire(audit['budget_deadline'])
+    e['state'].update(mode='crash', before_next=expire_after_worker_exit)
+    code, _, status = daily.run_daily(e['day'], config_path=e['config'], root=e['root'],
+                                      command_runner=e['runner'])
+    audit = assert_expired_retry_preserves_pipeline(e, code, status)
+    assert e['state']['exit_seen_before_next']
+    assert audit['budget_exhausted'] is False
+    assert audit['returncode'] == 7
+    assert clock.monotonic() >= audit['budget_deadline']
+
+
+def test_worker_budget_expires_before_crash_and_cleanup_precedes_retry(execution, monkeypatch):
+    e = execution
+    clock = control_worker_clock(monkeypatch)
+    actual_identity = worker._identity
+    def expire_after_live_identity(process):
+        live = actual_identity(process)
+        if live and clock.offset is None:
+            e['state']['live_identity_seen_before_expiry'] = True
+            clock.expire(e['state']['budget_deadline'])
+        return live
+    monkeypatch.setattr(worker, '_identity', expire_after_live_identity)
+    e['state']['mode'] = 'hang'
+    code, _, status = daily.run_daily(e['day'], config_path=e['config'], root=e['root'],
+                                      command_runner=e['runner'])
+    audit = assert_expired_retry_preserves_pipeline(e, code, status)
+    assert e['state']['live_identity_seen_before_expiry']
+    assert audit['budget_exhausted'] is True
+    assert audit['exit_reason'] == 'budget_exhausted'
+    assert audit['sigterm'] and audit['returncode'] == -signal.SIGTERM
+    assert clock.monotonic() >= audit['budget_deadline']
